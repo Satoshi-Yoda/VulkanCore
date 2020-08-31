@@ -15,9 +15,6 @@
 
 using namespace std;
 
-const uint32_t WIDTH = 1200;
-const uint32_t HEIGHT = 900;
-
 const int MAX_FRAMES_IN_FLIGHT = 2;
 
 const bool USE_GAMMA_CORRECT = false;
@@ -59,10 +56,10 @@ void DestroyDebugUtilsMessengerEXT(VkInstance instance, VkDebugUtilsMessengerEXT
 class HelloTriangleApplication {
 public:
 	void run() {
-		auto startLoading = chrono::high_resolution_clock::now();
+		startLoading = chrono::high_resolution_clock::now();
 		initWindow();
 		initVulkan();
-		auto finishLoading = chrono::high_resolution_clock::now();
+		finishLoading = chrono::high_resolution_clock::now();
 		auto deltaLoading = chrono::duration_cast<chrono::duration<double>>(finishLoading - startLoading).count();
 		printf("Initialized in %.2fs\n", deltaLoading);
 		mainLoop();
@@ -85,6 +82,11 @@ private:
 		vector<VkPresentModeKHR> presentModes;
 	};
 
+	chrono::time_point<chrono::high_resolution_clock> startLoading;
+	chrono::time_point<chrono::high_resolution_clock> finishLoading;
+
+	uint32_t windowWidth = 1200;
+	uint32_t windowHeight = 900;
 	GLFWwindow* window;
 	VkSurfaceKHR surface;
 	VkInstance instance;
@@ -119,12 +121,13 @@ private:
 	vector<VkFence> imagesInFlight;
 	size_t currentFrame = 0;
 	bool framebufferResized = false;
+	uint64_t frame = 0;
 
 	void initWindow() {
 		glfwInit();
 		glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 		glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
-		window = glfwCreateWindow(WIDTH, HEIGHT, "Hello Triangle", nullptr, nullptr);
+		window = glfwCreateWindow(windowWidth, windowHeight, "Hello Triangle", nullptr, nullptr);
 		glfwSetWindowUserPointer(window, this);
 		glfwSetFramebufferSizeCallback(window, framebufferResizeCallback);
 	}
@@ -179,6 +182,15 @@ private:
 	}
 
 	void drawFrame() {
+		frame++;
+		auto now = chrono::high_resolution_clock::now();
+		auto runtime = chrono::duration_cast<chrono::duration<double>>(now - finishLoading).count();
+		double fps = frame / runtime;
+
+		char str[100];
+		sprintf(str, "Hello Triangle   size %d x %d   frame %lld   fps %.2f", windowWidth, windowHeight, frame, fps);
+		glfwSetWindowTitle(window, str);
+
 		vkWaitForFences(device, 1, &inFlightFences[currentFrame], VK_TRUE, UINT64_MAX);
 
 		uint32_t imageIndex;
@@ -584,6 +596,8 @@ private:
 		VkPresentModeKHR presentMode = chooseSwapPresentMode(swapChainSupport.presentModes);
 		swapChainExtent = chooseSwapExtent(swapChainSupport.capabilities);
 		uint32_t imageCount = chooseSwapImageCount(swapChainSupport.capabilities);
+		windowWidth = swapChainExtent.width;
+		windowHeight = swapChainExtent.height;
 
 		swapChainImageFormat = surfaceFormat.format;
 
@@ -928,9 +942,9 @@ private:
 		VkApplicationInfo appInfo {};
 		appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
 		appInfo.pApplicationName = "Hello Triangle";
-		appInfo.applicationVersion = VK_MAKE_VERSION(1, 0, 0);
+		appInfo.applicationVersion = VK_MAKE_VERSION(0, 0, 0);
 		appInfo.pEngineName = "No Engine";
-		appInfo.engineVersion = VK_MAKE_VERSION(1, 0, 0);
+		appInfo.engineVersion = VK_MAKE_VERSION(0, 0, 3);
 		appInfo.apiVersion = VK_API_VERSION_1_0;
 
 		auto requiredExtensions = getRequiredExtensions();
