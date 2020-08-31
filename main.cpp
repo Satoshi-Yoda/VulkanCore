@@ -23,16 +23,16 @@ const int MAX_FRAMES_IN_FLIGHT = 2;
 const bool USE_GAMMA_CORRECT = false;
 const bool USE_10_BIT = true;
 
-const bool DISPLAY_LAYERS              = true;
-const bool DISPLAY_INSTANCE_EXTENSIONS = true;
-const bool DISPLAY_DEVICE_EXTENSIONS   = true;
-const bool DISPLAY_DEVICES             = true;
-const bool DISPLAY_BIT_DEPTH           = true;
-const bool DISPLAY_PRESENT_MODES       = true;
-const bool DISPLAY_SWAP_RESOLUTION     = true;
-const bool DISPLAY_SWAP_LENGTH         = true;
+const bool DISPLAY_LAYERS              = false;
+const bool DISPLAY_INSTANCE_EXTENSIONS = false;
+const bool DISPLAY_DEVICE_EXTENSIONS   = false;
+const bool DISPLAY_DEVICES             = false;
+const bool DISPLAY_BIT_DEPTH           = false;
+const bool DISPLAY_PRESENT_MODES       = false;
+const bool DISPLAY_SWAP_RESOLUTION     = false;
+const bool DISPLAY_SWAP_LENGTH         = false;
 
-const bool USE_VALIDATION_LAYERS = false;
+const bool USE_VALIDATION_LAYERS = true;
 const vector<const char*> VALIDATION_LAYERS = {
 	"VK_LAYER_KHRONOS_validation",
 };
@@ -90,11 +90,18 @@ private:
 	VkInstance instance;
 	VkDebugUtilsMessengerEXT debugMessenger;
 	VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;
-	QueueFamilyIndices familyIndices;
 	VkDevice device;
+
+	// TODO
+	// In tutorial code that 2 fields was calculated at the need.
+	// I stored them in fields. Later figured out that I need to get new 
+	// SwapChainSupportDetails after window resized.
+	// So, check that again.
+	QueueFamilyIndices familyIndices;
+	SwapChainSupportDetails swapChainSupport;
+	
 	VkQueue graphicsQueue;
 	VkQueue presentQueue;
-	SwapChainSupportDetails swapChainSupport;
 	VkSwapchainKHR swapChain;
 	vector<VkImage> swapChainImages;
 	VkFormat swapChainImageFormat;
@@ -111,13 +118,20 @@ private:
 	vector<VkFence> inFlightFences;
 	vector<VkFence> imagesInFlight;
 	size_t currentFrame = 0;
+	bool framebufferResized = false;
 
 	void initWindow() {
 		glfwInit();
 		glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-		glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
+		glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
+		window = glfwCreateWindow(WIDTH, HEIGHT, "Hello Triangle", nullptr, nullptr);
+		glfwSetWindowUserPointer(window, this);
+		glfwSetFramebufferSizeCallback(window, framebufferResizeCallback);
+	}
 
-		this->window = glfwCreateWindow(WIDTH, HEIGHT, "Hello Triangle", nullptr, nullptr);
+	static void framebufferResizeCallback(GLFWwindow* window, int width, int height) {
+		auto app = reinterpret_cast<HelloTriangleApplication*>(glfwGetWindowUserPointer(window));
+		app->framebufferResized = true;
 	}
 
 	void initVulkan() {
@@ -136,6 +150,26 @@ private:
 		createSyncObjects();
 	}
 
+	void recreateSwapChain() {
+		vkDeviceWaitIdle(device);
+
+		cleanupSwapChain();
+
+		// TODO
+		// It is possible to create a new swap chain while drawing commands on an image from the old swap chain are still in-flight.
+		// You need to pass the previous swap chain to the oldSwapChain field in the VkSwapchainCreateInfoKHR struct and destroy
+		// the old swap chain as soon as you've finished using it.
+
+		swapChainSupport = querySwapChainSupport(physicalDevice);
+
+		createSwapChain();
+		createImageViews();
+		createRenderPass(); // TODO it is rare for the swap chain image format to change during window resize
+		createGraphicsPipeline(); // TODO can be avoided with using dynamic state for the viewports and scissor rectangles
+		createFramebuffers();
+		createCommandBuffers();
+	}
+
 	void mainLoop() {
 		while (!glfwWindowShouldClose(window)) {
 			glfwPollEvents();
@@ -148,7 +182,13 @@ private:
 		vkWaitForFences(device, 1, &inFlightFences[currentFrame], VK_TRUE, UINT64_MAX);
 
 		uint32_t imageIndex;
-		vkAcquireNextImageKHR(device, swapChain, UINT64_MAX, imageAvailableSemaphores[currentFrame], VK_NULL_HANDLE, &imageIndex);
+		VkResult result = vkAcquireNextImageKHR(device, swapChain, UINT64_MAX, imageAvailableSemaphores[currentFrame], VK_NULL_HANDLE, &imageIndex);
+		if (result == VK_ERROR_OUT_OF_DATE_KHR) {
+			recreateSwapChain();
+			return;
+		} else if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR) {
+			throw runtime_error("Failed to acquire swap chain image!");
+		}
 
 		// Check if a previous frame is using this image (i.e. there is its fence to wait on)
 		if (imagesInFlight[imageIndex] != VK_NULL_HANDLE) {
@@ -186,10 +226,17 @@ private:
 		presentInfo.pImageIndices = &imageIndex;
 		presentInfo.pResults = nullptr;
 
-		vkQueuePresentKHR(presentQueue, &presentInfo);
+		result = vkQueuePresentKHR(presentQueue, &presentInfo);
+
+		if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || framebufferResized) {
+			framebufferResized = false;
+			recreateSwapChain();
+		} else if (result != VK_SUCCESS) {
+			throw runtime_error("Failed to present swap chain image!");
+		}
 
 		currentFrame = (currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
-		// vkQueueWaitIdle(presentQueue);
+		// vkQueueWaitIdle(presentQueue); // TODO maybe once more check it without MAX_FRAMES_IN_FLIGHT feature
 	}
 
 	void createSyncObjects() {
@@ -622,11 +669,17 @@ private:
 			if (DISPLAY_SWAP_RESOLUTION) printf("Fixed swap resolution %d x %d\n", capabilities.currentExtent.width, capabilities.currentExtent.height);
 			return capabilities.currentExtent;
 		} else {
-			VkExtent2D actualExtent { WIDTH, HEIGHT };
+			int width, height;
+			glfwGetFramebufferSize(window, &width, &height);
+
+			VkExtent2D actualExtent = {
+				static_cast<uint32_t>(width),
+				static_cast<uint32_t>(height)
+			};
 
 			if (DISPLAY_SWAP_RESOLUTION) printf("Float swap resolution:   min [%d x %d]   window [%d x %d]   max [%d x %d]\n",
 				capabilities.minImageExtent.width, capabilities.minImageExtent.height,
-				WIDTH, HEIGHT,
+				width, height,
 				capabilities.maxImageExtent.width, capabilities.maxImageExtent.height);
 
 			actualExtent.width  = max(capabilities.minImageExtent.width,  min(capabilities.maxImageExtent.width, actualExtent.width));
@@ -650,22 +703,22 @@ private:
 		return result;
 	}
 
-	SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice device) {
+	SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice physicalDevice) {
 		SwapChainSupportDetails details;
-		vkGetPhysicalDeviceSurfaceCapabilitiesKHR(device, surface, &details.capabilities);
+		vkGetPhysicalDeviceSurfaceCapabilitiesKHR(physicalDevice, surface, &details.capabilities);
 
 		uint32_t formatCount;
-		vkGetPhysicalDeviceSurfaceFormatsKHR(device, surface, &formatCount, nullptr);
+		vkGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice, surface, &formatCount, nullptr);
 		if (formatCount != 0) {
 			details.formats.resize(formatCount);
-			vkGetPhysicalDeviceSurfaceFormatsKHR(device, surface, &formatCount, details.formats.data());
+			vkGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice, surface, &formatCount, details.formats.data());
 		}
 
 		uint32_t presentModeCount;
-		vkGetPhysicalDeviceSurfacePresentModesKHR(device, surface, &presentModeCount, nullptr);
+		vkGetPhysicalDeviceSurfacePresentModesKHR(physicalDevice, surface, &presentModeCount, nullptr);
 		if (presentModeCount != 0) {
 			details.presentModes.resize(presentModeCount);
-			vkGetPhysicalDeviceSurfacePresentModesKHR(device, surface, &presentModeCount, details.presentModes.data());
+			vkGetPhysicalDeviceSurfacePresentModesKHR(physicalDevice, surface, &presentModeCount, details.presentModes.data());
 		}
 
 		return details;
@@ -677,13 +730,13 @@ private:
 		}
 	}
 
-	QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device, string &familiesInfo) {
+	QueueFamilyIndices findQueueFamilies(VkPhysicalDevice physicalDevice, string &familiesInfo) {
 		QueueFamilyIndices indices;
 
 		uint32_t queueFamilyCount = 0;
-		vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, nullptr);
+		vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice, &queueFamilyCount, nullptr);
 		vector<VkQueueFamilyProperties> queueFamilies(queueFamilyCount);
-		vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, queueFamilies.data());
+		vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice, &queueFamilyCount, queueFamilies.data());
 
 		familiesInfo = "";
 
@@ -692,7 +745,7 @@ private:
 			string familyInfo = "";
 
 			VkBool32 presentSupport = false;
-			vkGetPhysicalDeviceSurfaceSupportKHR(device, i, surface, &presentSupport);
+			vkGetPhysicalDeviceSurfaceSupportKHR(physicalDevice, i, surface, &presentSupport);
 			familyInfo += presentSupport ? "P" : "";
 
 			auto f = queueFamily.queueFlags;
@@ -785,11 +838,11 @@ private:
 		}
 	}
 
-	bool checkDeviceExtensionSupport(VkPhysicalDevice device) {
+	bool checkDeviceExtensionSupport(VkPhysicalDevice physicalDevice) {
 		uint32_t extensionCount;
-		vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, nullptr);
+		vkEnumerateDeviceExtensionProperties(physicalDevice, nullptr, &extensionCount, nullptr);
 		vector<VkExtensionProperties> availableExtensions(extensionCount);
-		vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, availableExtensions.data());
+		vkEnumerateDeviceExtensionProperties(physicalDevice, nullptr, &extensionCount, availableExtensions.data());
 
 		set<string> required(DEVICE_EXTENSIONS.begin(), DEVICE_EXTENSIONS.end());
 
@@ -807,12 +860,12 @@ private:
 		return required.empty();
 	}
 
-	bool isDeviceSuitable(VkPhysicalDevice device) {
+	bool isDeviceSuitable(VkPhysicalDevice physicalDevice) {
 		VkPhysicalDeviceProperties deviceProperties;
-		vkGetPhysicalDeviceProperties(device, &deviceProperties);
+		vkGetPhysicalDeviceProperties(physicalDevice, &deviceProperties);
 
 		VkPhysicalDeviceMemoryProperties deviceMemory;
-		vkGetPhysicalDeviceMemoryProperties(device, &deviceMemory);
+		vkGetPhysicalDeviceMemoryProperties(physicalDevice, &deviceMemory);
 		vector<VkMemoryType> memoryTypes { deviceMemory.memoryTypes, deviceMemory.memoryTypes + deviceMemory.memoryTypeCount };
 		vector<VkMemoryHeap> memoryHeaps { deviceMemory.memoryHeaps, deviceMemory.memoryHeaps + deviceMemory.memoryHeapCount };
 
@@ -840,22 +893,20 @@ private:
 		}
 
 		VkPhysicalDeviceFeatures deviceFeatures;
-		vkGetPhysicalDeviceFeatures(device, &deviceFeatures);
+		vkGetPhysicalDeviceFeatures(physicalDevice, &deviceFeatures);
 
 		string familiesInfo { "none" };
-		QueueFamilyIndices indices = findQueueFamilies(device, familiesInfo);
+		QueueFamilyIndices indices = findQueueFamilies(physicalDevice, familiesInfo);
 
-		bool extensionsSupported = checkDeviceExtensionSupport(device);
+		bool extensionsSupported = checkDeviceExtensionSupport(physicalDevice);
 
 		bool swapChainAdequate = false;
 		if (extensionsSupported) {
-			swapChainSupport = querySwapChainSupport(device);
+			swapChainSupport = querySwapChainSupport(physicalDevice);
 			swapChainAdequate = !swapChainSupport.formats.empty() && !swapChainSupport.presentModes.empty();
 		}
 
 		bool result =
-			// deviceProperties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU &&
-			// deviceFeatures.geometryShader &&
 			indices.isComplete() &&
 			extensionsSupported &&
 			swapChainAdequate;
@@ -1042,13 +1093,8 @@ private:
 		return VK_FALSE;
 	}
 
-	void cleanup() {
-		for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
-			vkDestroySemaphore(device, renderFinishedSemaphores[i], nullptr);
-			vkDestroySemaphore(device, imageAvailableSemaphores[i], nullptr);
-			vkDestroyFence(device, inFlightFences[i], nullptr);
-		}
-		vkDestroyCommandPool(device, commandPool, nullptr);
+	void cleanupSwapChain() {
+		vkFreeCommandBuffers(device, commandPool, static_cast<uint32_t>(commandBuffers.size()), commandBuffers.data());
 		for (auto framebuffer : swapChainFramebuffers) {
 			vkDestroyFramebuffer(device, framebuffer, nullptr);
 		}
@@ -1059,6 +1105,17 @@ private:
 			vkDestroyImageView(device, imageView, nullptr);
 		}
 		vkDestroySwapchainKHR(device, swapChain, nullptr);
+	}
+
+	void cleanup() {
+		cleanupSwapChain();
+
+		for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
+			vkDestroySemaphore(device, renderFinishedSemaphores[i], nullptr);
+			vkDestroySemaphore(device, imageAvailableSemaphores[i], nullptr);
+			vkDestroyFence(device, inFlightFences[i], nullptr);
+		}
+		vkDestroyCommandPool(device, commandPool, nullptr);
 		vkDestroyDevice(device, nullptr);
 		if (USE_VALIDATION_LAYERS) {
 			DestroyDebugUtilsMessengerEXT(instance, debugMessenger, nullptr);
