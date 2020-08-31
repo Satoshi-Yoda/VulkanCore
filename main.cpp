@@ -18,7 +18,7 @@ using namespace std;
 const int MAX_FRAMES_IN_FLIGHT = 2;
 
 const bool USE_GAMMA_CORRECT = false;
-const bool USE_10_BIT = true;
+const bool USE_10_BIT = false;
 
 const bool DISPLAY_LAYERS              = false;
 const bool DISPLAY_INSTANCE_EXTENSIONS = false;
@@ -60,6 +60,7 @@ public:
 		initWindow();
 		initVulkan();
 		finishLoading = chrono::high_resolution_clock::now();
+		lastWindowTitleUpdate = startLoading;
 		auto deltaLoading = chrono::duration_cast<chrono::duration<double>>(finishLoading - startLoading).count();
 		printf("Initialized in %.2fs\n", deltaLoading);
 		mainLoop();
@@ -84,6 +85,7 @@ private:
 
 	chrono::time_point<chrono::high_resolution_clock> startLoading;
 	chrono::time_point<chrono::high_resolution_clock> finishLoading;
+	chrono::time_point<chrono::high_resolution_clock> lastWindowTitleUpdate;
 
 	uint32_t windowWidth = 1200;
 	uint32_t windowHeight = 900;
@@ -183,13 +185,17 @@ private:
 
 	void drawFrame() {
 		frame++;
-		auto now = chrono::high_resolution_clock::now();
-		auto runtime = chrono::duration_cast<chrono::duration<double>>(now - finishLoading).count();
-		double fps = frame / runtime;
 
-		char str[100];
-		sprintf(str, "Hello Triangle   size %d x %d   frame %lld   fps %.2f", windowWidth, windowHeight, frame, fps);
-		glfwSetWindowTitle(window, str);
+		auto now = chrono::high_resolution_clock::now();
+		auto afterWindowUpdate = chrono::duration_cast<chrono::duration<double>>(now - lastWindowTitleUpdate).count();
+		if (afterWindowUpdate > 0.1) {
+			lastWindowTitleUpdate = now;
+			auto runtime = chrono::duration_cast<chrono::duration<double>>(now - finishLoading).count();
+			double fps = frame / runtime;
+			char str[100];
+			sprintf(str, "Hello Triangle   size %d x %d   frame %lld   fps %.0f", windowWidth, windowHeight, frame, fps);
+			glfwSetWindowTitle(window, str);
+		}
 
 		vkWaitForFences(device, 1, &inFlightFences[currentFrame], VK_TRUE, UINT64_MAX);
 
