@@ -193,8 +193,8 @@ private:
 		createGraphicsPipeline();
 		createFramebuffers();
 		createCommandPool();
-		createCommandBuffers();
 		createVertexBuffer();
+		createCommandBuffers();
 		createSyncObjects();
 	}
 
