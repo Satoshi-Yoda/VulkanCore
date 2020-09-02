@@ -13,17 +13,29 @@ COMPILE = -std=c++17 -O3
 INCLUDE = -I${VULKAN_INCLUDE} -I${GLFW_INCLUDE} -I${GLM_INCLUDE}
 LINK = ${VULKAN_LIB}/vulkan-1.lib ${GLFW_LIB}/glfw3.dll
 
-main.exe : main.o vectors.o shaders/shader.vert.spv shaders/shader.frag.spv
-	g++ main.o vectors.o ${LINK} -o main.exe
+CPP_FILES = $(wildcard */*.cpp) $(wildcard */*/*.cpp)
+O_REQUIREMENTS = $(patsubst %.cpp,%.o,${CPP_FILES})
+# O_FILES = $(subst code-,temp/,$(subst /,-,${O_REQUIREMENTS}))
 
-main.o : main.cpp
-	g++ ${COMPILE} ${INCLUDE} -c main.cpp
+CODE = code
+BUILD = build
 
-vectors.o : vectors.cpp
-	g++ ${COMPILE} ${INCLUDE} -c vectors.cpp
+# all:;echo $(O_FILES)
 
-shaders/shader.vert.spv : shaders/shader.vert
-	glslc shaders/shader.vert -o shaders/shader.vert.spv
+${BUILD}/main.exe : ${O_REQUIREMENTS} ${BUILD}/shaders/shader.vert.spv ${BUILD}/shaders/shader.frag.spv
+	g++ ${COMPILE} ${O_REQUIREMENTS} ${LINK} -o ${BUILD}/main.exe
 
-shaders/shader.frag.spv : shaders/shader.frag
-	glslc shaders/shader.frag -o shaders/shader.frag.spv
+%.o : %.cpp
+	g++ ${COMPILE} ${INCLUDE} -c $^ -o $@
+
+# ${BUILD}/main.exe : ${O_FILES} ${BUILD}/shaders/shader.vert.spv ${BUILD}/shaders/shader.frag.spv
+# 	g++ ${COMPILE} ${O_FILES} ${LINK} -o ${BUILD}/main.exe
+
+# $(O_FILES) : %o : $(subst -,/,$(subst tempp/,code/,$(patsubst %.o,%.cpp,$@)))
+# 	g++ ${COMPILE} ${INCLUDE} -c $(subst -,/,$(subst temp/,code/,$(patsubst %.o,%.cpp,$@))) -o $@
+
+${BUILD}/shaders/shader.vert.spv : ${CODE}/shaders/shader.vert
+	glslc ${CODE}/shaders/shader.vert -o ${BUILD}/shaders/shader.vert.spv
+
+${BUILD}/shaders/shader.frag.spv : ${CODE}/shaders/shader.frag
+	glslc ${CODE}/shaders/shader.frag -o ${BUILD}/shaders/shader.frag.spv

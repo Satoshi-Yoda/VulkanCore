@@ -18,6 +18,9 @@
 #include <stdexcept>
 #include <vector>
 
+#include "math/add.h"
+#include "vectors.h"
+
 using namespace std;
 using glm::vec2;
 using glm::vec3;
@@ -1253,7 +1256,7 @@ private:
 		appInfo.pApplicationName = "Hello Triangle";
 		appInfo.applicationVersion = VK_MAKE_VERSION(0, 0, 0);
 		appInfo.pEngineName = "No Engine";
-		appInfo.engineVersion = VK_MAKE_VERSION(0, 0, 4);
+		appInfo.engineVersion = VK_MAKE_VERSION(0, 0, 5);
 		appInfo.apiVersion = VK_API_VERSION_1_0;
 
 		auto requiredExtensions = getRequiredExtensions();
