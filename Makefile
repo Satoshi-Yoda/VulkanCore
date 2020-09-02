@@ -1,27 +1,29 @@
-VULKAN_INCLUDE = -I"D:/Soft/VulkanSDK/1.2.148.1/Include"
-GLFW_INCLUDE = -I"D:/Soft/glfw-3.3.2.bin.WIN64/include"
-GLM_INCLUDE = -I"D:/Soft/glm"
+VULKAN_HOME = D:/Soft/VulkanSDK/1.2.148.1
+GLFW_HOME   = D:/Soft/glfw-3.3.2.bin.WIN64
+GLM_HOME    = D:/Soft/glm
 
-VULKAN_LIB = -L"D:/Soft/VulkanSDK/1.2.148.1/Lib"
-GLFW_LIB = -L"D:/Soft/glfw-3.3.2.bin.WIN64/lib-mingw-w64"
+VULKAN_INCLUDE = -I"${VULKAN_HOME}/Include"
+GLFW_INCLUDE   = -I"${GLFW_HOME}/include"
+GLM_INCLUDE    = -I"${GLM_HOME}"
 
-# COMPILER_FLAGS = -std=c++17 -O3 -L${MKL_LIB_DIR} -I${MKL_INCLUDE_DIR}
-
-
-
+VULKAN_LIB = -L"${VULKAN_HOME}/Lib"
+GLFW_LIB   = -L"${GLFW_HOME}/lib-mingw-w64"
 
 COMPILER_FLAGS = -std=c++17 -O3
+INCLUDE = ${VULKAN_INCLUDE} ${GLFW_INCLUDE} ${GLM_INCLUDE} ${VULKAN_LIB} ${GLFW_LIB}
+LINK = vulkan-1.lib glfw3.dll
 
-main.exe : main.cpp vectors.o
-	g++ ${COMPILER_FLAGS} ${VULKAN_INCLUDE} ${GLFW_INCLUDE} ${GLM_INCLUDE} ${VULKAN_LIB} ${GLFW_LIB} main.cpp vectors.o glfw3.dll vulkan-1.lib -o main.exe
+main.exe : main.o vectors.o shaders/shader.vert.spv shaders/shader.frag.spv
+	g++ main.o vectors.o ${LINK} -o main.exe
+
+main.o : main.cpp
+	g++ ${COMPILER_FLAGS} ${INCLUDE} -c main.cpp
 
 vectors.o : vectors.cpp
-	g++ ${COMPILER_FLAGS} -c vectors.cpp
+	g++ ${COMPILER_FLAGS} ${INCLUDE} -c vectors.cpp
 
-# shaders/shader.vert.spv : shaders/shader.vert
-	# glslc shaders/shader.vert -o shaders/shader.vert.spv
+shaders/shader.vert.spv : shaders/shader.vert
+	glslc shaders/shader.vert -o shaders/shader.vert.spv
 
-# shaders/shader.frag.spv : shaders/shader.frag
-	# glslc shaders/shader.frag -o shaders/shader.frag.spv
-
-#vulkan-1.lib libglfw3.a
+shaders/shader.frag.spv : shaders/shader.frag
+	glslc shaders/shader.frag -o shaders/shader.frag.spv
