@@ -1,16 +1,18 @@
 VULKAN_HOME = D:/Soft/VulkanSDK/1.2.148.1
 GLFW_HOME   = D:/Soft/glfw-3.3.2.bin.WIN64
 GLM_HOME    = D:/Soft/glm
+STB_HOME    = D:/Soft/stb-master
 
 VULKAN_INCLUDE = ${VULKAN_HOME}/Include
 GLFW_INCLUDE   = ${GLFW_HOME}/include
 GLM_INCLUDE    = ${GLM_HOME}
+STB_INCLUDE    = ${STB_HOME}
 
 VULKAN_LIB = ${VULKAN_HOME}/Lib
 GLFW_LIB   = ${GLFW_HOME}/lib-mingw-w64
 
-COMPILE = -std=c++17 -O3
-INCLUDE = -I${VULKAN_INCLUDE} -I${GLFW_INCLUDE} -I${GLM_INCLUDE}
+COMPILE = -std=c++17 -O3 -msse2
+INCLUDE = -I${VULKAN_INCLUDE} -I${GLFW_INCLUDE} -I${GLM_INCLUDE} -I${STB_INCLUDE}
 LINK = ${VULKAN_LIB}/vulkan-1.lib ${GLFW_LIB}/glfw3.dll
 
 CPP_FILES = $(wildcard */*.cpp) $(wildcard */*/*.cpp)
