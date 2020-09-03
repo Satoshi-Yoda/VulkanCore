@@ -5,8 +5,8 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
-#define STB_IMAGE_IMPLEMENTATION
-#include <stb_image.h>
+// #define STB_IMAGE_IMPLEMENTATION
+// #include <stb_image.h>
 
 #include <algorithm>
 #include <array>
@@ -23,6 +23,7 @@
 
 #include "math/add.h"
 #include "vectors.h"
+#include "utils/Loader.h"
 
 using namespace std;
 using glm::vec2;
@@ -30,12 +31,6 @@ using glm::vec3;
 using glm::vec4;
 using glm::mat4;
 using glm::radians;
-
-const int MAX_FRAMES_IN_FLIGHT = 2;
-
-const bool USE_GAMMA_CORRECT = false;
-const bool USE_10_BIT = false;
-const bool USE_VSYNC = true;
 
 const bool DISPLAY_LAYERS              = false;
 const bool DISPLAY_INSTANCE_EXTENSIONS = false;
@@ -46,12 +41,18 @@ const bool DISPLAY_PRESENT_MODES       = false;
 const bool DISPLAY_SWAP_RESOLUTION     = false;
 const bool DISPLAY_SWAP_LENGTH         = false;
 
+const int MAX_FRAMES_IN_FLIGHT = 2;
+
+const bool USE_GAMMA_CORRECT = false;
+const bool USE_10_BIT = false;
+const bool USE_VSYNC = true;
+
 const bool USE_VALIDATION_LAYERS = true;
 const vector<const char*> VALIDATION_LAYERS = {
 	"VK_LAYER_KHRONOS_validation",
 };
 const vector<const char*> DEVICE_EXTENSIONS = {
-    VK_KHR_SWAPCHAIN_EXTENSION_NAME,
+	VK_KHR_SWAPCHAIN_EXTENSION_NAME,
 };
 
 struct Vertex {
@@ -354,8 +355,12 @@ private:
 
 	void createTextureImage() {
 		int texWidth, texHeight, texChannels;
-		stbi_uc* pixels = stbi_load("textures/texture.jpg", &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
+		// stbi_uc* pixels = stbi_load("textures/texture.jpg", &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
+		void* pixels;
+		loadTexture("textures/texture.jpg", pixels, &texWidth, &texHeight, &texChannels);
 		VkDeviceSize imageSize = texWidth * texHeight * 4;
+
+		printf("%d %d %d\n", texWidth, texHeight, texChannels);
 
 		if (!pixels) {
 			throw runtime_error("Failed to load texture image!");
@@ -370,7 +375,8 @@ private:
 		memcpy(data, pixels, static_cast<size_t>(imageSize));
 		vkUnmapMemory(device, stagingBufferMemory);
 
-		stbi_image_free(pixels);
+		// stbi_image_free(pixels);
+		freeTexture(pixels);
 
 		// TODO check SRGB part
 		createImage(static_cast<uint32_t>(texWidth), static_cast<uint32_t>(texHeight),
@@ -378,6 +384,7 @@ private:
 			textureImage, textureImageMemory);
 
 		// TODO check SRGB part again
+		// TODO use common command buffer for this operations to ensure performance
 		transitionImageLayout(textureImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
 		copyBufferToImage(stagingBuffer, textureImage, static_cast<uint32_t>(texWidth), static_cast<uint32_t>(texHeight));
 		transitionImageLayout(textureImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
@@ -1593,8 +1600,8 @@ private:
 	void cleanup() {
 		cleanupSwapChain();
 
-		vkFreeMemory(device, textureImageMemory, nullptr);
 		vkDestroyImage(device, textureImage, nullptr);
+		vkFreeMemory(device, textureImageMemory, nullptr);
 		vkDestroyDescriptorSetLayout(device, descriptorSetLayout, nullptr);
 		vkDestroyBuffer(device, vertexBuffer, nullptr);
 		vkFreeMemory(device, vertexBufferMemory, nullptr);
