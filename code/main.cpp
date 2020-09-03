@@ -202,6 +202,7 @@ private:
 	VkImage textureImage;
 	VkDeviceMemory textureImageMemory;
 	VkImageView textureImageView;
+	VkSampler textureSampler;
 
 	void initWindow() {
 		glfwInit();
@@ -232,6 +233,7 @@ private:
 		createCommandPool();
 		createTextureImage();
 		createTextureImageView();
+		createTextureSampler();
 		createVertexBuffer();
 		createIndexBuffer();
 		createUniformBuffers();
@@ -353,6 +355,30 @@ private:
 
 		currentFrame = (currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
 		// vkQueueWaitIdle(presentQueue); // TODO maybe once more check it without MAX_FRAMES_IN_FLIGHT feature
+	}
+
+	void createTextureSampler() {
+		VkSamplerCreateInfo samplerInfo {};
+		samplerInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
+		samplerInfo.magFilter = VK_FILTER_LINEAR;
+		samplerInfo.minFilter = VK_FILTER_LINEAR;
+		samplerInfo.addressModeU = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
+		samplerInfo.addressModeV = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
+		samplerInfo.addressModeW = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
+		samplerInfo.anisotropyEnable = VK_TRUE;
+		samplerInfo.maxAnisotropy = 16.0f;
+		samplerInfo.borderColor = VK_BORDER_COLOR_INT_OPAQUE_BLACK;
+		samplerInfo.unnormalizedCoordinates = VK_FALSE; // TODO with true it is possible to use [0..width) instead of [0..1) !!
+		samplerInfo.compareEnable = VK_FALSE;
+		samplerInfo.compareOp = VK_COMPARE_OP_ALWAYS;
+		samplerInfo.mipmapMode = VK_SAMPLER_MIPMAP_MODE_NEAREST;
+		samplerInfo.mipLodBias = 0.0f;
+		samplerInfo.minLod = 0.0f;
+		samplerInfo.maxLod = 0.0f;
+
+		if (vkCreateSampler(device, &samplerInfo, nullptr, &textureSampler) != VK_SUCCESS) {
+			throw runtime_error("Failed to create texture sampler!");
+		}
 	}
 
 	void createTextureImageView() {
@@ -1283,6 +1309,7 @@ private:
 		}
 
 		VkPhysicalDeviceFeatures deviceFeatures {};
+		deviceFeatures.samplerAnisotropy = VK_TRUE;
 
 		VkDeviceCreateInfo createInfo{};
 		createInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
@@ -1402,7 +1429,8 @@ private:
 		bool result =
 			indices.isComplete() &&
 			extensionsSupported &&
-			swapChainAdequate;
+			swapChainAdequate &&
+			deviceFeatures.samplerAnisotropy;
 
 		if (DISPLAY_DEVICES) printf(" %s %s [%s] [%s] [%s]\n", (result ? "+" : " "), deviceProperties.deviceName, familiesInfo.data(), heapInfo.data(), typeInfo.data());
 
@@ -1608,6 +1636,7 @@ private:
 	void cleanup() {
 		cleanupSwapChain();
 
+		vkDestroySampler(device, textureSampler, nullptr);
 		vkDestroyImageView(device, textureImageView, nullptr);
 		vkDestroyImage(device, textureImage, nullptr);
 		vkFreeMemory(device, textureImageMemory, nullptr);

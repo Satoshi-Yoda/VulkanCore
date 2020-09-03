@@ -1,0 +1,18 @@
+Pros:
+	- Modern C++ syntax
+	- Better performance [test it]
+	- Loading in separate threads (queue family) [test it]
+	- Drawing in separate threads [test it]
+	- Compute shaders, compute families [learn it]
+	- No problems with win high dpi
+	- 10 bit support [test it]
+	- Separated image samplers from images
+	- Good control over swap chain frames count
+	- Wide variety of presentation modes (vsync)
+	- Latest GLSL version support
+	- Ability to sample textures in pixel coordinates instead of normalized coordinates
+
+Cons:
+	- Verbose API
+	- No support of old GPUs (9+ years)
+	- Static GLSL shaders (leads to some complications)
