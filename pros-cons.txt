@@ -14,5 +14,5 @@ Pros:
 
 Cons:
 	- Verbose API
-	- No support of old GPUs (9+ years)
+	- No support of old GPUs (2012+ for NVidia, 2017+ for Intel, ? AMD)
 	- Static GLSL shaders (leads to some complications)
