@@ -619,8 +619,12 @@ private:
 
 	void updateUniformBuffer(uint32_t currentImage) {
 		static auto startTime = chrono::high_resolution_clock::now();
+		static auto  lastTime = chrono::high_resolution_clock::now();
 		auto      currentTime = chrono::high_resolution_clock::now();
 		float time = chrono::duration<float, chrono::seconds::period>(currentTime - startTime).count();
+		float dt = chrono::duration<float, chrono::seconds::period>(currentTime - lastTime).count();
+		lastTime = currentTime;
+		// printf("%.4f\n", dt);
 
 		UniformBufferObject ubo {};
 		// ubo.model = mat4(1.0f);
