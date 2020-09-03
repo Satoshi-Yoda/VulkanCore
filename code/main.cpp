@@ -92,10 +92,10 @@ struct Vertex {
 };
 
 const vector<Vertex> vertices = {
-	{{ 0.5f, -0.5f }, { 0.0f, 1.0f, 0.0f }, { 0.0f, 1.0f }},
-	{{-0.5f, -0.5f }, { 1.0f, 1.0f, 0.0f }, { 1.0f, 1.0f }},
-	{{-0.5f,  0.5f }, { 0.0f, 0.0f, 1.0f }, { 1.0f, 0.0f }},
-	{{ 0.5f,  0.5f }, { 1.0f, 0.0f, 0.0f }, { 0.0f, 0.0f }},
+	{{ 0.5f, -0.5f }, { 0.0f, 1.0f, 0.0f }, { 0.0f, 0.0f }},
+	{{-0.5f, -0.5f }, { 1.0f, 1.0f, 0.0f }, { 1.0f, 0.0f }},
+	{{-0.5f,  0.5f }, { 0.0f, 0.0f, 1.0f }, { 1.0f, 1.0f }},
+	{{ 0.5f,  0.5f }, { 1.0f, 0.0f, 0.0f }, { 0.0f, 1.0f }},
 };
 
 const vector<uint16_t> indices = {
@@ -388,7 +388,8 @@ private:
 	}
 
 	void createTextureImageView() {
-		textureImageView = createImageView(textureImage, VK_FORMAT_R8G8B8A8_SRGB);
+		auto preferred8bitFormat = USE_GAMMA_CORRECT ? VK_FORMAT_R8G8B8A8_SRGB : VK_FORMAT_R8G8B8A8_UNORM;
+		textureImageView = createImageView(textureImage, preferred8bitFormat);
 	}
 
 	VkImageView createImageView(VkImage image, VkFormat format) {
@@ -435,16 +436,16 @@ private:
 		// stbi_image_free(pixels);
 		freeTexture(pixels);
 
-		// TODO check SRGB part
+		auto preferred8bitFormat = USE_GAMMA_CORRECT ? VK_FORMAT_R8G8B8A8_SRGB : VK_FORMAT_R8G8B8A8_UNORM;
+
 		createImage(static_cast<uint32_t>(texWidth), static_cast<uint32_t>(texHeight),
-			VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
+			preferred8bitFormat, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
 			textureImage, textureImageMemory);
 
-		// TODO check SRGB part again
 		// TODO use common command buffer for this operations to ensure performance
-		transitionImageLayout(textureImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
+		transitionImageLayout(textureImage, preferred8bitFormat, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
 		copyBufferToImage(stagingBuffer, textureImage, static_cast<uint32_t>(texWidth), static_cast<uint32_t>(texHeight));
-		transitionImageLayout(textureImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+		transitionImageLayout(textureImage, preferred8bitFormat, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 
 		vkDestroyBuffer(device, stagingBuffer, nullptr);
 		vkFreeMemory(device, stagingBufferMemory, nullptr);
@@ -622,9 +623,10 @@ private:
 		float time = chrono::duration<float, chrono::seconds::period>(currentTime - startTime).count();
 
 		UniformBufferObject ubo {};
-		ubo.model = glm::rotate(mat4(1.0f), time * radians(90.0f), vec3(0.0f, 0.0f, 1.0f));
-		ubo.view = glm::lookAt(vec3(2.0f, 2.0f, 2.0f), vec3(0.0f, 0.0f, 0.0f), vec3(0.0f, 0.0f, 1.0f));
-		ubo.proj = glm::perspective(radians(45.0f), (float)windowWidth / (float)windowHeight, 0.1f, 10.0f);
+		// ubo.model = mat4(1.0f);
+		ubo.model = glm::rotate(mat4(1.0f), 0.5f * time * radians(90.0f), vec3(0.0f, 0.0f, 1.0f));
+		ubo.view  = glm::lookAt(vec3(1.0f, 0.5f, 2.0f), vec3(0.0f, 0.0f, 0.0f), vec3(0.0f, 0.0f, 1.0f));
+		ubo.proj  = glm::perspective(radians(25.0f), (float)windowWidth / (float)windowHeight, 0.1f, 10.0f);
 		ubo.proj[1][1] *= -1;
 
 		void* data;
@@ -1210,7 +1212,8 @@ private:
 		}
 		if (DISPLAY_PRESENT_MODES) printf("\n");
 		// TODO actually check if these are supported
-		return USE_VSYNC ? VK_PRESENT_MODE_FIFO_KHR : VK_PRESENT_MODE_IMMEDIATE_KHR;
+		// return USE_VSYNC ? VK_PRESENT_MODE_FIFO_KHR : VK_PRESENT_MODE_IMMEDIATE_KHR;
+		return VK_PRESENT_MODE_FIFO_KHR;
 	}
 
 	VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities) {
