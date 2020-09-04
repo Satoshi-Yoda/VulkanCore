@@ -44,18 +44,19 @@ const bool DISPLAY_BIT_DEPTH           = false;
 const bool DISPLAY_PRESENT_MODES       = false;
 const bool DISPLAY_SWAP_RESOLUTION     = false;
 const bool DISPLAY_SWAP_LENGTH         = false;
+const bool DISPLAY_MSAA                = false;
 
 const int SWAP_CHAIN_EXTRA_COUNT = 1;
 const int MAX_FRAMES_IN_FLIGHT   = 2;
 
-const bool USE_MSAA           = false;
-const bool USE_SAMPLE_SHADING = false;
+const bool USE_MSAA           = true;
+const bool USE_SAMPLE_SHADING = true;
 const bool USE_GAMMA_CORRECT  = false;
 const bool USE_10_BIT         = false;
-const bool USE_EXTENSIVE_SYNC = false;
-const bool USE_VSYNC          = false;
+const bool USE_EXTENSIVE_SYNC = true;
+const bool USE_VSYNC          = true;
 
-const bool USE_VALIDATION_LAYERS = false;
+const bool USE_VALIDATION_LAYERS = true;
 const vector<const char*> VALIDATION_LAYERS = {
 	"VK_LAYER_KHRONOS_validation",
 };
@@ -1674,7 +1675,7 @@ private:
 				if (physicalDevice == VK_NULL_HANDLE) {
 					physicalDevice = device;
 					msaaSamples = getMaxUsableSampleCount();
-					printf("msaa %d\n", msaaSamples);
+					if (DISPLAY_MSAA) printf("msaa %d\n", msaaSamples);
 				}
 			}
 		}
