@@ -334,11 +334,17 @@ private:
 		submitInfo.signalSemaphoreCount = 1;
 		submitInfo.pSignalSemaphores = signalSemaphores;
 
+		// vkQueueWaitIdle(graphicsQueue); // TODO remove, some test stuff
+		vkQueueWaitIdle(presentQueue); // TODO remove, some test stuff
+
 		vkResetFences(device, 1, &inFlightFences[currentFrame]);
 
 		if (vkQueueSubmit(graphicsQueue, 1, &submitInfo, inFlightFences[currentFrame]) != VK_SUCCESS) {
 			throw runtime_error("Failed to submit draw command buffer!");
 		}
+
+		vkQueueWaitIdle(graphicsQueue); // TODO remove, some test stuff
+		// vkQueueWaitIdle(presentQueue); // TODO remove, some test stuff
 
 		VkPresentInfoKHR presentInfo {};
 		presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
@@ -360,7 +366,7 @@ private:
 		}
 
 		currentFrame = (currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
-		// vkQueueWaitIdle(presentQueue); // TODO maybe once more check it without MAX_FRAMES_IN_FLIGHT feature
+		vkQueueWaitIdle(presentQueue); // TODO maybe once more check it without MAX_FRAMES_IN_FLIGHT feature
 	}
 
 	void createTextureSampler() {
@@ -413,13 +419,9 @@ private:
 
 	void createTextureImage() {
 		int texWidth, texHeight, texChannels;
-		// stbi_uc* pixels = stbi_load("textures/texture.jpg", &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
 		void* pixels;
 		loadTexture("textures/texture.jpg", pixels, &texWidth, &texHeight, &texChannels);
 		VkDeviceSize imageSize = texWidth * texHeight * 4;
-
-		printf("%d %d %d\n", texWidth, texHeight, texChannels);
-
 		if (!pixels) {
 			throw runtime_error("Failed to load texture image!");
 		}
@@ -433,7 +435,6 @@ private:
 		memcpy(data, pixels, static_cast<size_t>(imageSize));
 		vkUnmapMemory(device, stagingBufferMemory);
 
-		// stbi_image_free(pixels);
 		freeTexture(pixels);
 
 		auto preferred8bitFormat = USE_GAMMA_CORRECT ? VK_FORMAT_R8G8B8A8_SRGB : VK_FORMAT_R8G8B8A8_UNORM;
@@ -1216,8 +1217,8 @@ private:
 		}
 		if (DISPLAY_PRESENT_MODES) printf("\n");
 		// TODO actually check if these are supported
-		// return USE_VSYNC ? VK_PRESENT_MODE_FIFO_KHR : VK_PRESENT_MODE_IMMEDIATE_KHR;
-		return VK_PRESENT_MODE_FIFO_KHR;
+		return USE_VSYNC ? VK_PRESENT_MODE_FIFO_KHR : VK_PRESENT_MODE_IMMEDIATE_KHR;
+		// return VK_PRESENT_MODE_FIFO_KHR;
 	}
 
 	VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities) {
