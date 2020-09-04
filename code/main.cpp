@@ -3,8 +3,13 @@
 
 #define GLM_FORCE_RADIANS
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
+#define GLM_ENABLE_EXPERIMENTAL
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtx/hash.hpp>
+
+#define TINYOBJLOADER_IMPLEMENTATION
+#include <tiny_obj_loader.h>
 
 #include <algorithm>
 #include <array>
@@ -17,6 +22,7 @@
 #include <optional>
 #include <set>
 #include <stdexcept>
+#include <unordered_map>
 #include <vector>
 
 #include "math/add.h"
@@ -59,6 +65,10 @@ struct Vertex {
 	vec3 color;
 	vec2 texCoord;
 
+	bool operator==(const Vertex& other) const {
+		return pos == other.pos && color == other.color && texCoord == other.texCoord;
+	}
+
 	static VkVertexInputBindingDescription getBindingDescription() {
 		VkVertexInputBindingDescription bindingDescription{};
 		bindingDescription.binding = 0;
@@ -90,22 +100,32 @@ struct Vertex {
 	}
 };
 
-const vector<Vertex> vertices = {
-	{{ 0.5f, -0.5f, 0.3f }, { 0.0f, 1.0f, 0.0f }, { 0.0f, 0.0f }},
-	{{-0.5f, -0.5f, 0.3f }, { 1.0f, 1.0f, 0.0f }, { 1.0f, 0.0f }},
-	{{-0.5f,  0.5f, 0.3f }, { 0.0f, 0.0f, 1.0f }, { 1.0f, 1.0f }},
-	{{ 0.5f,  0.5f, 0.3f }, { 1.0f, 0.0f, 0.0f }, { 0.0f, 1.0f }},
+namespace std {
+	template<> struct hash<Vertex> {
+		size_t operator()(Vertex const& vertex) const {
+			return ((hash<vec3>()(vertex.pos) ^
+					(hash<vec3>()(vertex.color) << 1)) >> 1) ^
+					(hash<vec2>()(vertex.texCoord) << 1);
+		}
+	};
+}
 
-	{{ 0.5f, -0.5f, 0.0f }, { 0.0f, 1.0f, 0.0f }, { 0.0f, 0.0f }},
-	{{-0.5f, -0.5f, 0.0f }, { 1.0f, 1.0f, 0.0f }, { 1.0f, 0.0f }},
-	{{-0.5f,  0.5f, 0.0f }, { 0.0f, 0.0f, 1.0f }, { 1.0f, 1.0f }},
-	{{ 0.5f,  0.5f, 0.0f }, { 1.0f, 0.0f, 0.0f }, { 0.0f, 1.0f }},
-};
+// const vector<Vertex> vertices = {
+// 	{{ 0.5f, -0.5f, 0.3f }, { 0.0f, 1.0f, 0.0f }, { 0.0f, 0.0f }},
+// 	{{-0.5f, -0.5f, 0.3f }, { 1.0f, 1.0f, 0.0f }, { 1.0f, 0.0f }},
+// 	{{-0.5f,  0.5f, 0.3f }, { 0.0f, 0.0f, 1.0f }, { 1.0f, 1.0f }},
+// 	{{ 0.5f,  0.5f, 0.3f }, { 1.0f, 0.0f, 0.0f }, { 0.0f, 1.0f }},
 
-const vector<uint16_t> indices = {
-	0, 2, 1, 2, 0, 3,
-	4, 6, 5, 6, 4, 7,
-};
+// 	{{ 0.5f, -0.5f, 0.0f }, { 0.0f, 1.0f, 0.0f }, { 0.0f, 0.0f }},
+// 	{{-0.5f, -0.5f, 0.0f }, { 1.0f, 1.0f, 0.0f }, { 1.0f, 0.0f }},
+// 	{{-0.5f,  0.5f, 0.0f }, { 0.0f, 0.0f, 1.0f }, { 1.0f, 1.0f }},
+// 	{{ 0.5f,  0.5f, 0.0f }, { 1.0f, 0.0f, 0.0f }, { 0.0f, 1.0f }},
+// };
+
+// const vector<uint16_t> indices = {
+// 	0, 2, 1, 2, 0, 3,
+// 	4, 6, 5, 6, 4, 7,
+// };
 
 struct UniformBufferObject {
     mat4 model;
@@ -205,6 +225,10 @@ private:
 	VkDeviceMemory depthImageMemory;
 	VkImageView depthImageView;
 
+	const string MODEL_PATH = "models/viking_room.obj";
+	const string TEXTURE_PATH = "textures/viking_room.png";
+	vector<Vertex> vertices;
+	vector<uint32_t> indices;
 	VkBuffer vertexBuffer;
 	VkDeviceMemory vertexBufferMemory;
 	VkBuffer indexBuffer;
@@ -251,6 +275,7 @@ private:
 		createTextureImage();
 		createTextureImageView();
 		createTextureSampler();
+		loadModel();
 		createVertexBuffer();
 		createIndexBuffer();
 		createUniformBuffers();
@@ -384,6 +409,47 @@ private:
 		vkDeviceWaitIdle(device); // TODO remove, some test stuff
 	}
 
+	void loadModel() {
+		tinyobj::attrib_t attrib;
+		vector<tinyobj::shape_t> shapes;
+		vector<tinyobj::material_t> materials;
+		string warn, err;
+
+		if (!tinyobj::LoadObj(&attrib, &shapes, &materials, &warn, &err, MODEL_PATH.c_str())) {
+			throw runtime_error(warn + err);
+		}
+
+		unordered_map<Vertex, uint32_t> uniqueVertices{};
+
+		for (const auto& shape : shapes) {
+			for (const auto& index : shape.mesh.indices) {
+				Vertex vertex {};
+				// vertices.push_back(vertex);
+				// indices.push_back(indices.size());
+
+				vertex.pos = {
+					attrib.vertices[3 * index.vertex_index + 0],
+					attrib.vertices[3 * index.vertex_index + 1],
+					attrib.vertices[3 * index.vertex_index + 2]
+				};
+
+				vertex.texCoord = {
+					attrib.texcoords[2 * index.texcoord_index + 0],
+					1.0f - attrib.texcoords[2 * index.texcoord_index + 1]
+				};
+
+				vertex.color = {1.0f, 1.0f, 1.0f};
+
+				if (uniqueVertices.count(vertex) == 0) {
+					uniqueVertices[vertex] = static_cast<uint32_t>(vertices.size());
+					vertices.push_back(vertex);
+				}
+
+				indices.push_back(uniqueVertices[vertex]);
+			}
+		}
+	}
+
 	void createDepthResources() {
 		VkFormat depthFormat = findDepthFormat();
 
@@ -473,7 +539,7 @@ private:
 	void createTextureImage() {
 		int texWidth, texHeight, texChannels;
 		void* pixels;
-		loadTexture("textures/texture.jpg", pixels, &texWidth, &texHeight, &texChannels);
+		loadTexture(TEXTURE_PATH.c_str(), pixels, &texWidth, &texHeight, &texChannels);
 		VkDeviceSize imageSize = texWidth * texHeight * 4;
 		if (!pixels) {
 			throw runtime_error("Failed to load texture image!");
@@ -695,8 +761,8 @@ private:
 
 		UniformBufferObject ubo {};
 		// ubo.model = mat4(1.0f);
-		ubo.model = glm::rotate(mat4(1.0f), 0.5f * time * radians(90.0f), vec3(0.0f, 0.0f, 1.0f));
-		ubo.view  = glm::lookAt(vec3(1.0f, 1.0f, 1.0f), vec3(0.0f, 0.0f, 0.0f), vec3(0.0f, 0.0f, 1.0f));
+		ubo.model = glm::rotate(mat4(1.0f), 0.2f * time * radians(90.0f), vec3(0.0f, 0.0f, 1.0f));
+		ubo.view  = glm::lookAt(vec3(2.0f, 2.0f, 2.0f), vec3(0.0f, 0.0f, 0.0f), vec3(0.0f, 0.0f, 1.0f));
 		ubo.proj  = glm::perspective(radians(45.0f), (float)windowWidth / (float)windowHeight, 0.1f, 10.0f);
 		ubo.proj[1][1] *= -1;
 
@@ -905,7 +971,7 @@ private:
 			VkBuffer vertexBuffers[] = { vertexBuffer };
 			VkDeviceSize offsets[] = { 0 };
 			vkCmdBindVertexBuffers(commandBuffers[i], 0, 1, vertexBuffers, offsets);
-			vkCmdBindIndexBuffer(commandBuffers[i], indexBuffer, 0, VK_INDEX_TYPE_UINT16);
+			vkCmdBindIndexBuffer(commandBuffers[i], indexBuffer, 0, VK_INDEX_TYPE_UINT32);
 			vkCmdBindDescriptorSets(commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, 1, &descriptorSets[i], 0, nullptr);
 			vkCmdDrawIndexed(commandBuffers[i], static_cast<uint32_t>(indices.size()), 1, 0, 0, 0); // TODO 1 = number of instances. The final parameter specifies an offset for instancing.
 			vkCmdEndRenderPass(commandBuffers[i]);
