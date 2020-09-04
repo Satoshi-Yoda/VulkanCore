@@ -41,6 +41,7 @@ const bool DISPLAY_PRESENT_MODES       = false;
 const bool DISPLAY_SWAP_RESOLUTION     = false;
 const bool DISPLAY_SWAP_LENGTH         = false;
 
+const int SWAP_CHAIN_EXTRA_COUNT = 1;
 const int MAX_FRAMES_IN_FLIGHT = 2;
 
 const bool USE_GAMMA_CORRECT = false;
@@ -334,7 +335,8 @@ private:
 		submitInfo.signalSemaphoreCount = 1;
 		submitInfo.pSignalSemaphores = signalSemaphores;
 
-		// vkQueueWaitIdle(graphicsQueue); // TODO remove, some test stuff
+		vkDeviceWaitIdle(device);        // TODO remove, some test stuff
+		vkQueueWaitIdle(graphicsQueue); // TODO remove, some test stuff
 		vkQueueWaitIdle(presentQueue); // TODO remove, some test stuff
 
 		vkResetFences(device, 1, &inFlightFences[currentFrame]);
@@ -343,8 +345,9 @@ private:
 			throw runtime_error("Failed to submit draw command buffer!");
 		}
 
+		vkDeviceWaitIdle(device);        // TODO remove, some test stuff
 		vkQueueWaitIdle(graphicsQueue); // TODO remove, some test stuff
-		// vkQueueWaitIdle(presentQueue); // TODO remove, some test stuff
+		vkQueueWaitIdle(presentQueue); // TODO remove, some test stuff
 
 		VkPresentInfoKHR presentInfo {};
 		presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
@@ -367,6 +370,7 @@ private:
 
 		currentFrame = (currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
 		vkQueueWaitIdle(presentQueue); // TODO maybe once more check it without MAX_FRAMES_IN_FLIGHT feature
+		vkDeviceWaitIdle(device); // TODO remove, some test stuff
 	}
 
 	void createTextureSampler() {
@@ -1247,7 +1251,7 @@ private:
 	}
 
 	uint32_t chooseSwapImageCount(const VkSurfaceCapabilitiesKHR& capabilities) {
-		uint32_t result = swapChainSupport.capabilities.minImageCount + 1;
+		uint32_t result = swapChainSupport.capabilities.minImageCount + SWAP_CHAIN_EXTRA_COUNT;
 		if (swapChainSupport.capabilities.maxImageCount > 0 && result > swapChainSupport.capabilities.maxImageCount) {
 			result = swapChainSupport.capabilities.maxImageCount;
 		}
