@@ -46,13 +46,16 @@ const bool DISPLAY_SWAP_RESOLUTION     = false;
 const bool DISPLAY_SWAP_LENGTH         = false;
 
 const int SWAP_CHAIN_EXTRA_COUNT = 1;
-const int MAX_FRAMES_IN_FLIGHT = 2;
+const int MAX_FRAMES_IN_FLIGHT   = 2;
 
-const bool USE_GAMMA_CORRECT = false;
-const bool USE_10_BIT = false;
-const bool USE_VSYNC = true;
+const bool USE_MSAA           = false;
+const bool USE_SAMPLE_SHADING = false;
+const bool USE_GAMMA_CORRECT  = false;
+const bool USE_10_BIT         = false;
+const bool USE_EXTENSIVE_SYNC = false;
+const bool USE_VSYNC          = false;
 
-const bool USE_VALIDATION_LAYERS = true;
+const bool USE_VALIDATION_LAYERS = false;
 const vector<const char*> VALIDATION_LAYERS = {
 	"VK_LAYER_KHRONOS_validation",
 };
@@ -361,9 +364,9 @@ private:
 		submitInfo.signalSemaphoreCount = 1;
 		submitInfo.pSignalSemaphores = signalSemaphores;
 
-		vkDeviceWaitIdle(device);        // TODO remove, some test stuff
-		vkQueueWaitIdle(graphicsQueue); // TODO remove, some test stuff
-		vkQueueWaitIdle(presentQueue); // TODO remove, some test stuff
+		if (USE_EXTENSIVE_SYNC) vkDeviceWaitIdle(device);        // TODO remove, some test stuff
+		if (USE_EXTENSIVE_SYNC) vkQueueWaitIdle(graphicsQueue); // TODO remove, some test stuff
+		if (USE_EXTENSIVE_SYNC) vkQueueWaitIdle(presentQueue); // TODO remove, some test stuff
 
 		vkResetFences(device, 1, &inFlightFences[currentFrame]);
 
@@ -371,9 +374,9 @@ private:
 			throw runtime_error("Failed to submit draw command buffer!");
 		}
 
-		vkDeviceWaitIdle(device);        // TODO remove, some test stuff
-		vkQueueWaitIdle(graphicsQueue); // TODO remove, some test stuff
-		vkQueueWaitIdle(presentQueue); // TODO remove, some test stuff
+		if (USE_EXTENSIVE_SYNC) vkDeviceWaitIdle(device);        // TODO remove, some test stuff
+		if (USE_EXTENSIVE_SYNC) vkQueueWaitIdle(graphicsQueue); // TODO remove, some test stuff
+		if (USE_EXTENSIVE_SYNC) vkQueueWaitIdle(presentQueue); // TODO remove, some test stuff
 
 		VkPresentInfoKHR presentInfo {};
 		presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
@@ -395,8 +398,8 @@ private:
 		}
 
 		currentFrame = (currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
-		vkQueueWaitIdle(presentQueue); // TODO maybe once more check it without MAX_FRAMES_IN_FLIGHT feature
-		vkDeviceWaitIdle(device); // TODO remove, some test stuff
+		if (USE_EXTENSIVE_SYNC) vkQueueWaitIdle(presentQueue); // TODO maybe once more check it without MAX_FRAMES_IN_FLIGHT feature
+		if (USE_EXTENSIVE_SYNC) vkDeviceWaitIdle(device); // TODO remove, some test stuff
 	}
 
 	void createColorResources() {
@@ -408,6 +411,8 @@ private:
 	}
 
 	VkSampleCountFlagBits getMaxUsableSampleCount() {
+		if (!USE_MSAA) return VK_SAMPLE_COUNT_1_BIT;
+
 		VkPhysicalDeviceProperties physicalDeviceProperties;
 		vkGetPhysicalDeviceProperties(physicalDevice, &physicalDeviceProperties);
 
@@ -1295,6 +1300,8 @@ private:
 		multisampling.pSampleMask = nullptr;
 		multisampling.alphaToCoverageEnable = VK_FALSE;
 		multisampling.alphaToOneEnable = VK_FALSE;
+		multisampling.sampleShadingEnable = USE_SAMPLE_SHADING ? VK_TRUE : VK_FALSE;
+		multisampling.minSampleShading    = USE_SAMPLE_SHADING ? 0.2f : 0.0f;
 
 		VkPipelineColorBlendAttachmentState colorBlendAttachment {};
 		colorBlendAttachment.colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
@@ -1627,6 +1634,7 @@ private:
 
 		VkPhysicalDeviceFeatures deviceFeatures {};
 		deviceFeatures.samplerAnisotropy = VK_TRUE;
+		deviceFeatures.sampleRateShading = USE_SAMPLE_SHADING ? VK_TRUE : VK_FALSE;
 
 		VkDeviceCreateInfo createInfo{};
 		createInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
