@@ -50,14 +50,14 @@ const int SWAP_CHAIN_EXTRA_COUNT = 1;
 const int MAX_FRAMES_IN_FLIGHT   = 2;
 
 // base 2450 fps
-const bool USE_MSAA           = false; // 97%
-const bool USE_SAMPLE_SHADING = false; // 99%
+const bool USE_MSAA           = true; // 97%
+const bool USE_SAMPLE_SHADING = true; // 99%
 const bool USE_GAMMA_CORRECT  = false; // 99%
 const bool USE_10_BIT         = false; // 81%
-const bool USE_EXTENSIVE_SYNC = false; // 52%
-const bool USE_VSYNC          = false;
+const bool USE_EXTENSIVE_SYNC = true; // 52%
+const bool USE_VSYNC          = true;
 
-const bool USE_VALIDATION_LAYERS = false;
+const bool USE_VALIDATION_LAYERS = true;
 const vector<const char*> VALIDATION_LAYERS = {
 	"VK_LAYER_KHRONOS_validation",
 };
