@@ -110,23 +110,6 @@ namespace std {
 	};
 }
 
-// const vector<Vertex> vertices = {
-// 	{{ 0.5f, -0.5f, 0.3f }, { 0.0f, 1.0f, 0.0f }, { 0.0f, 0.0f }},
-// 	{{-0.5f, -0.5f, 0.3f }, { 1.0f, 1.0f, 0.0f }, { 1.0f, 0.0f }},
-// 	{{-0.5f,  0.5f, 0.3f }, { 0.0f, 0.0f, 1.0f }, { 1.0f, 1.0f }},
-// 	{{ 0.5f,  0.5f, 0.3f }, { 1.0f, 0.0f, 0.0f }, { 0.0f, 1.0f }},
-
-// 	{{ 0.5f, -0.5f, 0.0f }, { 0.0f, 1.0f, 0.0f }, { 0.0f, 0.0f }},
-// 	{{-0.5f, -0.5f, 0.0f }, { 1.0f, 1.0f, 0.0f }, { 1.0f, 0.0f }},
-// 	{{-0.5f,  0.5f, 0.0f }, { 0.0f, 0.0f, 1.0f }, { 1.0f, 1.0f }},
-// 	{{ 0.5f,  0.5f, 0.0f }, { 1.0f, 0.0f, 0.0f }, { 0.0f, 1.0f }},
-// };
-
-// const vector<uint16_t> indices = {
-// 	0, 2, 1, 2, 0, 3,
-// 	4, 6, 5, 6, 4, 7,
-// };
-
 struct UniformBufferObject {
     mat4 model;
     mat4 view;
@@ -424,8 +407,6 @@ private:
 		for (const auto& shape : shapes) {
 			for (const auto& index : shape.mesh.indices) {
 				Vertex vertex {};
-				// vertices.push_back(vertex);
-				// indices.push_back(indices.size());
 
 				vertex.pos = {
 					attrib.vertices[3 * index.vertex_index + 0],
@@ -438,7 +419,7 @@ private:
 					1.0f - attrib.texcoords[2 * index.texcoord_index + 1]
 				};
 
-				vertex.color = {1.0f, 1.0f, 1.0f};
+				vertex.color = { 1.0f, 1.0f, 1.0f };
 
 				if (uniqueVertices.count(vertex) == 0) {
 					uniqueVertices[vertex] = static_cast<uint32_t>(vertices.size());
@@ -876,7 +857,7 @@ private:
 	}
 
 	void createIndexBuffer() {
-		VkDeviceSize bufferSize = sizeof(uint16_t) * indices.size();
+		VkDeviceSize bufferSize = sizeof(uint32_t) * indices.size();
 
 		VkBuffer stagingBuffer;
 		VkDeviceMemory stagingBufferMemory;
