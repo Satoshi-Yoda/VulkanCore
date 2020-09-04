@@ -283,12 +283,12 @@ private:
 		createImageViews();
 		createRenderPass(); // TODO it is rare for the swap chain image format to change during window resize
 		createGraphicsPipeline(); // TODO can be avoided with using dynamic state for the viewports and scissor rectangles
+		createDepthResources();
+		createFramebuffers();
 		createUniformBuffers();
 		createDescriptorPool();
 		createDescriptorSets();
 		createCommandBuffers();
-		createDepthResources();
-		createFramebuffers();
 	}
 
 	void mainLoop() {
