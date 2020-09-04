@@ -57,7 +57,7 @@ const vector<const char*> DEVICE_EXTENSIONS = {
 };
 
 struct Vertex {
-	vec2 pos;
+	vec3 pos;
 	vec3 color;
 	vec2 texCoord;
 
@@ -75,7 +75,7 @@ struct Vertex {
 
 		attributeDescriptions[0].binding = 0;
 		attributeDescriptions[0].location = 0;
-		attributeDescriptions[0].format = VK_FORMAT_R32G32_SFLOAT;
+		attributeDescriptions[0].format = VK_FORMAT_R32G32B32_SFLOAT;
 		attributeDescriptions[0].offset = offsetof(Vertex, pos);
 
 		attributeDescriptions[1].binding = 0;
@@ -93,14 +93,20 @@ struct Vertex {
 };
 
 const vector<Vertex> vertices = {
-	{{ 0.5f, -0.5f }, { 0.0f, 1.0f, 0.0f }, { 0.0f, 0.0f }},
-	{{-0.5f, -0.5f }, { 1.0f, 1.0f, 0.0f }, { 1.0f, 0.0f }},
-	{{-0.5f,  0.5f }, { 0.0f, 0.0f, 1.0f }, { 1.0f, 1.0f }},
-	{{ 0.5f,  0.5f }, { 1.0f, 0.0f, 0.0f }, { 0.0f, 1.0f }},
+	{{ 0.5f, -0.5f, 0.3f }, { 0.0f, 1.0f, 0.0f }, { 0.0f, 0.0f }},
+	{{-0.5f, -0.5f, 0.3f }, { 1.0f, 1.0f, 0.0f }, { 1.0f, 0.0f }},
+	{{-0.5f,  0.5f, 0.3f }, { 0.0f, 0.0f, 1.0f }, { 1.0f, 1.0f }},
+	{{ 0.5f,  0.5f, 0.3f }, { 1.0f, 0.0f, 0.0f }, { 0.0f, 1.0f }},
+
+	{{ 0.5f, -0.5f, 0.0f }, { 0.0f, 1.0f, 0.0f }, { 0.0f, 0.0f }},
+	{{-0.5f, -0.5f, 0.0f }, { 1.0f, 1.0f, 0.0f }, { 1.0f, 0.0f }},
+	{{-0.5f,  0.5f, 0.0f }, { 0.0f, 0.0f, 1.0f }, { 1.0f, 1.0f }},
+	{{ 0.5f,  0.5f, 0.0f }, { 1.0f, 0.0f, 0.0f }, { 0.0f, 1.0f }},
 };
 
 const vector<uint16_t> indices = {
-	0, 2, 1, 2, 0, 3
+	0, 2, 1, 2, 0, 3,
+	4, 6, 5, 6, 4, 7,
 };
 
 struct UniformBufferObject {
@@ -636,8 +642,8 @@ private:
 		UniformBufferObject ubo {};
 		// ubo.model = mat4(1.0f);
 		ubo.model = glm::rotate(mat4(1.0f), 0.5f * time * radians(90.0f), vec3(0.0f, 0.0f, 1.0f));
-		ubo.view  = glm::lookAt(vec3(1.0f, 0.5f, 2.0f), vec3(0.0f, 0.0f, 0.0f), vec3(0.0f, 0.0f, 1.0f));
-		ubo.proj  = glm::perspective(radians(25.0f), (float)windowWidth / (float)windowHeight, 0.1f, 10.0f);
+		ubo.view  = glm::lookAt(vec3(1.0f, 1.0f, 1.0f), vec3(0.0f, 0.0f, 0.0f), vec3(0.0f, 0.0f, 1.0f));
+		ubo.proj  = glm::perspective(radians(45.0f), (float)windowWidth / (float)windowHeight, 0.1f, 10.0f);
 		ubo.proj[1][1] *= -1;
 
 		void* data;
