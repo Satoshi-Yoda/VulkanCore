@@ -159,8 +159,8 @@ private:
 	chrono::time_point<chrono::high_resolution_clock> finishLoading;
 	chrono::time_point<chrono::high_resolution_clock> lastWindowTitleUpdate;
 
-	uint32_t windowWidth = 1200;
-	uint32_t windowHeight = 900;
+	uint32_t windowWidth  = 2048;
+	uint32_t windowHeight = 1536;
 	GLFWwindow* window;
 	VkSurfaceKHR surface;
 	VkInstance instance;
@@ -213,9 +213,11 @@ private:
 
 	void initWindow() {
 		glfwInit();
+		const GLFWvidmode* mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
 		glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 		glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
 		window = glfwCreateWindow(windowWidth, windowHeight, "Hello Triangle", nullptr, nullptr);
+		glfwSetWindowPos(window, (mode->width - windowWidth) / 3, (mode->height - windowHeight) / 2);
 		glfwSetWindowUserPointer(window, this);
 		glfwSetFramebufferSizeCallback(window, framebufferResizeCallback);
 	}
