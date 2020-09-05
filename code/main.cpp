@@ -143,6 +143,7 @@ public:
 		startLoading = chrono::high_resolution_clock::now();
 		initWindow();
 		initVulkan();
+		showWindow();
 		finishLoading = chrono::high_resolution_clock::now();
 		lastWindowTitleUpdate = startLoading;
 		auto deltaLoading = chrono::duration_cast<chrono::duration<double>>(finishLoading - startLoading).count();
@@ -240,10 +241,15 @@ private:
 		const GLFWvidmode* mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
 		glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 		glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
+		glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
 		window = glfwCreateWindow(windowWidth, windowHeight, "Hello Triangle", nullptr, nullptr);
 		glfwSetWindowPos(window, (mode->width - windowWidth) / 3, (mode->height - windowHeight) / 2);
 		glfwSetWindowUserPointer(window, this);
 		glfwSetFramebufferSizeCallback(window, framebufferResizeCallback);
+	}
+
+	void showWindow() {
+		glfwShowWindow(window);
 	}
 
 	static void framebufferResizeCallback(GLFWwindow* window, int width, int height) {
