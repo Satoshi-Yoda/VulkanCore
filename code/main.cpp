@@ -242,6 +242,7 @@ private:
 		glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 		glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
 		glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
+		// glfwWindowHint(GLFW_DECORATED, GLFW_FALSE);
 		window = glfwCreateWindow(windowWidth, windowHeight, "Hello Triangle", nullptr, nullptr);
 		glfwSetWindowPos(window, (mode->width - windowWidth) / 3, (mode->height - windowHeight) / 2);
 		glfwSetWindowUserPointer(window, this);
