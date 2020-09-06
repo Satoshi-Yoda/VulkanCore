@@ -41,6 +41,7 @@ const bool DISPLAY_INSTANCE_EXTENSIONS = false;
 const bool DISPLAY_DEVICE_EXTENSIONS   = false;
 const bool DISPLAY_DEVICES             = false;
 const bool DISPLAY_BIT_DEPTH           = false;
+const bool DISPLAY_QUEUES              = false;
 const bool DISPLAY_PRESENT_MODES       = false;
 const bool DISPLAY_SWAP_RESOLUTION     = false;
 const bool DISPLAY_SWAP_LENGTH         = false;
@@ -49,12 +50,14 @@ const bool DISPLAY_MSAA                = false;
 const int SWAP_CHAIN_EXTRA_COUNT = 1;
 const int MAX_FRAMES_IN_FLIGHT   = 2;
 
-// base 2450 fps
-const bool USE_MSAA           = true; // 97%
-const bool USE_SAMPLE_SHADING = true; // 99%
-const bool USE_GAMMA_CORRECT  = false; // 99%
-const bool USE_10_BIT         = false; // 81%
-const bool USE_EXTENSIVE_SYNC = true; // 52%
+const bool USE_SEPARATE_PRESENT_QUEUE = false;
+
+// base 5140 fps
+const bool USE_MSAA           = true;
+const bool USE_SAMPLE_SHADING = false;
+const bool USE_GAMMA_CORRECT  = false;
+const bool USE_10_BIT         = false;
+const bool USE_EXTENSIVE_SYNC = false;
 const bool USE_VSYNC          = true;
 
 const bool USE_VALIDATION_LAYERS = true;
@@ -255,7 +258,9 @@ private:
 
 	static void framebufferResizeCallback(GLFWwindow* window, int width, int height) {
 		auto app = reinterpret_cast<HelloTriangleApplication*>(glfwGetWindowUserPointer(window));
-		app->framebufferResized = true;
+		if (width != app->windowWidth || height != app->windowHeight) { // TODO test it somehow
+			app->framebufferResized = true;
+		}
 	}
 
 	void initVulkan() {
@@ -1101,7 +1106,7 @@ private:
 	void createCommandPool() {
 		VkCommandPoolCreateInfo poolInfo {};
 		poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
-		poolInfo.queueFamilyIndex = familyIndices.graphicsFamily.value();
+		poolInfo.queueFamilyIndex = familyIndices.graphicsFamily.value(); // TODO command pool created only for graphics queue. Why?
 		poolInfo.flags = 0;
 
 		if (vkCreateCommandPool(device, &poolInfo, nullptr, &commandPool) != VK_SUCCESS) {
@@ -1614,11 +1619,11 @@ private:
 
 			// TODO find the family that supports P and G, if it is possible, and use it
 			// TODO test for performance when P and G deliberately selected as different families
-			if (presentSupport) {
+			if (presentSupport && (!indices.presentFamily.has_value() || USE_SEPARATE_PRESENT_QUEUE)) {
 				indices.presentFamily = i;
 			}
 
-			if (f & VK_QUEUE_GRAPHICS_BIT) {
+			if ((f & VK_QUEUE_GRAPHICS_BIT) && (!indices.graphicsFamily.has_value() || USE_SEPARATE_PRESENT_QUEUE)) {
  				indices.graphicsFamily = i;
 			}
 			i++;
@@ -1640,6 +1645,8 @@ private:
 			queueCreateInfo.pQueuePriorities = &queuePriority;
 			queueCreateInfos.push_back(queueCreateInfo);
 		}
+
+		if (DISPLAY_QUEUES) printf("Created %d queues: G%d P%d\n", queueCreateInfos.size(), familyIndices.graphicsFamily.value(), familyIndices.presentFamily.value());
 
 		VkPhysicalDeviceFeatures deviceFeatures {};
 		deviceFeatures.samplerAnisotropy = VK_TRUE;
