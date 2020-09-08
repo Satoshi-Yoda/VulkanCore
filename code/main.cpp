@@ -1310,7 +1310,6 @@ private:
 		multisampling.sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
 		multisampling.sampleShadingEnable = VK_FALSE;
 		multisampling.rasterizationSamples = msaaSamples;
-		multisampling.minSampleShading = 1.0f;
 		multisampling.pSampleMask = nullptr;
 		multisampling.alphaToCoverageEnable = VK_FALSE;
 		multisampling.alphaToOneEnable = VK_FALSE;
@@ -1651,6 +1650,7 @@ private:
 		VkPhysicalDeviceFeatures deviceFeatures {};
 		deviceFeatures.samplerAnisotropy = VK_TRUE;
 		deviceFeatures.sampleRateShading = USE_SAMPLE_SHADING ? VK_TRUE : VK_FALSE;
+		deviceFeatures.independentBlend = VK_TRUE; // TODO is not used here, allows independent blending for each color attachment
 
 		VkDeviceCreateInfo createInfo{};
 		createInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;

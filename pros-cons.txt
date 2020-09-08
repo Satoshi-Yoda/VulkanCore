@@ -11,8 +11,10 @@ Pros:
 	- Wide variety of presentation modes (vsync)
 	- Latest GLSL version support
 	- Ability to sample textures in pixel coordinates instead of normalized coordinates
+	- You can define but not use shader outer variables
 
 Cons:
 	- Verbose API
 	- No support of old GPUs (2012+ for NVidia, 2017+ for Intel, ? AMD)
 	- Static GLSL shaders (leads to some complications)
+	- Immutable pipelines
