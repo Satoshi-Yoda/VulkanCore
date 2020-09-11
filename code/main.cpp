@@ -53,6 +53,7 @@ const int MAX_FRAMES_IN_FLIGHT   = 2;
 const bool USE_SEPARATE_PRESENT_QUEUE = false;
 
 // base 5140 fps
+const bool USE_FULLSCREEN     = false;
 const bool USE_MSAA           = true;
 const bool USE_SAMPLE_SHADING = false;
 const bool USE_GAMMA_CORRECT  = false;
@@ -246,7 +247,11 @@ private:
 		glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
 		glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
 		// glfwWindowHint(GLFW_DECORATED, GLFW_FALSE);
-		window = glfwCreateWindow(windowWidth, windowHeight, "Hello Triangle", nullptr, nullptr);
+		if (USE_FULLSCREEN) {
+			window = glfwCreateWindow(mode->width, mode->height, "Hello Triangle", glfwGetPrimaryMonitor(), NULL);
+		} else {
+			window = glfwCreateWindow(windowWidth, windowHeight, "Hello Triangle", nullptr, nullptr);
+		}
 		glfwSetWindowPos(window, (mode->width - windowWidth) / 3, (mode->height - windowHeight) / 2);
 		glfwSetWindowUserPointer(window, this);
 		glfwSetFramebufferSizeCallback(window, framebufferResizeCallback);
@@ -883,7 +888,7 @@ private:
 
 		UniformBufferObject ubo {};
 		// ubo.model = mat4(1.0f);
-		ubo.model = glm::rotate(mat4(1.0f), 0.2f * time * radians(90.0f), vec3(0.0f, 0.0f, 1.0f));
+		ubo.model = glm::rotate(mat4(1.0f), 0.5f * time * radians(90.0f), vec3(0.0f, 0.0f, 1.0f));
 		ubo.view  = glm::lookAt(vec3(2.0f, 2.0f, 2.0f), vec3(0.0f, 0.0f, 0.0f), vec3(0.0f, 0.0f, 1.0f));
 		ubo.proj  = glm::perspective(radians(45.0f), (float)windowWidth / (float)windowHeight, 0.1f, 10.0f);
 		ubo.proj[1][1] *= -1;
