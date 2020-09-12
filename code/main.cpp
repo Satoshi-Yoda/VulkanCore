@@ -61,7 +61,7 @@ const bool USE_10_BIT         = false;
 const bool USE_EXTENSIVE_SYNC = false;
 const bool USE_VSYNC          = true;
 
-const bool USE_VALIDATION_LAYERS = true;
+const bool USE_VALIDATION_LAYERS = false;
 const vector<const char*> VALIDATION_LAYERS = {
 	"VK_LAYER_KHRONOS_validation",
 };
