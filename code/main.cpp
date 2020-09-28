@@ -53,7 +53,7 @@ const int MAX_FRAMES_IN_FLIGHT   = 2;
 const bool USE_SEPARATE_PRESENT_QUEUE = false;
 
 // base 5140 fps
-const bool USE_FULLSCREEN     = false;
+const bool USE_FULLSCREEN     = true;
 const bool USE_MSAA           = true;
 const bool USE_SAMPLE_SHADING = false;
 const bool USE_GAMMA_CORRECT  = false;
@@ -1639,7 +1639,7 @@ private:
 
 	void createLogicalDevice() {
 		vector<VkDeviceQueueCreateInfo> queueCreateInfos;
-		set<uint32_t> uniqueQueueFamilies = { familyIndices.graphicsFamily.value(), familyIndices.presentFamily.value() };
+		set<uint32_t> uniqueQueueFamilies { familyIndices.graphicsFamily.value(), familyIndices.presentFamily.value() };
 
 		float queuePriority = 1.0f;
 		for (uint32_t queueFamily : uniqueQueueFamilies) {
@@ -1713,7 +1713,7 @@ private:
 		vector<VkExtensionProperties> availableExtensions(extensionCount);
 		vkEnumerateDeviceExtensionProperties(physicalDevice, nullptr, &extensionCount, availableExtensions.data());
 
-		set<string> required(DEVICE_EXTENSIONS.begin(), DEVICE_EXTENSIONS.end());
+		set<string> required { DEVICE_EXTENSIONS.begin(), DEVICE_EXTENSIONS.end() };
 
 		if (DISPLAY_DEVICE_EXTENSIONS) printf("Device extensions:\n");
 		for (auto extension : availableExtensions) {
@@ -1864,10 +1864,7 @@ private:
 		vector<VkLayerProperties> availableLayers(layerCount);
 		vkEnumerateInstanceLayerProperties(&layerCount, availableLayers.data());
 
-		set<string> required;
-		for (auto layer : VALIDATION_LAYERS) {
-			required.insert(layer);
-		}
+		set<string> required { VALIDATION_LAYERS.cbegin(), VALIDATION_LAYERS.cend() };
 
 		if (DISPLAY_LAYERS) printf("\nValidation layers:\n");
 		set<string> available;
@@ -1904,10 +1901,7 @@ private:
 	}
 
 	bool checkRequiredExtensionsSupport(vector<const char*> &requiredExtensions) {
-		set<string> required {};
-		for (int i = 0; i < requiredExtensions.size(); i++) {
-			required.insert(requiredExtensions[i]);
-		}
+		set<string> required { requiredExtensions.cbegin(), requiredExtensions.cend() };
 
 		uint32_t extensionCount = 0;
 		vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, nullptr);
