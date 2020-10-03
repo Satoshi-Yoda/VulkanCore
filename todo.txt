@@ -3,3 +3,15 @@ Omitted:
  - z-buffering
  - msaa
  - mipmapping
+
+Features:
+ - window resize
+ - sprite lifecycle
+ - instanced drawing
+
+General:
+ - color selection
+ - text & rubber kerning
+ - rare updates
+ - workers & multithreading
+ - replays
