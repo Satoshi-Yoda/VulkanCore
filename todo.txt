@@ -5,7 +5,7 @@ Omitted:
  - mipmapping
 
 Features:
- - window resize
+ - window minimize
  - sprite lifecycle
  - instanced drawing
 
