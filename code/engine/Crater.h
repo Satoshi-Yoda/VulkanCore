@@ -32,6 +32,8 @@ public:
 	vector<VkImage> images;
 	vector<VkImageView> imageViews;
 
+	void reinit();
+
 private:
 	Ash& ash;
 	Mountain& mountain;
@@ -44,6 +46,9 @@ private:
 	VkImageUsageFlags imageUsageFlags;
 	VkSurfaceTransformFlagBitsKHR presentTransform;
 	VkPresentModeKHR presentMode;
+
+	void init();
+	void clear();
 
 	void querySurfaceCapabilities();
 	void querySurfaceFormats();

@@ -217,7 +217,8 @@ void Tectonic::drawFrame() {
 		case VK_SUBOPTIMAL_KHR:
 			break;
 		case VK_ERROR_OUT_OF_DATE_KHR:
-			cout << "TODO Window resized!" << endl;
+			cout << "TODO Window resized error!" << endl;
+			crater.reinit();
 			return;
 		default:
 			cout << "Problem occurred during swap chain image acquisition!" << endl;
@@ -257,7 +258,8 @@ void Tectonic::drawFrame() {
 			break;
 		case VK_ERROR_OUT_OF_DATE_KHR:
 		case VK_SUBOPTIMAL_KHR:
-			cout << "TODO Window resized!" << endl;
+			cout << "TODO Window resized suboptimal!" << endl;
+			crater.reinit();
 			return;
 		default:
 			cout << "Problem occurred during image presentation!" << endl;

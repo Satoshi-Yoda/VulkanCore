@@ -7,6 +7,19 @@
 using namespace std;
 
 Crater::Crater(Ash &ash, Mountain &mountain, Rocks &rocks) : ash(ash), mountain(mountain), rocks(rocks) {
+	init();
+}
+
+Crater::~Crater() {
+	clear();
+}
+
+void Crater::reinit() {
+	clear();
+	init();
+}
+
+void Crater::init() {
 	querySurfaceCapabilities();
 	querySurfaceFormats();
 	querySurfacePresentModes();
@@ -23,7 +36,7 @@ Crater::Crater(Ash &ash, Mountain &mountain, Rocks &rocks) : ash(ash), mountain(
 	createImageViews();
 }
 
-Crater::~Crater() {
+void Crater::clear() {
 	if (mountain.device != VK_NULL_HANDLE) {
 		vkDeviceWaitIdle(mountain.device);
 	}
@@ -179,7 +192,7 @@ void Crater::choosePresentMode() {
 }
 
 void Crater::createSwapChain() {
-	VkSwapchainKHR oldSwapChain = swapChain;
+	// VkSwapchainKHR oldSwapChain = swapChain;
 
 	VkSwapchainCreateInfoKHR createInfo { VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR };
 	createInfo.surface = mountain.surface;
@@ -196,15 +209,15 @@ void Crater::createSwapChain() {
 	createInfo.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
 	createInfo.presentMode = presentMode;
 	createInfo.clipped = VK_TRUE;
-	createInfo.oldSwapchain = oldSwapChain;
+	createInfo.oldSwapchain = VK_NULL_HANDLE; // oldSwapChain
 
 	vkCreateSwapchainKHR(mountain.device, &createInfo, nullptr, &swapChain) >> ash("Failed to create swap chain!");
 
-	if (oldSwapChain != VK_NULL_HANDLE) {
-		// TODO can not be here because Crater recreates with vulkan SwapChain
-		// TODO maybe there is a need to move SwapChain destroy from ~Crater() to here
-		vkDestroySwapchainKHR(mountain.device, oldSwapChain, nullptr);
-	}
+	// if (oldSwapChain != VK_NULL_HANDLE) {
+	// 	// TODO can not be here because Crater recreates with vulkan SwapChain
+	// 	// TODO maybe there is a need to move SwapChain destroy from ~Crater() to here
+	// 	vkDestroySwapchainKHR(mountain.device, oldSwapChain, nullptr);
+	// }
 }
 
 void Crater::queryImages() {
