@@ -24,7 +24,7 @@ public:
 
 	const bool USE_GAMMA_CORRECT  = false;
 	const bool USE_10_BIT         = false;
-	const bool USE_VSYNC          = true;
+	const bool USE_VSYNC          = false;
 
 	VkSwapchainKHR swapChain = VK_NULL_HANDLE;
 	VkSurfaceFormatKHR surfaceFormat;
