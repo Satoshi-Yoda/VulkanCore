@@ -1,3 +1,5 @@
-Valudations:
-	If I disable msaa:
-	[ERROR] Validation layer: Validation Error: [ VUID-VkSubpassDescription-pResolveAttachments-00848 ] Object 0: handle = 0x44af4d0, type = VK_OBJECT_TYPE_DEVICE; | MessageID = 0xfad6c3cb | vkCreateRenderPass():  Subpass 0 requests multisample resolve from attachment 0 which has VK_SAMPLE_COUNT_1_BIT. The Vulkan spec states: If pResolveAttachments is not NULL, for each resolve attachment that is not VK_ATTACHMENT_UNUSED, the corresponding color attachment must not have a sample count of VK_SAMPLE_COUNT_1_BIT (https://vulkan.lunarg.com/doc/view/1.2.148.0/windows/1.2-extensions/vkspec.html#VUID-VkSubpassDescription-pResolveAttachments-00848)
+Omitted:
+ - indexed drawing
+ - z-buffering
+ - msaa
+ - mipmapping
