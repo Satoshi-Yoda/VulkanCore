@@ -126,12 +126,6 @@ void Lava::createRenderPass() {
 	vkCreateRenderPass(mountain.device, &createInfo, nullptr, &renderPass) >> ash("Failed to create render pass!");
 }
 
-void Lava::recreatePipeline() {
-	if (pipelineLayout != VK_NULL_HANDLE) vkDestroyPipelineLayout(mountain.device, pipelineLayout, nullptr);
-	if (pipeline       != VK_NULL_HANDLE) vkDestroyPipeline(mountain.device, pipeline, nullptr);
-	createPipeline();
-}
-
 void Lava::createPipeline() {
 	// TODO try catch
 	auto vertShaderCode = rocks.readFile("shaders/shader.vert.spv");
@@ -234,35 +228,33 @@ void Lava::createPipeline() {
 
 	vkCreatePipelineLayout(mountain.device, &pipelineLayoutInfo, nullptr, &pipelineLayout) >> ash("Failed to create pipeline layout!");
 
-	// TODO use dynamic states or comment them
-	// not used for now...
-	// VkDynamicState dynamicStates[] {
-	// 	VK_DYNAMIC_STATE_VIEWPORT,
-	// 	VK_DYNAMIC_STATE_LINE_WIDTH,
-	// };
-	// VkPipelineDynamicStateCreateInfo dynamicState { VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO };
-	// dynamicState.dynamicStateCount = 2;
-	// dynamicState.pDynamicStates = dynamicStates;
+	vector<VkDynamicState> dynamicStates {
+		VK_DYNAMIC_STATE_VIEWPORT,
+		VK_DYNAMIC_STATE_LINE_WIDTH,
+	};
+	VkPipelineDynamicStateCreateInfo dynamicStateCreateInfo { VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO };
+	dynamicStateCreateInfo.dynamicStateCount = static_cast<uint32_t>(dynamicStates.size());
+	dynamicStateCreateInfo.pDynamicStates = dynamicStates.data();
 
-	VkGraphicsPipelineCreateInfo pipelineInfo { VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO };
-	pipelineInfo.stageCount = static_cast<uint32_t>(shaderStages.size());
-	pipelineInfo.pStages = shaderStages.data();
-	pipelineInfo.pVertexInputState = &vertexInputInfo;
-	pipelineInfo.pInputAssemblyState = &inputAssembly;
-	pipelineInfo.pTessellationState = nullptr;
-	pipelineInfo.pViewportState = &viewportState;
-	pipelineInfo.pRasterizationState = &rasterizer;
-	pipelineInfo.pMultisampleState = &multisampling;
-	pipelineInfo.pDepthStencilState = nullptr;
-	pipelineInfo.pColorBlendState = &colorBlending;
-	pipelineInfo.pDynamicState = nullptr;
-	pipelineInfo.layout = pipelineLayout;
-	pipelineInfo.renderPass = renderPass;
-	pipelineInfo.subpass = 0;
-	pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
-	pipelineInfo.basePipelineIndex = -1;
+	VkGraphicsPipelineCreateInfo pipelineCreateInfo { VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO };
+	pipelineCreateInfo.stageCount = static_cast<uint32_t>(shaderStages.size());
+	pipelineCreateInfo.pStages = shaderStages.data();
+	pipelineCreateInfo.pVertexInputState = &vertexInputInfo;
+	pipelineCreateInfo.pInputAssemblyState = &inputAssembly;
+	pipelineCreateInfo.pTessellationState = nullptr;
+	pipelineCreateInfo.pViewportState = &viewportState;
+	pipelineCreateInfo.pRasterizationState = &rasterizer;
+	pipelineCreateInfo.pMultisampleState = &multisampling;
+	pipelineCreateInfo.pDepthStencilState = nullptr;
+	pipelineCreateInfo.pColorBlendState = &colorBlending;
+	pipelineCreateInfo.pDynamicState = &dynamicStateCreateInfo;
+	pipelineCreateInfo.layout = pipelineLayout;
+	pipelineCreateInfo.renderPass = renderPass;
+	pipelineCreateInfo.subpass = 0;
+	pipelineCreateInfo.basePipelineHandle = VK_NULL_HANDLE;
+	pipelineCreateInfo.basePipelineIndex = -1;
 
-	vkCreateGraphicsPipelines(mountain.device, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &pipeline) >> ash("Failed to create graphics pipeline!");
+	vkCreateGraphicsPipelines(mountain.device, VK_NULL_HANDLE, 1, &pipelineCreateInfo, nullptr, &pipeline) >> ash("Failed to create graphics pipeline!");
 
 	vkDestroyShaderModule(mountain.device, fragShaderModule, nullptr);
 	vkDestroyShaderModule(mountain.device, vertShaderModule, nullptr);

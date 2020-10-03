@@ -181,20 +181,20 @@ void Tectonic::prepareFrame(uint32_t craterIndex) {
 
 			vkCmdBindPipeline(commandBuffersArray[inFlightIndex], VK_PIPELINE_BIND_POINT_GRAPHICS, lava.pipeline);
 
-			// VkViewport viewport {};
-			// viewport.x = 0.0f;
-			// viewport.y = 0.0f;
-			// viewport.width  = static_cast<float>(crater.extent.width);
-			// viewport.height = static_cast<float>(crater.extent.height);
-			// viewport.minDepth = 0.0f;
-			// viewport.maxDepth = 1.0f;
+			VkViewport viewport {};
+			viewport.x = 0.0f;
+			viewport.y = 0.0f;
+			viewport.width  = static_cast<float>(crater.extent.width);
+			viewport.height = static_cast<float>(crater.extent.height);
+			viewport.minDepth = 0.0f;
+			viewport.maxDepth = 1.0f;
 
-			// VkRect2D scissor {};
-			// scissor.offset = { 0, 0 };
-			// scissor.extent = crater.extent;
+			VkRect2D scissor {};
+			scissor.offset = { 0, 0 };
+			scissor.extent = crater.extent;
 
-			// vkCmdSetViewport(commandBuffersArray[inFlightIndex], 0, 1, &viewport); // TODO needed for dynamic pipeline parameters if they are enabled
-			// vkCmdSetScissor (commandBuffersArray[inFlightIndex], 0, 1, &scissor);  // TODO needed for dynamic pipeline parameters if they are enabled
+			vkCmdSetViewport(commandBuffersArray[inFlightIndex], 0, 1, &viewport); // TODO needed for dynamic pipeline parameters if they are enabled
+			vkCmdSetScissor (commandBuffersArray[inFlightIndex], 0, 1, &scissor);  // TODO needed for dynamic pipeline parameters if they are enabled
 
 			VkBuffer vertexBuffers[] { lava.vertexBuffer };
 			VkDeviceSize offsets[] { 0 };
@@ -217,9 +217,7 @@ void Tectonic::drawFrame() {
 		case VK_SUBOPTIMAL_KHR:
 			break;
 		case VK_ERROR_OUT_OF_DATE_KHR:
-			cout << "TODO Window resized after acquire" << endl;
 			crater.reinit();
-			lava.recreatePipeline();
 			return;
 		default:
 			cout << "Problem occurred during swap chain image acquisition!" << endl;
@@ -259,9 +257,7 @@ void Tectonic::drawFrame() {
 			break;
 		case VK_ERROR_OUT_OF_DATE_KHR:
 		case VK_SUBOPTIMAL_KHR:
-			cout << "TODO Window resized after present" << endl;
 			crater.reinit();
-			lava.recreatePipeline();
 			return;
 		default:
 			cout << "Problem occurred during image presentation!" << endl;

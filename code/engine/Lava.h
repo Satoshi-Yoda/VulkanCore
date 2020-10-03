@@ -46,7 +46,6 @@ public:
 
 	void establishVertexBuffer(vector<Vertex> vertices);
 	void establishTexture(int width, int height, void* pixels);
-	void recreatePipeline();
 
 private:
 	Ash& ash;
