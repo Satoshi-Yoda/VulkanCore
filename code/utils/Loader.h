@@ -3,7 +3,7 @@
 
 #include <string>
 
-using namespace std;
+using std::string;
 
 void loadTexture(string filename, void* &data, int *width, int *height, int *channels);
 void freeTexture(void* &data);

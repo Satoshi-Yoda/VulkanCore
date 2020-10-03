@@ -1,6 +1,3 @@
-# 4 threads 8.1s -> 4.4s
-# single thread 13.4s -> 7.3s
-
 VULKAN_HOME  = C:/_soft/VulkanSDK_1.2.148.1
 GLFW_HOME    = O:/_libs/glfw-3.3.2.bin.WIN64
 GLM_HOME     = O:/_libs/glm

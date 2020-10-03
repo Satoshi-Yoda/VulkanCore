@@ -1,5 +1,4 @@
 Pros:
-	- Modern C++ syntax
 	- Better performance [test it]
 	- Loading in separate threads (queue family) [test it]
 	- Drawing in separate threads [test it]
@@ -18,3 +17,4 @@ Cons:
 	- No support of old GPUs (2012+ for NVidia, 2017+ for Intel, ? AMD)
 	- Static GLSL shaders (leads to some complications)
 	- Immutable pipelines
+	- Troubles with windowed vsync [test it in opengl]
