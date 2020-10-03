@@ -15,6 +15,7 @@ Crater::~Crater() {
 }
 
 void Crater::reinit() {
+	vkDeviceWaitIdle(mountain.device);
 	clear();
 	init();
 }

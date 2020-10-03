@@ -122,7 +122,7 @@ void Tectonic::updateUniformBuffer() {
 	UniformBufferObject ubo {};
 	ubo.model = glm::rotate(mat4(1.0f), 0.5f * time * radians(90.0f), vec3(0.0f, 0.0f, 1.0f));
 	ubo.view  = glm::lookAt(vec3(2.0f, 2.0f, 2.0f), vec3(0.0f, 0.0f, 0.0f), vec3(0.0f, 0.0f, 1.0f));
-	ubo.proj  = glm::perspective(radians(45.0f), (float)crater.extent.width / (float)crater.extent.height, 0.1f, 10.0f);
+	ubo.proj  = glm::perspective(radians(45.0f), static_cast<float>(crater.extent.width) / static_cast<float>(crater.extent.height), 0.1f, 10.0f);
 	ubo.proj[1][1] *= -1;
 
 	// TODO map only once, and keep it mapped, better for performance
@@ -217,8 +217,9 @@ void Tectonic::drawFrame() {
 		case VK_SUBOPTIMAL_KHR:
 			break;
 		case VK_ERROR_OUT_OF_DATE_KHR:
-			cout << "TODO Window resized error!" << endl;
+			cout << "TODO Window resized after acquire" << endl;
 			crater.reinit();
+			lava.recreatePipeline();
 			return;
 		default:
 			cout << "Problem occurred during swap chain image acquisition!" << endl;
@@ -258,8 +259,9 @@ void Tectonic::drawFrame() {
 			break;
 		case VK_ERROR_OUT_OF_DATE_KHR:
 		case VK_SUBOPTIMAL_KHR:
-			cout << "TODO Window resized suboptimal!" << endl;
+			cout << "TODO Window resized after present" << endl;
 			crater.reinit();
+			lava.recreatePipeline();
 			return;
 		default:
 			cout << "Problem occurred during image presentation!" << endl;

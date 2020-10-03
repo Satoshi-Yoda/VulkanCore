@@ -126,6 +126,12 @@ void Lava::createRenderPass() {
 	vkCreateRenderPass(mountain.device, &createInfo, nullptr, &renderPass) >> ash("Failed to create render pass!");
 }
 
+void Lava::recreatePipeline() {
+	if (pipelineLayout != VK_NULL_HANDLE) vkDestroyPipelineLayout(mountain.device, pipelineLayout, nullptr);
+	if (pipeline       != VK_NULL_HANDLE) vkDestroyPipeline(mountain.device, pipeline, nullptr);
+	createPipeline();
+}
+
 void Lava::createPipeline() {
 	// TODO try catch
 	auto vertShaderCode = rocks.readFile("shaders/shader.vert.spv");
@@ -224,7 +230,7 @@ void Lava::createPipeline() {
 	pipelineLayoutInfo.setLayoutCount = 1;
 	pipelineLayoutInfo.pSetLayouts = &descriptorSetLayout2;
 	pipelineLayoutInfo.pushConstantRangeCount = 0;    // TODO We update their values through Vulkan commands, not through memory updates, and it is expected
-	pipelineLayoutInfo.pPushConstantRanges = nullptr; // TODO that updates of push constants’ values are faster than normal memory writes.
+	pipelineLayoutInfo.pPushConstantRanges = nullptr; //      that updates of push constants’ values are faster than normal memory writes.
 
 	vkCreatePipelineLayout(mountain.device, &pipelineLayoutInfo, nullptr, &pipelineLayout) >> ash("Failed to create pipeline layout!");
 
