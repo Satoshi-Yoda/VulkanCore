@@ -8,7 +8,7 @@ Features:
  - sprite lifecycle
  - instanced drawing
 
-General:
+Qualities:
  - color selection
  - text & rubber kerning
  - rare updates
