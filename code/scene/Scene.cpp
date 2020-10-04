@@ -27,6 +27,11 @@ void Scene::loadSquare() {
 	};
 }
 
+void Scene::load() {
+	loadVikingRoomModel();
+	loadVikingRoomTexture();
+}
+
 void Scene::loadVikingRoomModel() {
 	auto start = chrono::high_resolution_clock::now();
 
@@ -64,7 +69,7 @@ void Scene::loadVikingRoomModel() {
 }
 
 void Scene::loadVikingRoomTexture() {
-	loadTexture(TEXTURE_PATH.c_str(), pixels, &width, &height, &channels);
+	loadTexture(TEXTURE_PATH.c_str(), pixels, &width, &height);
 }
 
 void Scene::establish(Lava &lava, Tectonic &tectonic) {

@@ -21,8 +21,7 @@ int main() {
 		Scene scene {};
 
 		thread loadSceneThread([&](){
-			scene.loadVikingRoomModel();
-			scene.loadVikingRoomTexture();
+			scene.load();
 		});
 
 		Ash ash {};

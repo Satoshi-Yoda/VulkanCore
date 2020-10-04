@@ -5,7 +5,7 @@
 
 using std::string;
 
-void loadTexture(string filename, void* &data, int *width, int *height, int *channels);
+void loadTexture(string filename, void* &data, int *width, int *height);
 void freeTexture(void* &data);
 
 #endif

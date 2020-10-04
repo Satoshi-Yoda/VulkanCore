@@ -8,10 +8,11 @@
 
 using namespace std;
 
-void loadTexture(string filename, void* &data, int *width, int *height, int *channels) {
+void loadTexture(string filename, void* &data, int *width, int *height) {
 	auto start = chrono::high_resolution_clock::now();
 
-	stbi_uc* pixels = stbi_load(filename.data(), width, height, channels, STBI_rgb_alpha);
+	int channels;
+	stbi_uc* pixels = stbi_load(filename.data(), width, height, &channels, STBI_rgb_alpha);
 	data = reinterpret_cast<void*>(pixels);
 
 	printf("Loaded picture %s in %.3fs\n", filename.data(), chrono::duration_cast<chrono::duration<double>>(chrono::high_resolution_clock::now() - start).count());

@@ -21,9 +21,7 @@ public:
 	Scene();
 	~Scene();
 
-	void loadSquare();
-	void loadVikingRoomModel();
-	void loadVikingRoomTexture();
+	void load();
 	void establish(Lava &lava, Tectonic &tectonic);
 
 private:
@@ -31,10 +29,13 @@ private:
 	const string TEXTURE_PATH = "pictures/viking_room.png";
 
 	vector<Vertex> vertices;
-	vector<uint32_t> indices;
 
-	int width, height, channels;
+	int width, height;
 	void* pixels;
+
+	void loadSquare();
+	void loadVikingRoomModel();
+	void loadVikingRoomTexture();
 };
 
 #endif
