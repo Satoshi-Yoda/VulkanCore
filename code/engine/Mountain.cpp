@@ -140,7 +140,7 @@ void Mountain::createInstance() {
 	if (USE_VALIDATION_LAYERS) checkValidationLayerSupport();
 
 	VkApplicationInfo appInfo { VK_STRUCTURE_TYPE_APPLICATION_INFO };
-	appInfo.pApplicationName = "Hello Mountain";
+	appInfo.pApplicationName = "VulkanCore";
 	appInfo.applicationVersion = VK_MAKE_VERSION(0, 0, 0);
 	appInfo.pEngineName = "Engine";
 	appInfo.engineVersion = VK_MAKE_VERSION(0, 0, 16);

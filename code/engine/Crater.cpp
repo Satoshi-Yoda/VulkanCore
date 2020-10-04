@@ -16,7 +16,15 @@ Crater::~Crater() {
 
 void Crater::reinit() {
 	vkDeviceWaitIdle(mountain.device);
+
 	clear();
+
+	int width = 0, height = 0;
+	while (width == 0 || height == 0) {
+		glfwGetFramebufferSize(mountain.window, &width, &height);
+		glfwWaitEvents();
+	}
+
 	init();
 }
 
