@@ -95,6 +95,7 @@ void Lava::createRenderPass() {
 	subpass.preserveAttachmentCount = 0;
 	subpass.pPreserveAttachments = nullptr;
 
+	// TODO what does that dependencies do? (no visible effect so far)
 	VkSubpassDependency dependency1 {};
 	dependency1.srcSubpass = VK_SUBPASS_EXTERNAL;
 	dependency1.dstSubpass = 0;

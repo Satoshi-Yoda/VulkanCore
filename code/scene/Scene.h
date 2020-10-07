@@ -13,6 +13,8 @@
 #include "../engine/Lava.h"
 #include "../engine/Tectonic.h"
 
+#include "Sprite.h"
+
 using std::vector;
 using std::string;
 
@@ -27,6 +29,8 @@ public:
 private:
 	const string MODEL_PATH = "models/viking_room.obj";
 	const string TEXTURE_PATH = "pictures/viking_room.png";
+
+	vector<Sprite> sprites;
 
 	vector<Vertex> vertices;
 

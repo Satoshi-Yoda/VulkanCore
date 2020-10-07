@@ -32,7 +32,7 @@ private:
 	const static int IN_FLIGHT_FRAMES = 2;
 	int inFlightIndex = 0;
 
-	array<VkCommandBuffer, IN_FLIGHT_FRAMES> commandBuffersArray;
+	array<VkCommandBuffer, IN_FLIGHT_FRAMES> commandBuffers;
 	array<VkSemaphore,     IN_FLIGHT_FRAMES> imageAvailableSemaphores;
 	array<VkSemaphore,     IN_FLIGHT_FRAMES> renderFinishedSemaphores;
 	array<VkFence,         IN_FLIGHT_FRAMES> fences;

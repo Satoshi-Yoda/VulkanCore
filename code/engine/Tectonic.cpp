@@ -32,7 +32,7 @@ Tectonic::~Tectonic() {
 	}
 
 	for (uint32_t i = 0; i < IN_FLIGHT_FRAMES; i++) {
-		if (commandBuffersArray[i]      != VK_NULL_HANDLE) vkFreeCommandBuffers(mountain.device, mountain.commandPool, 1, &commandBuffersArray[i]);
+		if (commandBuffers[i]           != VK_NULL_HANDLE) vkFreeCommandBuffers(mountain.device, mountain.commandPool, 1, &commandBuffers[i]);
 		if (imageAvailableSemaphores[i] != VK_NULL_HANDLE) vkDestroySemaphore  (mountain.device, imageAvailableSemaphores[i], nullptr);
 		if (renderFinishedSemaphores[i] != VK_NULL_HANDLE) vkDestroySemaphore  (mountain.device, renderFinishedSemaphores[i], nullptr);
 		if (fences[i]                   != VK_NULL_HANDLE) vkDestroyFence      (mountain.device, fences[i], nullptr);
@@ -48,7 +48,7 @@ void Tectonic::createInFlightResources() {
 	allocateInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
 	allocateInfo.commandBufferCount = IN_FLIGHT_FRAMES;
 
-	vkAllocateCommandBuffers(mountain.device, &allocateInfo, commandBuffersArray.data()) >> ash("Failed to allocate command buffers!");
+	vkAllocateCommandBuffers(mountain.device, &allocateInfo, commandBuffers.data()) >> ash("Failed to allocate command buffers!");
 
 	for (int i = 0; i < IN_FLIGHT_FRAMES; i++) {
 		VkSemaphoreCreateInfo semaphore_create_info { VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO };
@@ -76,7 +76,7 @@ void Tectonic::createDescriptorSets() {
 	allocInfo.descriptorSetCount = IN_FLIGHT_FRAMES;
 	allocInfo.pSetLayouts = layouts.data();
 
-	vkAllocateDescriptorSets(mountain.device, &allocInfo, descriptorSets.data()) >> ash("Failed to allocate tectonic descriptor set!");
+	vkAllocateDescriptorSets(mountain.device, &allocInfo, descriptorSets.data()) >> ash("Failed to allocate descriptor set!");
 
 	for (size_t i = 0; i < IN_FLIGHT_FRAMES; i++) {
 		VkDescriptorImageInfo imageInfo {};
@@ -84,10 +84,10 @@ void Tectonic::createDescriptorSets() {
 		imageInfo.imageView = lava.textureImageView;
 		imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
 
-		VkDescriptorBufferInfo bufferInfo {};
-		bufferInfo.buffer = uniformBuffers[i];
-		bufferInfo.offset = 0;
-		bufferInfo.range = sizeof(UniformBufferObject);
+		VkDescriptorBufferInfo uniformInfo {};
+		uniformInfo.buffer = uniformBuffers[i];
+		uniformInfo.offset = 0;
+		uniformInfo.range = sizeof(UniformBufferObject);
 
 		VkWriteDescriptorSet imageWrite { VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET };
 		imageWrite.dstSet = descriptorSets[i];
@@ -96,16 +96,16 @@ void Tectonic::createDescriptorSets() {
 		imageWrite.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
 		imageWrite.descriptorCount = 1;
 		imageWrite.pImageInfo = &imageInfo;
-		
-		VkWriteDescriptorSet bufferWrite { VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET };
-		bufferWrite.dstSet = descriptorSets[i];
-		bufferWrite.dstBinding = 1;
-		bufferWrite.dstArrayElement = 0;
-		bufferWrite.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-		bufferWrite.descriptorCount = 1;
-		bufferWrite.pBufferInfo = &bufferInfo;
 
-		array<VkWriteDescriptorSet, 2> descriptorWrites { imageWrite, bufferWrite };
+		VkWriteDescriptorSet uniformWrite { VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET };
+		uniformWrite.dstSet = descriptorSets[i];
+		uniformWrite.dstBinding = 1;
+		uniformWrite.dstArrayElement = 0;
+		uniformWrite.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+		uniformWrite.descriptorCount = 1;
+		uniformWrite.pBufferInfo = &uniformInfo;
+
+		array<VkWriteDescriptorSet, 2> descriptorWrites { imageWrite, uniformWrite };
 
 		vkUpdateDescriptorSets(mountain.device, static_cast<uint32_t>(descriptorWrites.size()), descriptorWrites.data(), 0, nullptr);
 	}
@@ -138,9 +138,10 @@ void Tectonic::prepareFrame(uint32_t craterIndex) {
 	}
 
 	// TODO
-	// I can draw to separate single image with commandBuffer with a lot of operations,
+	// I can draw to separate single (or IN_FLIGHT_FRAMES?) image with commandBuffer with a lot of operations,
 	// and then copy it to dedicated swapChain image with prepared short commandBuffer
 
+	// TODO why #framebuffers != crater.chainSize and not stored in crater? (but instead it == IN_FLIGHT_FRAMES and stored here)
 	VkFramebufferCreateInfo framebufferCreateInfo { VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO };
 	framebufferCreateInfo.renderPass = lava.renderPass;
 	framebufferCreateInfo.attachmentCount = 1;
@@ -153,21 +154,34 @@ void Tectonic::prepareFrame(uint32_t craterIndex) {
 
 	VkCommandBufferBeginInfo bufferBeginInfo { VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO };
 	bufferBeginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
-	bufferBeginInfo.pInheritanceInfo = nullptr;
+	bufferBeginInfo.pInheritanceInfo = nullptr; // TODO used for secondary command buffers
 
-	VkImageSubresourceRange imageSubresourceRange {};
-	imageSubresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-	imageSubresourceRange.baseMipLevel = 0;
-	imageSubresourceRange.levelCount = 1;
-	imageSubresourceRange.baseArrayLayer = 0;
-	imageSubresourceRange.layerCount = 1;
+	// VkImageSubresourceRange imageSubresourceRange {};
+	// imageSubresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+	// imageSubresourceRange.baseMipLevel = 0;
+	// imageSubresourceRange.levelCount = 1;
+	// imageSubresourceRange.baseArrayLayer = 0;
+	// imageSubresourceRange.layerCount = 1;
 
-	VkImage image = crater.images[craterIndex];
+	// VkImage image = crater.images[craterIndex];
 
 	array<VkClearValue, 1> clearColors {};
 	clearColors[0].color = { 0.25f, 0.25f, 0.25f, 0.0f };
 
-	vkBeginCommandBuffer(commandBuffersArray[inFlightIndex], &bufferBeginInfo);
+	vkBeginCommandBuffer(commandBuffers[inFlightIndex], &bufferBeginInfo);
+
+		// VkImageMemoryBarrier barrierFromPresentToDraw { VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER };
+		// barrierFromPresentToDraw.srcAccessMask = VK_ACCESS_MEMORY_READ_BIT;
+		// barrierFromPresentToDraw.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+		// barrierFromPresentToDraw.oldLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+		// barrierFromPresentToDraw.newLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+		// barrierFromPresentToDraw.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+		// barrierFromPresentToDraw.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+		// barrierFromPresentToDraw.image = image;
+		// barrierFromPresentToDraw.subresourceRange = imageSubresourceRange;
+
+		// vkCmdPipelineBarrier(commandBuffers[inFlightIndex], VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT, VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT, 0, 0, nullptr, 0, nullptr, 1, &barrierFromPresentToDraw);
+		// vkCmdPipelineBarrier(commandBuffers[inFlightIndex], VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, 0, 0, nullptr, 0, nullptr, 1, &barrierFromPresentToDraw);
 
 		VkRenderPassBeginInfo passBeginInfo { VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO };
 		passBeginInfo.renderPass = lava.renderPass;
@@ -177,9 +191,9 @@ void Tectonic::prepareFrame(uint32_t craterIndex) {
 		passBeginInfo.clearValueCount = static_cast<uint32_t>(clearColors.size());
 		passBeginInfo.pClearValues = clearColors.data();
 
-		vkCmdBeginRenderPass(commandBuffersArray[inFlightIndex], &passBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
+		vkCmdBeginRenderPass(commandBuffers[inFlightIndex], &passBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
 
-			vkCmdBindPipeline(commandBuffersArray[inFlightIndex], VK_PIPELINE_BIND_POINT_GRAPHICS, lava.pipeline);
+			vkCmdBindPipeline(commandBuffers[inFlightIndex], VK_PIPELINE_BIND_POINT_GRAPHICS, lava.pipeline);
 
 			VkViewport viewport {};
 			viewport.x = 0.0f;
@@ -193,18 +207,31 @@ void Tectonic::prepareFrame(uint32_t craterIndex) {
 			scissor.offset = { 0, 0 };
 			scissor.extent = crater.extent;
 
-			vkCmdSetViewport(commandBuffersArray[inFlightIndex], 0, 1, &viewport); // TODO needed for dynamic pipeline parameters if they are enabled
-			vkCmdSetScissor (commandBuffersArray[inFlightIndex], 0, 1, &scissor);  // TODO needed for dynamic pipeline parameters if they are enabled
+			vkCmdSetViewport(commandBuffers[inFlightIndex], 0, 1, &viewport); // TODO needed for dynamic pipeline parameters if they are enabled
+			vkCmdSetScissor (commandBuffers[inFlightIndex], 0, 1, &scissor);  // TODO needed for dynamic pipeline parameters if they are enabled
 
 			VkBuffer vertexBuffers[] { lava.vertexBuffer };
 			VkDeviceSize offsets[] { 0 };
-			vkCmdBindVertexBuffers(commandBuffersArray[inFlightIndex], 0, 1, vertexBuffers, offsets);
-			vkCmdBindDescriptorSets(commandBuffersArray[inFlightIndex], VK_PIPELINE_BIND_POINT_GRAPHICS, lava.pipelineLayout, 0, 1, &descriptorSets[inFlightIndex], 0, nullptr);
-			vkCmdDraw(commandBuffersArray[inFlightIndex], lava.vertexBufferSize, 1, 0, 0);
+			vkCmdBindVertexBuffers(commandBuffers[inFlightIndex], 0, 1, vertexBuffers, offsets);
+			vkCmdBindDescriptorSets(commandBuffers[inFlightIndex], VK_PIPELINE_BIND_POINT_GRAPHICS, lava.pipelineLayout, 0, 1, &descriptorSets[inFlightIndex], 0, nullptr);
+			vkCmdDraw(commandBuffers[inFlightIndex], lava.vertexBufferSize, 1, 0, 0);
 
-		vkCmdEndRenderPass(commandBuffersArray[inFlightIndex]);
+		vkCmdEndRenderPass(commandBuffers[inFlightIndex]);
 
-	vkEndCommandBuffer(commandBuffersArray[inFlightIndex]) >> ash("Failed to record command buffer!");
+		// VkImageMemoryBarrier barrierFromDrawToPresent { VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER };
+		// barrierFromDrawToPresent.srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+		// barrierFromDrawToPresent.dstAccessMask = VK_ACCESS_MEMORY_READ_BIT;
+		// barrierFromDrawToPresent.oldLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+		// barrierFromDrawToPresent.newLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+		// barrierFromDrawToPresent.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+		// barrierFromDrawToPresent.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+		// barrierFromDrawToPresent.image = image;
+		// barrierFromDrawToPresent.subresourceRange = imageSubresourceRange;
+
+		// vkCmdPipelineBarrier(commandBuffers[inFlightIndex], VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, 0, 0, nullptr, 0, nullptr, 1, &barrierFromDrawToPresent);
+		// vkCmdPipelineBarrier(commandBuffers[inFlightIndex], VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, 0, 0, nullptr, 0, nullptr, 1, &barrierFromDrawToPresent);
+
+	vkEndCommandBuffer(commandBuffers[inFlightIndex]) >> ash("Failed to record command buffer!");
 }
 
 void Tectonic::drawFrame() {
@@ -236,7 +263,7 @@ void Tectonic::drawFrame() {
 	submitInfo.pWaitSemaphores = &imageAvailableSemaphores[inFlightIndex];
 	submitInfo.pWaitDstStageMask = &waitDstStageMask;
 	submitInfo.commandBufferCount = 1;
-	submitInfo.pCommandBuffers = &commandBuffersArray[inFlightIndex];
+	submitInfo.pCommandBuffers = &commandBuffers[inFlightIndex];
 	submitInfo.signalSemaphoreCount = 1;
 	submitInfo.pSignalSemaphores = &renderFinishedSemaphores[inFlightIndex];
 
@@ -251,6 +278,9 @@ void Tectonic::drawFrame() {
 	presentInfo.pResults = nullptr;
 
 	result = vkQueuePresentKHR(mountain.queue, &presentInfo);
+
+	// TODO check if this is needed
+	// if (mountain.framebufferResized == true) { creater.reinit(); return; }
 
 	switch (result) {
 		case VK_SUCCESS:
