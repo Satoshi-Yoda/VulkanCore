@@ -20,7 +20,6 @@ public:
 	~Tectonic();
 
 	void drawFrame();
-	void createDescriptorSets();
 
 private:
 	Ash& ash;
@@ -39,12 +38,13 @@ private:
 	array<VkFramebuffer,   IN_FLIGHT_FRAMES> framebuffers;
 	array<VkBuffer,        IN_FLIGHT_FRAMES> uniformBuffers;
 	array<VkDeviceMemory,  IN_FLIGHT_FRAMES> uniformBuffersMemory;
-	array<VkDescriptorSet, IN_FLIGHT_FRAMES> descriptorSets;
+	vector<array<VkDescriptorSet, IN_FLIGHT_FRAMES>> descriptorSets;
 
 	void createInFlightResources();
 	void createUniformBuffers();
+	void resizeDescriptorSets(size_t size);
 	void updateInFlightUniformBuffer();
-	void updateInFlightDescriptorSet();
+	void updateInFlightDescriptorSet(size_t imageIndex, VkImageView& imageView);
 	void prepareFrame(uint32_t craterIndex);
 };
 

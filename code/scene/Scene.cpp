@@ -77,7 +77,9 @@ void Scene::loadVikingRoomTexture() {
 }
 
 void Scene::establish(Lava &lava, Tectonic &tectonic) {
-	lava.addObject(vertices, width, height, pixels);
+	for (int i = 0; i < 10; i++) {
+		lava.addObject(vertices, width, height, pixels);
+	}
 
 	freeTexture(pixels); // TODO move somewhere, maybe
 }

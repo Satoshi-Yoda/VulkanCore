@@ -51,13 +51,13 @@ Lava::~Lava() {
 		vkDeviceWaitIdle(mountain.device);
 	}
 
-	for (auto element : vertexBuffers)       if (element       != VK_NULL_HANDLE) vkDestroyBuffer(mountain.device, element, nullptr);
+	for (auto element : vertexBuffers)       if (element != VK_NULL_HANDLE) vkDestroyBuffer(mountain.device, element, nullptr);
 	for (auto element : vertexBufferMemorys) if (element != VK_NULL_HANDLE) vkFreeMemory(mountain.device, element, nullptr);
  
 	if (textureSampler != VK_NULL_HANDLE) vkDestroySampler(mountain.device, textureSampler, nullptr);
 
-	for (auto element : textureImageViews)   if (element   != VK_NULL_HANDLE) vkDestroyImageView(mountain.device, element, nullptr);
-	for (auto element : textureImages)       if (element       != VK_NULL_HANDLE) vkDestroyImage(mountain.device, element, nullptr);
+	for (auto element : textureImageViews)   if (element != VK_NULL_HANDLE) vkDestroyImageView(mountain.device, element, nullptr);
+	for (auto element : textureImages)       if (element != VK_NULL_HANDLE) vkDestroyImage(mountain.device, element, nullptr);
 	for (auto element : textureImageMemorys) if (element != VK_NULL_HANDLE) vkFreeMemory(mountain.device, element, nullptr);
 
 	if (descriptorSetLayout  != VK_NULL_HANDLE) vkDestroyDescriptorSetLayout(mountain.device, descriptorSetLayout, nullptr);
@@ -308,14 +308,17 @@ void Lava::establishTexture(int width, int height, void* pixels, VkImage& textur
 }
 
 void Lava::addObject(vector<Vertex> vertices, int width, int height, void* pixels) {
-	vertexBuffers.resize(1);
-	vertexBufferSizes.resize(1);
-	vertexBufferMemorys.resize(1);
-	textureImages.resize(1);
-	textureImageViews.resize(1);
-	textureImageMemorys.resize(1);
-	establishVertexBuffer(vertices, vertexBuffers[0], vertexBufferSizes[0], vertexBufferMemorys[0]);
-	establishTexture(width, height, pixels, textureImages[0], textureImageViews[0], textureImageMemorys[0]);
+	size_t newSize = textureImageViews.size() + 1;
+	vertexBuffers.resize(newSize);
+	vertexBufferSizes.resize(newSize);
+	vertexBufferMemorys.resize(newSize);
+	textureImages.resize(newSize);
+	textureImageViews.resize(newSize);
+	textureImageMemorys.resize(newSize);
+
+	size_t last = newSize - 1;
+	establishVertexBuffer(vertices, vertexBuffers[last], vertexBufferSizes[last], vertexBufferMemorys[last]);
+	establishTexture(width, height, pixels, textureImages[last], textureImageViews[last], textureImageMemorys[last]);
 }
 
 void Lava::createTextureSampler() {

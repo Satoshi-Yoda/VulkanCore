@@ -143,7 +143,7 @@ void Mountain::createInstance() {
 	appInfo.pApplicationName = "VulkanCore";
 	appInfo.applicationVersion = VK_MAKE_VERSION(0, 0, 0);
 	appInfo.pEngineName = "Engine";
-	appInfo.engineVersion = VK_MAKE_VERSION(0, 0, 16);
+	appInfo.engineVersion = VK_MAKE_VERSION(0, 0, 19);
 	appInfo.apiVersion = VK_API_VERSION_1_0;
 
 	auto requiredExtensions = getRequiredExtensions();
@@ -436,15 +436,18 @@ void Mountain::createCommandPool() {
 
 void Mountain::createDescriptorPool() {
 	array<VkDescriptorPoolSize, 2> poolSizes {};
+
+	uint32_t size = 2 * 1000; // about ~ IN_FLIGHT_FRAMES * texture count
+
 	poolSizes[0].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-	poolSizes[0].descriptorCount = 10; // TODO remove magic, maybe
+	poolSizes[0].descriptorCount = size;
 	poolSizes[1].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-	poolSizes[1].descriptorCount = 10; // TODO remove magic, maybe
+	poolSizes[1].descriptorCount = size;
 
 	VkDescriptorPoolCreateInfo poolInfo { VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO };
 	poolInfo.poolSizeCount = static_cast<uint32_t>(poolSizes.size());
 	poolInfo.pPoolSizes = poolSizes.data();
-	poolInfo.maxSets = 10; // TODO remove magic, maybe
+	poolInfo.maxSets = size;
 	poolInfo.flags = VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT;
 
 	vkCreateDescriptorPool(device, &poolInfo, nullptr, &descriptorPool) >> ash("Failed to create descriptor pool!");
