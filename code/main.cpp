@@ -14,6 +14,7 @@ using namespace std;
 
 int main() {
 	std::setvbuf(stdout, nullptr, _IONBF, 0);
+	printf("\n");
 
 	try {
 		auto start_createInstance = chrono::high_resolution_clock::now();
@@ -37,7 +38,7 @@ int main() {
 		mountain.showWindow();
 
 		auto finishLoading = chrono::high_resolution_clock::now();
-		printf("\nInitialized in %.3fs\n", chrono::duration_cast<chrono::duration<double>>(finishLoading - start_createInstance).count());
+		printf("Initialized in %.3fs\n", chrono::duration_cast<chrono::duration<double>>(finishLoading - start_createInstance).count());
 		uint64_t frame = 0;
 		chrono::time_point<chrono::high_resolution_clock> lastWindowTitleUpdate;
 
