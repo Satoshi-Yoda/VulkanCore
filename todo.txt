@@ -15,24 +15,5 @@ Qualities:
  - workers & multithreading
  - replays
 
-Things happens with one texture:
-	Lava.establishVertexBuffer():
-		vertexBuffer     used in Tectonic::prepareFrame()
-		vertexBufferSize used in Tectonic::prepareFrame()
-		vertexBufferMemory stored privately in lava
-	Lava.establishTexture():
-		textureImageView used in Tectonic::updateInFlightDescriptorSet()
-		textureImage       stored privately in lava
-		textureImageMemory stored privately in lava
-
-	So, for every sprite I need to:
-		create vertexBuffer
-		create vertexBufferSize
-		create vertexBufferMemory
-		create textureImage
-		create textureImageView
-		create textureImageMemory
-		iterate over it in Tectonic::prepareFrame()
-
 Optimizations:
  - create lazy hash? map for descriptorSets with keys: uniformBuffer + currentTextureView + currentTextureSampler instead of updating them every frame
