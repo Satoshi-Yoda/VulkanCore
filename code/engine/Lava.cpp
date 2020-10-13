@@ -282,7 +282,6 @@ void Lava::establishTexture(int width, int height, void* pixels) {
 	int mipLevels = 1;
 	// mipLevels = static_cast<uint32_t>(floor(log2(max(width, height)))) + 1;
 	VkDeviceSize imageSize = width * height * 4;
-	(pixels != nullptr) >> ash("Failed to load texture image!");
 
 	VkBuffer stagingBuffer;
 	VkDeviceMemory stagingBufferMemory;
@@ -295,7 +294,7 @@ void Lava::establishTexture(int width, int height, void* pixels) {
 		VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
 		textureImage, textureImageMemory);
 
-	// TODO use common command buffer for this operations to ensure performance
+	// TODO use common command buffer for this following operations to ensure performance:
 	rocks.transitionImageLayout(textureImage, preferred8bitFormat, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, mipLevels); // TODO check why in tutorial no mipLevels here
 	rocks.copyBufferToImage(stagingBuffer, textureImage, static_cast<uint32_t>(width), static_cast<uint32_t>(height));
 	rocks.transitionImageLayout(textureImage, preferred8bitFormat, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, mipLevels);

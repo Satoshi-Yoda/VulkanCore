@@ -14,3 +14,15 @@ Qualities:
  - rare updates
  - workers & multithreading
  - replays
+
+Things happens with one texture:
+	Lava.establishVertexBuffer():
+		vertexBuffer, vertexBufferSize used in Tectonic::prepareFrame()
+		vertexBufferMemory stored privately in lava
+	Lava.establishTexture():
+		textureImage used in Tectonic::createDescriptorSets()
+		textureImageView used in Tectonic::createDescriptorSets()
+		textureImageMemory stored privately in lava
+	Tectonic::createDescriptorSets():
+		descriptorSets[IN_FLIGHT_FRAMES] used in Tectonic::prepareFrame()
+		? Do I need to keep IN_FLIGHT_FRAMES descriptor sets instead of single one ?

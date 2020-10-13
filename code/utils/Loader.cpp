@@ -15,7 +15,7 @@ void loadTexture(string filename, void* &data, int *width, int *height) {
 	stbi_uc* pixels = stbi_load(filename.data(), width, height, &channels, STBI_rgb_alpha);
 	data = reinterpret_cast<void*>(pixels);
 
-	printf("Loaded picture %s in %.3fs\n", filename.data(), chrono::duration_cast<chrono::duration<double>>(chrono::high_resolution_clock::now() - start).count());
+	printf("Loaded %s in %.3fs\n", filename.data(), chrono::duration_cast<chrono::duration<double>>(chrono::high_resolution_clock::now() - start).count());
 }
 
 void freeTexture(void* &data) {

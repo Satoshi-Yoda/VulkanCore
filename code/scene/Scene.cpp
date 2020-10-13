@@ -40,7 +40,9 @@ void Scene::loadVikingRoomModel() {
 	vector<tinyobj::material_t> materials;
 	string warn, err;
 
-	if (!tinyobj::LoadObj(&attrib, &shapes, &materials, &warn, &err, MODEL_PATH.c_str())) {
+	string filename = MODEL_PATH;
+
+	if (!tinyobj::LoadObj(&attrib, &shapes, &materials, &warn, &err, filename.data())) {
 		throw runtime_error(warn + err);
 	}
 
@@ -65,11 +67,13 @@ void Scene::loadVikingRoomModel() {
 		}
 	}
 
-	printf("Loaded model in %.3fs\n", chrono::duration_cast<chrono::duration<double>>(chrono::high_resolution_clock::now() - start).count());
+	printf("Loaded %s in %.3fs\n", filename.data(), chrono::duration_cast<chrono::duration<double>>(chrono::high_resolution_clock::now() - start).count());
 }
 
 void Scene::loadVikingRoomTexture() {
 	loadTexture(TEXTURE_PATH.c_str(), pixels, &width, &height);
+	// TODO do some checking here that pixels != nullptr, or else: "Failed to load texture image!"
+	// TODO maybe some wrapper loader can return stub 1x1 image in that case
 }
 
 void Scene::establish(Lava &lava, Tectonic &tectonic) {
