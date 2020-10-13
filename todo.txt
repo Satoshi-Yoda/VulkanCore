@@ -26,3 +26,22 @@ Things happens with one texture:
 	Tectonic::createDescriptorSets():
 		descriptorSets[IN_FLIGHT_FRAMES] used in Tectonic::prepareFrame()
 		? Do I need to keep IN_FLIGHT_FRAMES descriptor sets instead of single one ? -> because it is linked to uniformBuffers[i]
+	Tectonic::prepareFrame() using:
+		vertexBuffer, vertexBufferSize
+		descriptorSets[IN_FLIGHT_FRAMES]
+
+	So, for every sprite I need to:
+		create vertexBuffer
+		create vertexBufferSize
+		create vertexBufferMemory
+		create textureImage
+		create textureImageView
+		create textureImageMemory
+		create descriptorSets[IN_FLIGHT_FRAMES]
+		iterate over it in Tectonic::prepareFrame()
+
+	Or, I can obtain descriptorSets[inFlightIndex] and modify it to use current texture
+
+	Or, I can obtain descriptorSet (single one) and modify in to use current texture AND current uniformBuffer
+
+	Or, I can later create lazy hash map for descriptorSets with keys: uniformBuffer + currentTexture + currentTextureSampler

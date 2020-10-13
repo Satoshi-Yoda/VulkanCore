@@ -207,8 +207,8 @@ void Tectonic::prepareFrame(uint32_t craterIndex) {
 			scissor.offset = { 0, 0 };
 			scissor.extent = crater.extent;
 
-			vkCmdSetViewport(commandBuffers[inFlightIndex], 0, 1, &viewport); // TODO needed for dynamic pipeline parameters if they are enabled
-			vkCmdSetScissor (commandBuffers[inFlightIndex], 0, 1, &scissor);  // TODO needed for dynamic pipeline parameters if they are enabled
+			vkCmdSetViewport(commandBuffers[inFlightIndex], 0, 1, &viewport);
+			vkCmdSetScissor (commandBuffers[inFlightIndex], 0, 1, &scissor);
 
 			VkBuffer vertexBuffers[] { lava.vertexBuffer };
 			VkDeviceSize offsets[] { 0 };
