@@ -67,7 +67,7 @@ void Scene::loadVikingRoomModel() {
 		}
 	}
 
-	printf("Loaded %s in %.3fs\n", filename.data(), chrono::duration_cast<chrono::duration<double>>(chrono::high_resolution_clock::now() - start).count());
+	printf("Loaded %s with %d vertices in %.3fs\n", filename.data(), vertices.size(), chrono::duration_cast<chrono::duration<double>>(chrono::high_resolution_clock::now() - start).count());
 }
 
 void Scene::loadVikingRoomTexture() {

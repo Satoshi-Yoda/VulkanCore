@@ -96,7 +96,7 @@ void Tectonic::updateInFlightUniformBuffer() {
 	UniformBufferObject ubo {};
 	ubo.model = glm::rotate(mat4(1.0f), 0.5f * time * radians(90.0f), vec3(0.0f, 0.0f, 1.0f));
 	ubo.view  = glm::lookAt(vec3(2.0f, 2.0f, 2.0f), vec3(0.0f, 0.0f, 0.0f), vec3(0.0f, 0.0f, 1.0f));
-	ubo.proj  = glm::perspective(radians(45.0f), static_cast<float>(crater.extent.width) / static_cast<float>(crater.extent.height), 0.1f, 10.0f);
+	ubo.proj  = glm::perspective(radians(45.0f), static_cast<float>(crater.extent.width) / static_cast<float>(crater.extent.height), 0.1f, 100.0f);
 	ubo.proj[1][1] *= -1;
 
 	// TODO map only once, and keep it mapped, better for performance
