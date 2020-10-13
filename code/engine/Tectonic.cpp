@@ -104,7 +104,7 @@ void Tectonic::updateInFlightUniformBuffer() {
 void Tectonic::updateInFlightDescriptorSet() {
 	VkDescriptorImageInfo imageInfo {};
 	imageInfo.sampler = lava.textureSampler;
-	imageInfo.imageView = lava.textureImageView;
+	imageInfo.imageView = lava.textureImageViews[0];
 	imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
 
 	VkDescriptorBufferInfo uniformInfo {};
@@ -211,11 +211,11 @@ void Tectonic::prepareFrame(uint32_t craterIndex) {
 			vkCmdSetViewport(commandBuffers[inFlightIndex], 0, 1, &viewport);
 			vkCmdSetScissor (commandBuffers[inFlightIndex], 0, 1, &scissor);
 
-			VkBuffer vertexBuffers[] { lava.vertexBuffer };
+			VkBuffer vertexBuffers[] { lava.vertexBuffers[0] };
 			VkDeviceSize offsets[] { 0 };
 			vkCmdBindVertexBuffers(commandBuffers[inFlightIndex], 0, 1, vertexBuffers, offsets);
 			vkCmdBindDescriptorSets(commandBuffers[inFlightIndex], VK_PIPELINE_BIND_POINT_GRAPHICS, lava.pipelineLayout, 0, 1, &descriptorSets[inFlightIndex], 0, nullptr);
-			vkCmdDraw(commandBuffers[inFlightIndex], lava.vertexBufferSize, 1, 0, 0);
+			vkCmdDraw(commandBuffers[inFlightIndex], lava.vertexBufferSizes[0], 1, 0, 0);
 
 		vkCmdEndRenderPass(commandBuffers[inFlightIndex]);
 

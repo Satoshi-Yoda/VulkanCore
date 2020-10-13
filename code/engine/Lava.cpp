@@ -51,13 +51,14 @@ Lava::~Lava() {
 		vkDeviceWaitIdle(mountain.device);
 	}
 
-	if (vertexBuffer         != VK_NULL_HANDLE) vkDestroyBuffer(mountain.device, vertexBuffer, nullptr);
-	if (vertexBufferMemory   != VK_NULL_HANDLE) vkFreeMemory(mountain.device, vertexBufferMemory, nullptr);
+	for (auto element : vertexBuffers)       if (element       != VK_NULL_HANDLE) vkDestroyBuffer(mountain.device, element, nullptr);
+	for (auto element : vertexBufferMemorys) if (element != VK_NULL_HANDLE) vkFreeMemory(mountain.device, element, nullptr);
  
-	if (textureSampler       != VK_NULL_HANDLE) vkDestroySampler(mountain.device, textureSampler, nullptr);
-	if (textureImageView     != VK_NULL_HANDLE) vkDestroyImageView(mountain.device, textureImageView, nullptr);
-	if (textureImage         != VK_NULL_HANDLE) vkDestroyImage(mountain.device, textureImage, nullptr);
-	if (textureImageMemory   != VK_NULL_HANDLE) vkFreeMemory(mountain.device, textureImageMemory, nullptr);
+	if (textureSampler != VK_NULL_HANDLE) vkDestroySampler(mountain.device, textureSampler, nullptr);
+
+	for (auto element : textureImageViews)   if (element   != VK_NULL_HANDLE) vkDestroyImageView(mountain.device, element, nullptr);
+	for (auto element : textureImages)       if (element       != VK_NULL_HANDLE) vkDestroyImage(mountain.device, element, nullptr);
+	for (auto element : textureImageMemorys) if (element != VK_NULL_HANDLE) vkFreeMemory(mountain.device, element, nullptr);
 
 	if (descriptorSetLayout  != VK_NULL_HANDLE) vkDestroyDescriptorSetLayout(mountain.device, descriptorSetLayout, nullptr);
 	if (descriptorSetLayout2 != VK_NULL_HANDLE) vkDestroyDescriptorSetLayout(mountain.device, descriptorSetLayout2, nullptr);
@@ -261,7 +262,7 @@ void Lava::createPipeline() {
 	vkDestroyShaderModule(mountain.device, vertShaderModule, nullptr);
 }
 
-void Lava::establishVertexBuffer(vector<Vertex> vertices) {
+void Lava::establishVertexBuffer(vector<Vertex> vertices, VkBuffer& vertexBuffer, uint32_t& vertexBufferSize, VkDeviceMemory& vertexBufferMemory) {
 	vertexBufferSize = vertices.size();
 	VkDeviceSize bufferSize = sizeof(Vertex) * vertices.size();
 
@@ -278,7 +279,7 @@ void Lava::establishVertexBuffer(vector<Vertex> vertices) {
 	vkFreeMemory(mountain.device, stagingBufferMemory, nullptr);
 }
 
-void Lava::establishTexture(int width, int height, void* pixels) {
+void Lava::establishTexture(int width, int height, void* pixels, VkImage& textureImage, VkImageView& textureImageView, VkDeviceMemory& textureImageMemory) {
 	int mipLevels = 1;
 	// mipLevels = static_cast<uint32_t>(floor(log2(max(width, height)))) + 1;
 	VkDeviceSize imageSize = width * height * 4;
@@ -304,6 +305,17 @@ void Lava::establishTexture(int width, int height, void* pixels) {
 	vkFreeMemory(mountain.device, stagingBufferMemory, nullptr);
 
 	textureImageView = rocks.createImageView(textureImage, preferred8bitFormat, VK_IMAGE_ASPECT_COLOR_BIT, mipLevels);
+}
+
+void Lava::addObject(vector<Vertex> vertices, int width, int height, void* pixels) {
+	vertexBuffers.resize(1);
+	vertexBufferSizes.resize(1);
+	vertexBufferMemorys.resize(1);
+	textureImages.resize(1);
+	textureImageViews.resize(1);
+	textureImageMemorys.resize(1);
+	establishVertexBuffer(vertices, vertexBuffers[0], vertexBufferSizes[0], vertexBufferMemorys[0]);
+	establishTexture(width, height, pixels, textureImages[0], textureImageViews[0], textureImageMemorys[0]);
 }
 
 void Lava::createTextureSampler() {

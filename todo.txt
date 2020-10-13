@@ -17,18 +17,13 @@ Qualities:
 
 Things happens with one texture:
 	Lava.establishVertexBuffer():
-		vertexBuffer, vertexBufferSize used in Tectonic::prepareFrame()
+		vertexBuffer     used in Tectonic::prepareFrame()
+		vertexBufferSize used in Tectonic::prepareFrame()
 		vertexBufferMemory stored privately in lava
 	Lava.establishTexture():
-		textureImage used in Tectonic::createDescriptorSets()
-		textureImageView used in Tectonic::createDescriptorSets()
+		textureImageView used in Tectonic::updateInFlightDescriptorSet()
+		textureImage       stored privately in lava
 		textureImageMemory stored privately in lava
-	Tectonic::createDescriptorSets():
-		descriptorSets[IN_FLIGHT_FRAMES] used in Tectonic::prepareFrame()
-		? Do I need to keep IN_FLIGHT_FRAMES descriptor sets instead of single one ? -> because it is linked to uniformBuffers[i]
-	Tectonic::prepareFrame() using:
-		vertexBuffer, vertexBufferSize
-		descriptorSets[IN_FLIGHT_FRAMES]
 
 	So, for every sprite I need to:
 		create vertexBuffer
@@ -37,11 +32,7 @@ Things happens with one texture:
 		create textureImage
 		create textureImageView
 		create textureImageMemory
-		create descriptorSets[IN_FLIGHT_FRAMES]
 		iterate over it in Tectonic::prepareFrame()
 
-	Or, I can obtain descriptorSets[inFlightIndex] and modify it to use current texture
-
-	Or, I can obtain descriptorSet (single one) and modify in to use current texture AND current uniformBuffer
-
-	Or, I can later create lazy hash? map for descriptorSets with keys: uniformBuffer + currentTextureView + currentTextureSampler
+Optimizations:
+ - create lazy hash? map for descriptorSets with keys: uniformBuffer + currentTextureView + currentTextureSampler instead of updating them every frame

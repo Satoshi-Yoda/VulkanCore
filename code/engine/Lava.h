@@ -36,16 +36,15 @@ public:
 	VkRenderPass renderPass;
 	VkPipelineLayout pipelineLayout;
 	VkPipeline pipeline;
-	VkBuffer vertexBuffer;
-	uint32_t vertexBufferSize;
+	vector<VkBuffer> vertexBuffers;
+	vector<uint32_t> vertexBufferSizes;
 	VkDescriptorSetLayout descriptorSetLayout;
 	VkDescriptorSetLayout descriptorSetLayout2;
 
-	VkImageView textureImageView;
+	vector<VkImageView> textureImageViews;
 	VkSampler textureSampler;
 
-	void establishVertexBuffer(vector<Vertex> vertices);
-	void establishTexture(int width, int height, void* pixels);
+	void addObject(vector<Vertex> vertices, int width, int height, void* pixels);
 
 private:
 	Ash& ash;
@@ -57,9 +56,9 @@ private:
 
 	int mipLevels = 1;
 
-	VkDeviceMemory vertexBufferMemory; // TODO maybe move somewhere? To the "storage"?
-	VkImage textureImage;
-	VkDeviceMemory textureImageMemory;
+	vector<VkDeviceMemory> vertexBufferMemorys; // TODO maybe move somewhere? To the "storage"?
+	vector<VkImage> textureImages;
+	vector<VkDeviceMemory> textureImageMemorys;
 
 	void createRenderPass();
 	void createPipeline();
@@ -68,6 +67,9 @@ private:
 
 	void createDescriptorSetLayout();
 	void createDescriptorSetLayout2();
+
+	void establishVertexBuffer(vector<Vertex> vertices, VkBuffer& vertexBufferL, uint32_t& vertexBufferSizeL, VkDeviceMemory& vertexBufferMemoryL);
+	void establishTexture(int width, int height, void* pixels, VkImage& textureImageL, VkImageView& textureImageViewL, VkDeviceMemory& textureImageMemoryL);
 };
 
 #endif
