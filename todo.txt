@@ -25,4 +25,4 @@ Things happens with one texture:
 		textureImageMemory stored privately in lava
 	Tectonic::createDescriptorSets():
 		descriptorSets[IN_FLIGHT_FRAMES] used in Tectonic::prepareFrame()
-		? Do I need to keep IN_FLIGHT_FRAMES descriptor sets instead of single one ?
+		? Do I need to keep IN_FLIGHT_FRAMES descriptor sets instead of single one ? -> because it is linked to uniformBuffers[i]
