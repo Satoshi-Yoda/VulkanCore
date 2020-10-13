@@ -24,6 +24,7 @@ struct UniformBufferObject {
 Tectonic::Tectonic(Ash &ash, Mountain &mountain, Rocks &rocks, Crater &crater, Lava &lava) : ash(ash), mountain(mountain), rocks(rocks), crater(crater), lava(lava) {
 	createInFlightResources();
 	createUniformBuffers();
+	createDescriptorSets();
 }
 
 Tectonic::~Tectonic() {
@@ -77,41 +78,9 @@ void Tectonic::createDescriptorSets() {
 	allocInfo.pSetLayouts = layouts.data();
 
 	vkAllocateDescriptorSets(mountain.device, &allocInfo, descriptorSets.data()) >> ash("Failed to allocate descriptor set!");
-
-	for (size_t i = 0; i < IN_FLIGHT_FRAMES; i++) {
-		VkDescriptorImageInfo imageInfo {};
-		imageInfo.sampler = lava.textureSampler;
-		imageInfo.imageView = lava.textureImageView;
-		imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-
-		VkDescriptorBufferInfo uniformInfo {};
-		uniformInfo.buffer = uniformBuffers[i];
-		uniformInfo.offset = 0;
-		uniformInfo.range = sizeof(UniformBufferObject);
-
-		VkWriteDescriptorSet imageWrite { VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET };
-		imageWrite.dstSet = descriptorSets[i];
-		imageWrite.dstBinding = 0;
-		imageWrite.dstArrayElement = 0;
-		imageWrite.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-		imageWrite.descriptorCount = 1;
-		imageWrite.pImageInfo = &imageInfo;
-
-		VkWriteDescriptorSet uniformWrite { VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET };
-		uniformWrite.dstSet = descriptorSets[i];
-		uniformWrite.dstBinding = 1;
-		uniformWrite.dstArrayElement = 0;
-		uniformWrite.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-		uniformWrite.descriptorCount = 1;
-		uniformWrite.pBufferInfo = &uniformInfo;
-
-		array<VkWriteDescriptorSet, 2> descriptorWrites { imageWrite, uniformWrite };
-
-		vkUpdateDescriptorSets(mountain.device, static_cast<uint32_t>(descriptorWrites.size()), descriptorWrites.data(), 0, nullptr);
-	}
 }
 
-void Tectonic::updateUniformBuffer() {
+void Tectonic::updateInFlightUniformBuffer() {
 	static auto startTime = chrono::high_resolution_clock::now();
 	static auto  lastTime = chrono::high_resolution_clock::now();
 	auto      currentTime = chrono::high_resolution_clock::now();
@@ -130,6 +99,38 @@ void Tectonic::updateUniformBuffer() {
 	vkMapMemory(mountain.device, uniformBuffersMemory[inFlightIndex], 0, sizeof(ubo), 0, &data);
 	memcpy(data, &ubo, sizeof(ubo));
 	vkUnmapMemory(mountain.device, uniformBuffersMemory[inFlightIndex]);
+}
+
+void Tectonic::updateInFlightDescriptorSet() {
+	VkDescriptorImageInfo imageInfo {};
+	imageInfo.sampler = lava.textureSampler;
+	imageInfo.imageView = lava.textureImageView;
+	imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+
+	VkDescriptorBufferInfo uniformInfo {};
+	uniformInfo.buffer = uniformBuffers[inFlightIndex];
+	uniformInfo.offset = 0;
+	uniformInfo.range = sizeof(UniformBufferObject);
+
+	VkWriteDescriptorSet imageWrite { VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET };
+	imageWrite.dstSet = descriptorSets[inFlightIndex];
+	imageWrite.dstBinding = 0;
+	imageWrite.dstArrayElement = 0;
+	imageWrite.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+	imageWrite.descriptorCount = 1;
+	imageWrite.pImageInfo = &imageInfo;
+
+	VkWriteDescriptorSet uniformWrite { VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET };
+	uniformWrite.dstSet = descriptorSets[inFlightIndex];
+	uniformWrite.dstBinding = 1;
+	uniformWrite.dstArrayElement = 0;
+	uniformWrite.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+	uniformWrite.descriptorCount = 1;
+	uniformWrite.pBufferInfo = &uniformInfo;
+
+	array<VkWriteDescriptorSet, 2> descriptorWrites { imageWrite, uniformWrite };
+
+	vkUpdateDescriptorSets(mountain.device, static_cast<uint32_t>(descriptorWrites.size()), descriptorWrites.data(), 0, nullptr);
 }
 
 void Tectonic::prepareFrame(uint32_t craterIndex) {
@@ -254,7 +255,8 @@ void Tectonic::drawFrame() {
 	vkWaitForFences(mountain.device, 1, &fences[inFlightIndex], VK_FALSE, UINT64_MAX) >> ash("Waiting for fence too long!");
 	vkResetFences(mountain.device, 1, &fences[inFlightIndex]);
 
-	updateUniformBuffer();
+	updateInFlightUniformBuffer();
+	updateInFlightDescriptorSet();
 	prepareFrame(craterIndex); // TODO check for fails before continue
 
 	VkPipelineStageFlags waitDstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT; // TODO what was that: VK_PIPELINE_STAGE_TRANSFER_BIT ?

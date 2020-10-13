@@ -44,4 +44,4 @@ Things happens with one texture:
 
 	Or, I can obtain descriptorSet (single one) and modify in to use current texture AND current uniformBuffer
 
-	Or, I can later create lazy hash map for descriptorSets with keys: uniformBuffer + currentTexture + currentTextureSampler
+	Or, I can later create lazy hash? map for descriptorSets with keys: uniformBuffer + currentTextureView + currentTextureSampler

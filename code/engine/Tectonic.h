@@ -43,7 +43,8 @@ private:
 
 	void createInFlightResources();
 	void createUniformBuffers();
-	void updateUniformBuffer();
+	void updateInFlightUniformBuffer();
+	void updateInFlightDescriptorSet();
 	void prepareFrame(uint32_t craterIndex);
 };
 
