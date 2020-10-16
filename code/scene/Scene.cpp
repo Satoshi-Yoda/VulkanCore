@@ -20,16 +20,21 @@ Scene::~Scene() {}
 
 void Scene::loadSquare() {
 	vertices = {
-		{ {-0.7f, -0.7f, 0.0f }, { 1.9f, 1.9f, 1.9f }, { 0.0f, 0.0f } },
-		{ {-0.7f,  0.7f, 0.0f }, { 1.0f, 1.0f, 1.0f }, { 0.0f, 1.0f } },
-		{ { 0.7f, -0.7f, 0.0f }, { 1.0f, 1.0f, 1.0f }, { 1.0f, 0.0f } },
-		{ { 0.7f,  0.7f, 0.0f }, { 0.1f, 0.1f, 0.1f }, { 1.0f, 1.0f } },
+		{ {-0.7f,  0.7f, 1.0f }, { 1.0f, 1.0f, 1.0f }, { 0.0f, 1.0f } },
+		{ {-0.7f, -0.7f, 1.0f }, { 1.0f, 1.0f, 1.0f }, { 0.0f, 0.0f } },
+		{ { 0.7f,  0.7f, 1.0f }, { 1.0f, 1.0f, 1.0f }, { 1.0f, 1.0f } },
+		{ { 0.7f, -0.7f, 1.0f }, { 1.0f, 1.0f, 1.0f }, { 1.0f, 0.0f } },
 	};
 }
 
 void Scene::load() {
 	loadVikingRoomModel();
-	loadVikingRoomTexture();
+	loadTexture(TEXTURE_PATH.c_str(), pixels, &width, &height);
+	// TODO do some checking here that pixels != nullptr, or else: "Failed to load texture image!"
+	// TODO maybe some wrapper loader can return stub 1x1 image in that case
+
+	// loadSquare();
+	// loadTexture("pictures/tile.png", pixels, &width, &height);
 }
 
 void Scene::loadVikingRoomModel() {
@@ -71,15 +76,19 @@ void Scene::loadVikingRoomModel() {
 }
 
 void Scene::loadVikingRoomTexture() {
-	loadTexture(TEXTURE_PATH.c_str(), pixels, &width, &height);
-	// TODO do some checking here that pixels != nullptr, or else: "Failed to load texture image!"
-	// TODO maybe some wrapper loader can return stub 1x1 image in that case
+
 }
 
 void Scene::establish(Lava &lava, Tectonic &tectonic) {
 	for (int i = 0; i < 10; i++) {
 		lava.addObject(vertices, width, height, pixels);
 	}
+
+	freeTexture(pixels); // TODO move somewhere, maybe
+
+	loadSquare();
+	loadTexture("pictures/tile.png", pixels, &width, &height);
+	lava.addObject(vertices, width, height, pixels);
 
 	freeTexture(pixels); // TODO move somewhere, maybe
 }
