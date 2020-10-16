@@ -321,6 +321,10 @@ void Lava::addObject(vector<Vertex> vertices, int width, int height, void* pixel
 	establishTexture(width, height, pixels, textureImages[last], textureImageViews[last], textureImageMemorys[last]);
 }
 
+size_t Lava::texturesCount() {
+	return textureImageViews.size();
+}
+
 void Lava::createTextureSampler() {
 	VkSamplerCreateInfo samplerInfo { VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO };
 	samplerInfo.magFilter = VK_FILTER_NEAREST;

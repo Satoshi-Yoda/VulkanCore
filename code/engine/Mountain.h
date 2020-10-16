@@ -36,7 +36,7 @@ public:
 	const bool USE_FULLSCREEN        = false;
 	const bool USE_BORDERLESS_WINDOW = false;
 	const bool USE_SAMPLE_SHADING    = false;
-	const bool USE_VALIDATION_LAYERS = true;
+	const bool USE_VALIDATION_LAYERS = false;
 
 	Mountain(Ash &ash);
 	Mountain(const Mountain&) = delete;

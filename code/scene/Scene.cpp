@@ -20,16 +20,16 @@ Scene::~Scene() {}
 
 void Scene::loadSquare() {
 	vertices = {
-		{ {-0.7f,  0.7f, 1.0f }, { 1.0f, 1.0f, 1.0f }, { 0.0f, 1.0f } },
-		{ {-0.7f, -0.7f, 1.0f }, { 1.0f, 1.0f, 1.0f }, { 0.0f, 0.0f } },
-		{ { 0.7f,  0.7f, 1.0f }, { 1.0f, 1.0f, 1.0f }, { 1.0f, 1.0f } },
-		{ { 0.7f, -0.7f, 1.0f }, { 1.0f, 1.0f, 1.0f }, { 1.0f, 0.0f } },
+		{ {-1.0f,  1.0f, 0.0f }, { 1.0f, 1.0f, 1.0f }, { 0.0f, 1.0f } },
+		{ {-1.0f, -1.0f, 0.0f }, { 1.0f, 1.0f, 1.0f }, { 0.0f, 0.0f } },
+		{ { 1.0f,  1.0f, 0.0f }, { 1.0f, 1.0f, 1.0f }, { 1.0f, 1.0f } },
+		{ { 1.0f, -1.0f, 0.0f }, { 1.0f, 1.0f, 1.0f }, { 1.0f, 0.0f } },
 	};
 }
 
 void Scene::load() {
-	loadVikingRoomModel();
-	loadTexture(TEXTURE_PATH.c_str(), pixels, &width, &height);
+	// loadVikingRoomModel();
+	// loadTexture(TEXTURE_PATH.c_str(), pixels, &width, &height);
 	// TODO do some checking here that pixels != nullptr, or else: "Failed to load texture image!"
 	// TODO maybe some wrapper loader can return stub 1x1 image in that case
 
@@ -75,20 +75,37 @@ void Scene::loadVikingRoomModel() {
 	printf("Loaded %s with %d vertices in %.3fs\n", filename.data(), vertices.size(), chrono::duration_cast<chrono::duration<double>>(chrono::high_resolution_clock::now() - start).count());
 }
 
-void Scene::loadVikingRoomTexture() {
+void Scene::move(vec2 shift) {
+	for (auto& v : vertices) {
+		v.pos[0] += shift[0];
+		v.pos[1] += shift[1];
+	}
+}
 
+void Scene::scale(float value) {
+	for (auto& v : vertices) {
+		v.pos *= value;
+	}
 }
 
 void Scene::establish(Lava &lava, Tectonic &tectonic) {
-	for (int i = 0; i < 10; i++) {
+	// loadSquare();
+	loadTexture("pictures/tile.png", pixels, &width, &height);
+
+	int count = 32;
+	float extent = 1.0f;
+	float step = 2 * extent / count;
+
+	for (float x = -extent; x < extent; x += step)
+	for (float y = -extent; y < extent; y += step)
+	{
+		loadSquare();
+		scale(0.5f * step);
+		move({ x, y });
 		lava.addObject(vertices, width, height, pixels);
 	}
 
-	freeTexture(pixels); // TODO move somewhere, maybe
-
-	loadSquare();
-	loadTexture("pictures/tile.png", pixels, &width, &height);
-	lava.addObject(vertices, width, height, pixels);
+	printf("Lava: %d draw calls\n", lava.texturesCount());
 
 	freeTexture(pixels); // TODO move somewhere, maybe
 }

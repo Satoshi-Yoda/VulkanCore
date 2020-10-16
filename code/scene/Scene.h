@@ -17,6 +17,7 @@
 
 using std::vector;
 using std::string;
+using glm::vec2;
 
 class Scene {
 public:
@@ -39,7 +40,8 @@ private:
 
 	void loadSquare();
 	void loadVikingRoomModel();
-	void loadVikingRoomTexture();
+	void move(vec2 shift);
+	void scale(float value);
 };
 
 #endif

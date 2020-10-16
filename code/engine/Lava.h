@@ -45,6 +45,7 @@ public:
 	VkSampler textureSampler;
 
 	void addObject(vector<Vertex> vertices, int width, int height, void* pixels);
+	size_t texturesCount();
 
 private:
 	Ash& ash;

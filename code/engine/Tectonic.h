@@ -44,7 +44,7 @@ private:
 	void createUniformBuffers();
 	void resizeDescriptorSets(size_t size);
 	void updateInFlightUniformBuffer();
-	void updateInFlightDescriptorSet(size_t imageIndex, VkImageView& imageView);
+	void updateDescriptorSet(size_t frameIndex, size_t textureIndex, VkImageView& imageView);
 	void prepareFrame(uint32_t craterIndex);
 };
 

@@ -143,7 +143,7 @@ void Mountain::createInstance() {
 	appInfo.pApplicationName = "VulkanCore";
 	appInfo.applicationVersion = VK_MAKE_VERSION(0, 0, 0);
 	appInfo.pEngineName = "Engine";
-	appInfo.engineVersion = VK_MAKE_VERSION(0, 0, 19);
+	appInfo.engineVersion = VK_MAKE_VERSION(0, 0, 20);
 	appInfo.apiVersion = VK_API_VERSION_1_0;
 
 	auto requiredExtensions = getRequiredExtensions();
@@ -437,7 +437,7 @@ void Mountain::createCommandPool() {
 void Mountain::createDescriptorPool() {
 	array<VkDescriptorPoolSize, 2> poolSizes {};
 
-	uint32_t size = 2 * 1000; // about ~ IN_FLIGHT_FRAMES * texture count
+	uint32_t size = 2 * 5000; // about ~ IN_FLIGHT_FRAMES * texture count
 
 	poolSizes[0].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
 	poolSizes[0].descriptorCount = size;
