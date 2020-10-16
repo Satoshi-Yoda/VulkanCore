@@ -19,12 +19,10 @@ Scene::Scene() {}
 Scene::~Scene() {}
 
 void Scene::load() {
-	// loadVikingRoomModel();
 	// loadTexture(TEXTURE_PATH.c_str(), pixels, &width, &height);
 	// TODO do some checking here that pixels != nullptr, or else: "Failed to load texture image!"
 	// TODO maybe some wrapper loader can return stub 1x1 image in that case
 
-	// loadSquare();
 	// loadTexture("pictures/tile.png", pixels, &width, &height);
 }
 
@@ -47,19 +45,16 @@ void Scene::addSprite(int x, int y, int w, int h) {
 	int y_min = y - h / 2;
 	int y_max = y_min + h;
 
-	float scale = 1.0f;
+	vertices.push_back({ { x_min, y_max }, { 0.0f, 1.0f } });
+	vertices.push_back({ { x_min, y_min }, { 0.0f, 0.0f } });
+	vertices.push_back({ { x_max, y_max }, { 1.0f, 1.0f } });
 
-	vertices.push_back({ { x_min * scale, y_max * scale }, { 0.0f, 1.0f } });
-	vertices.push_back({ { x_min * scale, y_min * scale }, { 0.0f, 0.0f } });
-	vertices.push_back({ { x_max * scale, y_max * scale }, { 1.0f, 1.0f } });
-
-	vertices.push_back({ { x_max * scale, y_max * scale }, { 1.0f, 1.0f } });
-	vertices.push_back({ { x_min * scale, y_min * scale }, { 0.0f, 0.0f } });
-	vertices.push_back({ { x_max * scale, y_min * scale }, { 1.0f, 0.0f } });
+	vertices.push_back({ { x_max, y_max }, { 1.0f, 1.0f } });
+	vertices.push_back({ { x_min, y_min }, { 0.0f, 0.0f } });
+	vertices.push_back({ { x_max, y_min }, { 1.0f, 0.0f } });
 }
 
 void Scene::establish(Lava &lava, Tectonic &tectonic) {
-	// loadSquare();
 	loadTexture("pictures/tile.png", pixels, &width, &height);
 
 	int count = 770;
