@@ -49,13 +49,13 @@ void Scene::addSprite(int x, int y, int w, int h) {
 
 	float scale = 1.0f;
 
-	vertices.push_back({ { x_min * scale, y_max * scale, 0.0f }, { 0.0f, 1.0f } });
-	vertices.push_back({ { x_min * scale, y_min * scale, 0.0f }, { 0.0f, 0.0f } });
-	vertices.push_back({ { x_max * scale, y_max * scale, 0.0f }, { 1.0f, 1.0f } });
+	vertices.push_back({ { x_min * scale, y_max * scale }, { 0.0f, 1.0f } });
+	vertices.push_back({ { x_min * scale, y_min * scale }, { 0.0f, 0.0f } });
+	vertices.push_back({ { x_max * scale, y_max * scale }, { 1.0f, 1.0f } });
 
-	vertices.push_back({ { x_max * scale, y_max * scale, 0.0f }, { 1.0f, 1.0f } });
-	vertices.push_back({ { x_min * scale, y_min * scale, 0.0f }, { 0.0f, 0.0f } });
-	vertices.push_back({ { x_max * scale, y_min * scale, 0.0f }, { 1.0f, 0.0f } });
+	vertices.push_back({ { x_max * scale, y_max * scale }, { 1.0f, 1.0f } });
+	vertices.push_back({ { x_min * scale, y_min * scale }, { 0.0f, 0.0f } });
+	vertices.push_back({ { x_max * scale, y_min * scale }, { 1.0f, 0.0f } });
 }
 
 void Scene::establish(Lava &lava, Tectonic &tectonic) {

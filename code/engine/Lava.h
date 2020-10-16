@@ -20,7 +20,7 @@ using glm::vec3;
 
 // TODO maybe move Vertex into separate file
 struct Vertex {
-	vec3 pos;
+	vec2 pos;
 	vec2 texCoord;
 
 	static VkVertexInputBindingDescription getBindingDescription();

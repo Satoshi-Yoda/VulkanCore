@@ -6,7 +6,7 @@ layout(binding = 1) uniform UniformBufferObject {
 	vec2 shift;
 } ubo;
 
-layout(location = 0) in vec3 inPosition;
+layout(location = 0) in vec2 inPosition;
 layout(location = 1) in vec2 inTexCoord;
 
 out gl_PerVertex {
@@ -17,6 +17,6 @@ layout(location = 0) out vec3 fragColor;
 layout(location = 1) out vec2 fragTexCoord;
 
 void main() {
-	gl_Position = vec4((inPosition.xy + ubo.shift) * ubo.scale, 0.0, 1.0);
+	gl_Position = vec4((inPosition + ubo.shift) * ubo.scale, 0.0, 1.0);
 	fragTexCoord = inTexCoord;
 }
