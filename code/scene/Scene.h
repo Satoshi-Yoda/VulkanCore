@@ -38,8 +38,6 @@ private:
 	int width, height;
 	void* pixels;
 
-	void loadSquare();
-	void loadVikingRoomModel();
 	void move(vec2 shift);
 	void scale(float value);
 	void addSprite(int x, int y, int w, int h);

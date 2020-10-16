@@ -21,11 +21,10 @@ using glm::vec3;
 // TODO maybe move Vertex into separate file
 struct Vertex {
 	vec3 pos;
-	vec3 color;
 	vec2 texCoord;
 
 	static VkVertexInputBindingDescription getBindingDescription();
-	static array<VkVertexInputAttributeDescription, 3> getAttributeDescriptions();
+	static array<VkVertexInputAttributeDescription, 2> getAttributeDescriptions();
 };
 
 class Lava {
