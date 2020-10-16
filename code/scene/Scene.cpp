@@ -88,22 +88,42 @@ void Scene::scale(float value) {
 	}
 }
 
+void Scene::addSprite(int x, int y, int w, int h) {
+	int x_min = x - w / 2;
+	int x_max = x_min + w;
+	int y_min = y - h / 2;
+	int y_max = y_min + h;
+
+	float scale = 1.0f;
+
+	vertices.push_back({ { x_min * scale, y_max * scale, 0.0f }, { 1.0f, 1.0f, 1.0f }, { 0.0f, 1.0f } });
+	vertices.push_back({ { x_min * scale, y_min * scale, 0.0f }, { 1.0f, 1.0f, 1.0f }, { 0.0f, 0.0f } });
+	vertices.push_back({ { x_max * scale, y_max * scale, 0.0f }, { 1.0f, 1.0f, 1.0f }, { 1.0f, 1.0f } });
+
+	vertices.push_back({ { x_max * scale, y_max * scale, 0.0f }, { 1.0f, 1.0f, 1.0f }, { 1.0f, 1.0f } });
+	vertices.push_back({ { x_min * scale, y_min * scale, 0.0f }, { 1.0f, 1.0f, 1.0f }, { 0.0f, 0.0f } });
+	vertices.push_back({ { x_max * scale, y_min * scale, 0.0f }, { 1.0f, 1.0f, 1.0f }, { 1.0f, 0.0f } });
+}
+
 void Scene::establish(Lava &lava, Tectonic &tectonic) {
 	// loadSquare();
 	loadTexture("pictures/tile.png", pixels, &width, &height);
 
-	int count = 32;
-	float extent = 1.0f;
-	float step = 2 * extent / count;
+	int count = 770;
+	int extent_h = 800 / 2;
+	int extent_w = 1500 / 2;
+	float step = 2.0f * extent_h / count;
 
-	for (float x = -extent; x < extent; x += step)
-	for (float y = -extent; y < extent; y += step)
+	for (float x = -extent_w; x < extent_w; x += step)
+	for (float y = -extent_h; y < extent_h; y += step)
 	{
-		loadSquare();
-		scale(0.5f * step);
-		move({ x, y });
-		lava.addObject(vertices, width, height, pixels);
+		addSprite(x, y, width, height);
 	}
+
+	printf("Lava: %d = %d faces\n", count * count * 2 * extent_w / extent_h, vertices.size() / 3);
+	printf("Lava: %d sprites\n", vertices.size() / 6);
+
+	lava.addObject(vertices, width, height, pixels);
 
 	printf("Lava: %d draw calls\n", lava.texturesCount());
 

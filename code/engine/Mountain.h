@@ -48,8 +48,8 @@ public:
 private:
 	Ash& ash;
 
-	uint32_t windowWidth  = 2048;
-	uint32_t windowHeight = 1536;
+	uint32_t windowWidth  = 1600;
+	uint32_t windowHeight = 900;
 	uint32_t queueFamilyIndex;
 	VkDebugUtilsMessengerEXT debugMessenger;
 

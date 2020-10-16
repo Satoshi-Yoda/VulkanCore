@@ -16,9 +16,11 @@ using glm::mat4;
 using glm::radians;
 
 struct UniformBufferObject {
-    mat4 model;
-    mat4 view;
-    mat4 proj;
+    // mat4 model;
+    // mat4 view;
+    // mat4 proj;
+    vec2 scale;
+    vec2 shift;
 };
 
 Tectonic::Tectonic(Ash &ash, Mountain &mountain, Rocks &rocks, Crater &crater, Lava &lava) : ash(ash), mountain(mountain), rocks(rocks), crater(crater), lava(lava) {
@@ -101,10 +103,13 @@ void Tectonic::updateInFlightUniformBuffer() {
 	lastTime = currentTime;
 
 	UniformBufferObject ubo {};
-	ubo.model = glm::rotate(mat4(1.0f), 0.2f * time * radians(90.0f), vec3(0.0f, 0.0f, 1.0f));
-	ubo.view  = glm::lookAt(vec3(1.0f, 1.0f, 4.0f), vec3(0.0f, 0.0f, 0.0f), vec3(0.0f, 0.0f, 1.0f));
-	ubo.proj  = glm::perspective(radians(45.0f), static_cast<float>(crater.extent.width) / static_cast<float>(crater.extent.height), 0.1f, 100.0f);
-	ubo.proj[1][1] *= -1;
+	// ubo.model = glm::rotate(mat4(1.0f), 0.2f * time * radians(90.0f), vec3(0.0f, 0.0f, 1.0f));
+	// ubo.view  = glm::lookAt(vec3(1.0f, 1.0f, 50.0f), vec3(0.0f, 0.0f, 0.0f), vec3(0.0f, 0.0f, 1.0f));
+	// ubo.proj  = glm::perspective(radians(45.0f), static_cast<float>(crater.extent.width) / static_cast<float>(crater.extent.height), 0.1f, 100.0f);
+	// ubo.proj[1][1] *= -1;
+
+	ubo.shift = { 0.0f, 0.0f };
+	ubo.scale = { 2.0f / crater.extent.width, -2.0f / crater.extent.height };
 
 	// TODO map only once, and keep it mapped, better for performance
 	void* data;
