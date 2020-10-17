@@ -84,7 +84,7 @@ void Crater::querySurfacePresentModes() {
 }
 
 void Crater::chooseChainSize() {
-	chainSize = capabilities.minImageCount + 1;
+	chainSize = capabilities.minImageCount + ADDITIONAL_CHAIN_SIZE;
 	if ((capabilities.maxImageCount > 0) && (chainSize > capabilities.maxImageCount)) {
 		chainSize = capabilities.maxImageCount;
 	}

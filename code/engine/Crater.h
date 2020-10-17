@@ -26,6 +26,8 @@ public:
 	const bool USE_10_BIT         = false;
 	const bool USE_VSYNC          = false;
 
+	const size_t ADDITIONAL_CHAIN_SIZE = 1;
+
 	VkSwapchainKHR swapChain = VK_NULL_HANDLE;
 	VkSurfaceFormatKHR surfaceFormat;
 	VkExtent2D extent;
