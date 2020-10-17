@@ -61,7 +61,7 @@ void Scene::establish(Lava &lava, Tectonic &tectonic) {
 
 	int extent_h = 800 / 2;
 	int extent_w = 1500 / 2;
-	int count = 0.97 * sqrt(2 * 1000000) * extent_h / extent_w;
+	int count = 0.97 * sqrt(2 * 1840000) * extent_h / extent_w;
 	float step = 2.0f * extent_h / count;
 
 	for (float x = -extent_w; x < extent_w; x += step)
