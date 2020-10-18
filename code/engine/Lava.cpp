@@ -254,21 +254,41 @@ void Lava::createPipeline() {
 	vkDestroyShaderModule(mountain.device, vertShaderModule, nullptr);
 }
 
-void Lava::establishVertexBuffer(vector<Vertex> vertices, VkBuffer& vertexBuffer, uint32_t& vertexBufferSize, VkDeviceMemory& vertexBufferMemory) {
+void Lava::establishVertexBuffer(vector<Vertex> vertices, size_t id) {
+	VkBuffer& vertexBuffer = vertexBuffers[id];
+	uint32_t& vertexBufferSize = vertexBufferSizes[id];
+	VkDeviceMemory& vertexBufferMemory = vertexBufferMemorys[id];
+
 	vertexBufferSize = vertices.size();
 	VkDeviceSize bufferSize = sizeof(Vertex) * vertices.size();
 
 	// TODO try keep staging buffers and reuse them later
-	VkBuffer stagingBuffer;
-	VkDeviceMemory stagingBufferMemory;
+	// did it, for now
+	VkBuffer& stagingBuffer = stagingBuffers[id];
+	VkDeviceMemory& stagingBufferMemory = stagingBufferMemorys[id];
 
 	rocks.createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
 	rocks.copyDataToBuffer(vertices.data(), stagingBufferMemory, static_cast<size_t>(bufferSize));
 	rocks.createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, vertexBuffer, vertexBufferMemory);
 	rocks.copyBufferToBuffer(stagingBuffer, vertexBuffer, bufferSize, VK_ACCESS_VERTEX_ATTRIBUTE_READ_BIT);
 
-	vkDestroyBuffer(mountain.device, stagingBuffer, nullptr);
-	vkFreeMemory(mountain.device, stagingBufferMemory, nullptr);
+	void* &dstPointer = stagingBufferMappedPointers[id];
+	vkMapMemory(mountain.device, stagingBufferMemory, 0, VK_WHOLE_SIZE, 0, &dstPointer);
+
+	// vkDestroyBuffer(mountain.device, stagingBuffer, nullptr);
+	// vkFreeMemory(mountain.device, stagingBufferMemory, nullptr);
+}
+
+void Lava::updateVertexBuffer(size_t id, vector<Vertex> vertices) {
+	VkBuffer& vertexBuffer = vertexBuffers[id];
+	VkBuffer& stagingBuffer = stagingBuffers[id];
+	VkDeviceMemory& stagingBufferMemory = stagingBufferMemorys[id];
+
+	VkDeviceSize bufferSize = sizeof(Vertex) * vertices.size();
+
+	memcpy(stagingBufferMappedPointers[id], vertices.data(), static_cast<size_t>(bufferSize));
+	// rocks.copyDataToBuffer(vertices.data(), stagingBufferMemory, static_cast<size_t>(bufferSize));
+	rocks.copyBufferToBuffer(stagingBuffer, vertexBuffer, bufferSize, VK_ACCESS_VERTEX_ATTRIBUTE_READ_BIT);
 }
 
 void Lava::establishTexture(int width, int height, void* pixels, VkImage& textureImage, VkImageView& textureImageView, VkDeviceMemory& textureImageMemory) {
@@ -299,18 +319,23 @@ void Lava::establishTexture(int width, int height, void* pixels, VkImage& textur
 	textureImageView = rocks.createImageView(textureImage, preferred8bitFormat, VK_IMAGE_ASPECT_COLOR_BIT, mipLevels);
 }
 
-void Lava::addObject(vector<Vertex> vertices, int width, int height, void* pixels) {
+size_t Lava::addObject(vector<Vertex> vertices, int width, int height, void* pixels) {
 	size_t newSize = textureImageViews.size() + 1;
 	vertexBuffers.resize(newSize);
 	vertexBufferSizes.resize(newSize);
 	vertexBufferMemorys.resize(newSize);
+	stagingBuffers.resize(newSize);
+	stagingBufferMemorys.resize(newSize);
+	stagingBufferMappedPointers.resize(newSize);
 	textureImages.resize(newSize);
 	textureImageViews.resize(newSize);
 	textureImageMemorys.resize(newSize);
 
 	size_t last = newSize - 1;
-	establishVertexBuffer(vertices, vertexBuffers[last], vertexBufferSizes[last], vertexBufferMemorys[last]);
+	establishVertexBuffer(vertices, last);
 	establishTexture(width, height, pixels, textureImages[last], textureImageViews[last], textureImageMemorys[last]);
+
+	return last;
 }
 
 size_t Lava::texturesCount() {

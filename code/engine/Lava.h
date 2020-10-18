@@ -43,8 +43,9 @@ public:
 	vector<VkImageView> textureImageViews;
 	VkSampler textureSampler;
 
-	void addObject(vector<Vertex> vertices, int width, int height, void* pixels);
+	size_t addObject(vector<Vertex> vertices, int width, int height, void* pixels);
 	size_t texturesCount();
+	void updateVertexBuffer(size_t id, vector<Vertex> vertices);
 
 private:
 	Ash& ash;
@@ -57,6 +58,9 @@ private:
 	int mipLevels = 1;
 
 	vector<VkDeviceMemory> vertexBufferMemorys; // TODO maybe move somewhere? To the "storage"?
+	vector<VkBuffer> stagingBuffers;
+	vector<VkDeviceMemory> stagingBufferMemorys;
+	vector<void*> stagingBufferMappedPointers;
 	vector<VkImage> textureImages;
 	vector<VkDeviceMemory> textureImageMemorys;
 
@@ -68,8 +72,8 @@ private:
 	void createDescriptorSetLayout();
 	void createDescriptorSetLayout2();
 
-	void establishVertexBuffer(vector<Vertex> vertices, VkBuffer& vertexBufferL, uint32_t& vertexBufferSizeL, VkDeviceMemory& vertexBufferMemoryL);
-	void establishTexture(int width, int height, void* pixels, VkImage& textureImageL, VkImageView& textureImageViewL, VkDeviceMemory& textureImageMemoryL);
+	void establishVertexBuffer(vector<Vertex> vertices, size_t id);
+	void establishTexture(int width, int height, void* pixels, VkImage& textureImage, VkImageView& textureImageView, VkDeviceMemory& textureImageMemory);
 };
 
 #endif

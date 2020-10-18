@@ -25,7 +25,8 @@ public:
 	~Scene();
 
 	void load();
-	void establish(Lava &lava, Tectonic &tectonic);
+	void establish(Lava &lava);
+	void update(Lava &lava, double t);
 
 private:
 	const string MODEL_PATH = "models/viking_room.obj";
@@ -37,6 +38,8 @@ private:
 
 	int width, height;
 	void* pixels;
+
+	size_t lavaObjectId;
 
 	void move(vec2 shift);
 	void scale(float value);

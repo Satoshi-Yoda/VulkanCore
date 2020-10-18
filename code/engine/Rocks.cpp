@@ -2,6 +2,7 @@
 
 #include <vector>
 #include <fstream>
+#include <chrono>
 
 using namespace std;
 
@@ -195,6 +196,8 @@ void Rocks::createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPr
 }
 
 void Rocks::copyBufferToBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size, VkAccessFlags resultAccessFlags) {
+	auto start = chrono::high_resolution_clock::now();
+
 	VkCommandBuffer tempCommandBuffer = beginSingleTimeCommands();
 
 	VkBufferCopy copyRegion {};
@@ -215,12 +218,24 @@ void Rocks::copyBufferToBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceS
 	vkCmdPipelineBarrier(tempCommandBuffer, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_VERTEX_INPUT_BIT, 0, 0, nullptr, 1, &barrier, 0, nullptr);
 
 	endSingleTimeCommands(tempCommandBuffer);
+
+	auto finish = chrono::high_resolution_clock::now();
+	auto delay = chrono::duration_cast<chrono::duration<double>>(finish - start).count();
+	float speed = static_cast<float>(size) / (1 << 30) / delay;
+	// printf("Copied b2b %d MB in %.3fs at %.2f GB/s\n", size / (1 << 20), delay, speed);
 }
 
 void Rocks::copyDataToBuffer(const void* srcPointer, VkDeviceMemory bufferMemory, size_t size) {
 	void* dstPointer;
 	vkMapMemory(mountain.device, bufferMemory, 0, VK_WHOLE_SIZE, 0, &dstPointer);
+
+		auto start = chrono::high_resolution_clock::now();
 		memcpy(dstPointer, srcPointer, size);
+		auto finish = chrono::high_resolution_clock::now();
+		auto delay = chrono::duration_cast<chrono::duration<double>>(finish - start).count();
+		float speed = static_cast<float>(size) / (1 << 30) / delay;
+		// printf("Copied d2b %d MB in %.3fs at %.2f GB/s\n", size / (1 << 20), delay, speed);
+
 		VkMappedMemoryRange flushRange { VK_STRUCTURE_TYPE_MAPPED_MEMORY_RANGE };
 		flushRange.memory = bufferMemory;
 		flushRange.offset = 0;

@@ -33,7 +33,7 @@ int main() {
 		Tectonic tectonic { ash, mountain, rocks, crater, lava };
 
 		loadSceneThread.join();
-		scene.establish(lava, tectonic);
+		scene.establish(lava);
 
 		mountain.showWindow();
 
@@ -43,6 +43,8 @@ int main() {
 		chrono::time_point<chrono::high_resolution_clock> lastWindowTitleUpdate;
 
 		while (!glfwWindowShouldClose(mountain.window)) {
+			double t = chrono::duration_cast<chrono::duration<double>>(chrono::high_resolution_clock::now() - finishLoading).count();
+			scene.update(lava, t);
 			tectonic.drawFrame();
 			glfwPollEvents();
 
@@ -54,7 +56,7 @@ int main() {
 				auto runtime = chrono::duration_cast<chrono::duration<double>>(now - finishLoading).count();
 				double fps = frame / runtime;
 				char str[100];
-				sprintf(str, "size %d x %d   frame %lld   fps %.0f", crater.extent.width, crater.extent.height, frame, fps);
+				sprintf(str, "size %d x %d   frame %lld   fps %.0f   time %.2f", crater.extent.width, crater.extent.height, frame, fps, t);
 				glfwSetWindowTitle(mountain.window, str);
 			}
 		}
