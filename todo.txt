@@ -17,3 +17,8 @@ Qualities:
 
 Optimizations:
  - create lazy hash? map for descriptorSets with keys: uniformBuffer + currentTextureView + currentTextureSampler instead of updating them every frame
+
+Path:
+ - Look at cpu ram vertex buffer at vulkan tutorial, without staging buffer
+ - Copy only modified vertices, aka dynamic mode
+ - Indexed drawing
