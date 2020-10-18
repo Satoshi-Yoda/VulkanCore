@@ -267,8 +267,11 @@ void Lava::establishVertexBuffer(vector<Vertex> vertices, size_t id) {
 	VkBuffer& stagingBuffer = stagingBuffers[id];
 	VkDeviceMemory& stagingBufferMemory = stagingBufferMemorys[id];
 
+	printf("Creating vertex stage buffer...\n");
 	rocks.createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
 	rocks.copyDataToBuffer(vertices.data(), stagingBufferMemory, static_cast<size_t>(bufferSize));
+
+	printf("Creating working vertex buffer...\n");
 	rocks.createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, vertexBuffer, vertexBufferMemory);
 	rocks.copyBufferToBuffer(stagingBuffer, vertexBuffer, bufferSize, VK_ACCESS_VERTEX_ATTRIBUTE_READ_BIT);
 

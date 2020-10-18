@@ -143,7 +143,7 @@ void Mountain::createInstance() {
 	appInfo.pApplicationName = "VulkanCore";
 	appInfo.applicationVersion = VK_MAKE_VERSION(0, 0, 0);
 	appInfo.pEngineName = "Engine";
-	appInfo.engineVersion = VK_MAKE_VERSION(0, 0, 22);
+	appInfo.engineVersion = VK_MAKE_VERSION(0, 0, 23);
 	appInfo.apiVersion = VK_API_VERSION_1_0;
 
 	auto requiredExtensions = getRequiredExtensions();
@@ -381,6 +381,20 @@ string Mountain::queryDeviceMemoryInfo(VkPhysicalDevice physicalDevice) {
 		}
 
 		heapIndex++;
+	}
+
+	int i = 0;
+	for (auto type : memoryTypes) {
+		info.append(" ").append(to_string(i++));
+		auto f = type.propertyFlags;
+		if (f & VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT)        info.append("-local");
+		if (f & VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT)        info.append("-hostvisible");
+		if (f & VK_MEMORY_PROPERTY_HOST_COHERENT_BIT)       info.append("-hostcoherent");
+		if (f & VK_MEMORY_PROPERTY_HOST_CACHED_BIT)         info.append("-hostcached");
+		if (f & VK_MEMORY_PROPERTY_LAZILY_ALLOCATED_BIT)    info.append("-lazily");
+		if (f & VK_MEMORY_PROPERTY_PROTECTED_BIT)           info.append("-protected");
+		if (f & VK_MEMORY_PROPERTY_DEVICE_COHERENT_BIT_AMD) info.append("-amdcoherent");
+		if (f & VK_MEMORY_PROPERTY_DEVICE_UNCACHED_BIT_AMD) info.append("-amduncached");
 	}
 
 	return info;

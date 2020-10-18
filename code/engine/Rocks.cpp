@@ -142,6 +142,8 @@ uint32_t Rocks::findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags proper
 
 	(result != UINT32_MAX) >> ash("Failed to find suitable memory type!");
 
+	printf("Chosen %d memory type\n", result);
+
 	return result;
 }
 
@@ -222,7 +224,7 @@ void Rocks::copyBufferToBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceS
 	auto finish = chrono::high_resolution_clock::now();
 	auto delay = chrono::duration_cast<chrono::duration<double>>(finish - start).count();
 	float speed = static_cast<float>(size) / (1 << 30) / delay;
-	// printf("Copied b2b %d MB in %.3fs at %.2f GB/s\n", size / (1 << 20), delay, speed);
+	printf("Copied b2b %d MB in %.3fs at %.2f GB/s\n", size / (1 << 20), delay, speed);
 }
 
 void Rocks::copyDataToBuffer(const void* srcPointer, VkDeviceMemory bufferMemory, size_t size) {
@@ -234,7 +236,7 @@ void Rocks::copyDataToBuffer(const void* srcPointer, VkDeviceMemory bufferMemory
 		auto finish = chrono::high_resolution_clock::now();
 		auto delay = chrono::duration_cast<chrono::duration<double>>(finish - start).count();
 		float speed = static_cast<float>(size) / (1 << 30) / delay;
-		// printf("Copied d2b %d MB in %.3fs at %.2f GB/s\n", size / (1 << 20), delay, speed);
+		printf("Copied d2b %d MB in %.3fs at %.2f GB/s\n", size / (1 << 20), delay, speed);
 
 		VkMappedMemoryRange flushRange { VK_STRUCTURE_TYPE_MAPPED_MEMORY_RANGE };
 		flushRange.memory = bufferMemory;

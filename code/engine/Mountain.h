@@ -30,7 +30,7 @@ public:
 	const bool DISPLAY_LAYERS              = false;
 	const bool DISPLAY_INSTANCE_EXTENSIONS = false;
 	const bool DISPLAY_DEVICE_EXTENSIONS   = false;
-	const bool DISPLAY_DEVICES             = false;
+	const bool DISPLAY_DEVICES             = true;
 	const bool DISPLAY_QUEUES              = false;
 
 	const bool USE_FULLSCREEN        = false;
