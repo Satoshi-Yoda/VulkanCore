@@ -6,6 +6,7 @@
 
 using namespace std;
 
+// TODO move that out of Vertex struct
 VkVertexInputBindingDescription Vertex::getBindingDescription() {
 	VkVertexInputBindingDescription bindingDescription {};
 	bindingDescription.binding = 0;
@@ -15,6 +16,7 @@ VkVertexInputBindingDescription Vertex::getBindingDescription() {
 	return bindingDescription;
 }
 
+// TODO move that out of Vertex struct
 array<VkVertexInputAttributeDescription, 2> Vertex::getAttributeDescriptions() {
 	array<VkVertexInputAttributeDescription, 2> attributeDescriptions {};
 
@@ -45,6 +47,9 @@ Lava::~Lava() {
 	if (mountain.device != VK_NULL_HANDLE) {
 		vkDeviceWaitIdle(mountain.device);
 	}
+
+	for (auto element : stagingBuffers)       if (element != VK_NULL_HANDLE) vkDestroyBuffer(mountain.device, element, nullptr);
+	for (auto element : stagingBufferMemorys) if (element != VK_NULL_HANDLE) vkFreeMemory(mountain.device, element, nullptr);
 
 	for (auto element : vertexBuffers)       if (element != VK_NULL_HANDLE) vkDestroyBuffer(mountain.device, element, nullptr);
 	for (auto element : vertexBufferMemorys) if (element != VK_NULL_HANDLE) vkFreeMemory(mountain.device, element, nullptr);
