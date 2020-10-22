@@ -206,6 +206,7 @@ void Tectonic::prepareFrame(uint32_t craterIndex) {
 
 		vkCmdBeginRenderPass(commandBuffers[inFlightIndex], &passBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
 
+			// TODO can go near the vkCmdBindDescriptorSets for clarity
 			vkCmdBindPipeline(commandBuffers[inFlightIndex], VK_PIPELINE_BIND_POINT_GRAPHICS, lava.pipeline);
 
 			VkViewport viewport {};

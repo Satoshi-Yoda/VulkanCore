@@ -170,8 +170,16 @@ void Rocks::endSingleTimeCommands(VkCommandBuffer tempCommandBuffer) {
 	submitInfo.commandBufferCount = 1;
 	submitInfo.pCommandBuffers = &tempCommandBuffer;
 
-	vkQueueSubmit(mountain.queue, 1, &submitInfo, VK_NULL_HANDLE);
-	vkQueueWaitIdle(mountain.queue);
+	VkFenceCreateInfo fenceCreateInfo { VK_STRUCTURE_TYPE_FENCE_CREATE_INFO };
+	VkFence fence;
+	vkCreateFence(mountain.device, &fenceCreateInfo, nullptr, &fence) >> ash("Failed to create fence for waiting single time command buffer!");
+	vkQueueSubmit(mountain.queue, 1, &submitInfo, fence)              >> ash("Failed to submit single time command buffer!");
+	vkWaitForFences(mountain.device, 1, &fence, VK_TRUE, UINT32_MAX);
+	vkDestroyFence(mountain.device, fence, nullptr);
+
+	// simple implementation
+	// vkQueueSubmit(mountain.queue, 1, &submitInfo, VK_NULL_HANDLE) >> ash("Failed to submit single time command buffer!");
+	// vkQueueWaitIdle(mountain.queue);
 
 	vkFreeCommandBuffers(mountain.device, mountain.commandPool, 1, &tempCommandBuffer);
 }
