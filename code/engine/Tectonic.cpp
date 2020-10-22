@@ -312,4 +312,9 @@ void Tectonic::drawFrame() {
 			cout << "Problem occurred during image presentation!" << endl;
 			return;
 	}
+
+	// TODO
+	// Sascha Willems just use that...
+	// Check what was there about "extensive" sync?
+	// vkQueueWaitIdle(mountain.queue); 
 }
