@@ -24,6 +24,10 @@ struct Vertex {
 	vec2 texCoord;
 };
 
+struct Instance {
+	vec2 pos;
+};
+
 class Lava {
 public:
 	Lava(Ash &ash, Mountain &mountain, Rocks &rocks, Crater &crater);
@@ -34,6 +38,8 @@ public:
 	VkPipeline pipeline;
 	vector<VkBuffer> vertexBuffers;
 	vector<uint32_t> vertexBufferSizes;
+	vector<VkBuffer> instanceBuffers;
+	vector<uint32_t> instanceBufferSizes;
 	VkDescriptorSetLayout descriptorSetLayout;
 	VkDescriptorSetLayout descriptorSetLayout2;
 
@@ -43,6 +49,7 @@ public:
 	size_t addObject(vector<Vertex> vertices, int width, int height, void* pixels);
 	size_t texturesCount();
 	void updateVertexBuffer(size_t id, vector<Vertex> vertices);
+	void updateInstanceBuffer(size_t id, vector<Instance> instances);
 
 private:
 	Ash& ash;
@@ -55,9 +62,13 @@ private:
 	int mipLevels = 1;
 
 	vector<VkDeviceMemory> vertexBufferMemorys; // TODO maybe move somewhere? To the "storage"?
+	vector<VkDeviceMemory> instanceBufferMemorys;
 	vector<VkBuffer> stagingBuffers;
 	vector<VkDeviceMemory> stagingBufferMemorys;
 	vector<void*> stagingBufferMappedPointers;
+	vector<VkBuffer> stagingInstanceBuffers;
+	vector<VkDeviceMemory> stagingInstanceBufferMemorys;
+	vector<void*> stagingInstanceBufferMappedPointers;
 	vector<VkImage> textureImages;
 	vector<VkDeviceMemory> textureImageMemorys;
 
@@ -70,6 +81,7 @@ private:
 	void createDescriptorSetLayout2();
 
 	void establishVertexBuffer(vector<Vertex> vertices, size_t id);
+	void establishInstanceBuffer(vector<Instance> instances, size_t id);
 	void establishTexture(int width, int height, void* pixels, VkImage& textureImage, VkImageView& textureImageView, VkDeviceMemory& textureImageMemory);
 };
 

@@ -26,6 +26,9 @@ Lava::~Lava() {
 
 	for (auto element : vertexBuffers)       if (element != VK_NULL_HANDLE) vkDestroyBuffer(mountain.device, element, nullptr);
 	for (auto element : vertexBufferMemorys) if (element != VK_NULL_HANDLE) vkFreeMemory(mountain.device, element, nullptr);
+
+	for (auto element : instanceBuffers)       if (element != VK_NULL_HANDLE) vkDestroyBuffer(mountain.device, element, nullptr);
+	for (auto element : instanceBufferMemorys) if (element != VK_NULL_HANDLE) vkFreeMemory(mountain.device, element, nullptr);
  
 	if (textureSampler != VK_NULL_HANDLE) vkDestroySampler(mountain.device, textureSampler, nullptr);
 
@@ -274,6 +277,34 @@ void Lava::establishVertexBuffer(vector<Vertex> vertices, size_t id) {
 	// vkFreeMemory(mountain.device, stagingBufferMemory, nullptr);
 }
 
+void Lava::establishInstanceBuffer(vector<Instance> instances, size_t id) {
+	VkBuffer& instanceBuffer = instanceBuffers[id];
+	uint32_t& instanceBufferSize = instanceBufferSizes[id];
+	VkDeviceMemory& instanceBufferMemory = instanceBufferMemorys[id];
+
+	instanceBufferSize = instances.size();
+	VkDeviceSize bufferSize = sizeof(Instance) * instances.size();
+
+	// TODO try keep staging buffers and reuse them later
+	// did it, for now
+	VkBuffer& stagingBuffer = stagingInstanceBuffers[id];
+	VkDeviceMemory& stagingBufferMemory = stagingInstanceBufferMemorys[id];
+
+	// printf("Creating vertex stage buffer...\n");
+	rocks.createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
+	rocks.copyDataToBuffer(instances.data(), stagingBufferMemory, static_cast<size_t>(bufferSize));
+
+	// printf("Creating working vertex buffer...\n");
+	rocks.createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, instanceBuffer, instanceBufferMemory);
+	rocks.copyBufferToBuffer(stagingBuffer, instanceBuffer, bufferSize, VK_ACCESS_VERTEX_ATTRIBUTE_READ_BIT);
+
+	void* &dstPointer = stagingInstanceBufferMappedPointers[id];
+	vkMapMemory(mountain.device, stagingBufferMemory, 0, VK_WHOLE_SIZE, 0, &dstPointer);
+
+	// vkDestroyBuffer(mountain.device, stagingBuffer, nullptr);
+	// vkFreeMemory(mountain.device, stagingBufferMemory, nullptr);
+}
+
 void Lava::updateVertexBuffer(size_t id, vector<Vertex> vertices) {
 	VkBuffer& vertexBuffer = vertexBuffers[id];
 	VkBuffer& stagingBuffer = stagingBuffers[id];
@@ -288,6 +319,22 @@ void Lava::updateVertexBuffer(size_t id, vector<Vertex> vertices) {
 	memcpy(stagingBufferMappedPointers[id], vertices.data(), static_cast<size_t>(bufferSize));
 
 	rocks.copyBufferToBuffer(stagingBuffer, vertexBuffer, bufferSize, VK_ACCESS_VERTEX_ATTRIBUTE_READ_BIT);
+}
+
+void Lava::updateInstanceBuffer(size_t id, vector<Instance> instances) {
+	VkBuffer& instanceBuffer = instanceBuffers[id];
+	VkBuffer& stagingBuffer = stagingInstanceBuffers[id];
+	VkDeviceMemory& stagingBufferMemory = stagingInstanceBufferMemorys[id];
+
+	VkDeviceSize bufferSize = sizeof(Instance) * instances.size();
+
+	// this is do realtime mapping
+	// rocks.copyDataToBuffer(instances.data(), stagingInstanceBufferMemory, static_cast<size_t>(bufferSize));
+
+	// and this is just using existing maps
+	memcpy(stagingInstanceBufferMappedPointers[id], instances.data(), static_cast<size_t>(bufferSize));
+
+	rocks.copyBufferToBuffer(stagingBuffer, instanceBuffer, bufferSize, VK_ACCESS_VERTEX_ATTRIBUTE_READ_BIT);
 }
 
 void Lava::establishTexture(int width, int height, void* pixels, VkImage& textureImage, VkImageView& textureImageView, VkDeviceMemory& textureImageMemory) {
@@ -323,9 +370,15 @@ size_t Lava::addObject(vector<Vertex> vertices, int width, int height, void* pix
 	vertexBuffers.resize(newSize);
 	vertexBufferSizes.resize(newSize);
 	vertexBufferMemorys.resize(newSize);
+	instanceBuffers.resize(newSize);
+	instanceBufferSizes.resize(newSize);
+	instanceBufferMemorys.resize(newSize);
 	stagingBuffers.resize(newSize);
 	stagingBufferMemorys.resize(newSize);
 	stagingBufferMappedPointers.resize(newSize);
+	stagingInstanceBuffers.resize(newSize);
+	stagingInstanceBufferMemorys.resize(newSize);
+	stagingInstanceBufferMappedPointers.resize(newSize);
 	textureImages.resize(newSize);
 	textureImageViews.resize(newSize);
 	textureImageMemorys.resize(newSize);
