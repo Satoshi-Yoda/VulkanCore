@@ -44,7 +44,7 @@ private:
 
 	void move(vec2 shift);
 	void scale(float value);
-	void initRect(int x, int y, int w, int h);
+	void initRect(int x, int y, int w, int h, float scale);
 	void addInstance(int x, int y);
 };
 

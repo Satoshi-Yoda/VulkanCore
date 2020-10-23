@@ -40,9 +40,7 @@ void Scene::scale(float value) {
 	}
 }
 
-void Scene::initRect(int x, int y, int w, int h) {
-	float scale = 1.0f;
-
+void Scene::initRect(int x, int y, int w, int h, float scale) {
 	int x_min = x - w * scale / 2;
 	int x_max = x_min + w * scale;
 	int y_min = y - h * scale / 2;
@@ -64,14 +62,27 @@ void Scene::addInstance(int x, int y) {
 void Scene::establish(Lava &lava) {
 	loadTexture("pictures/tile.png", pixels, &width, &height);
 
-	initRect(0, 0, width, height);
+	float scale = 1.0f;
+	initRect(0, 0, width, height, scale);
+	printf("Lava: sprite %.0fx%.0f\n", round(width * scale), round(height * scale));
 
 	int extent_h = 800 / 2;
 	int extent_w = 1500 / 2;
+
+	// full scale
 	// int N = 1840000;   // static
 	// int N = 419560; // stream with vertices
-	int N = 1700000; // stream with instances
+	int N = 1700000; // stream with instances (92% from static) 780 Mb/second
 	// int N = 301;
+
+	// 0.5 scale
+	// int N = 5888000;
+	// int N = 4500000; // stream size 0.5 (76% from static) 2070 Mb/second
+
+	// 0.25 size
+	// int N = 11905000;
+	// int N = 4875000; // stream size 0.5 (41% from static) 2240 Mb/second
+
 	int count = 0.97 * sqrt(2 * N) * extent_h / extent_w;
 	float step = 2.0f * extent_h / count;
 
@@ -85,7 +96,7 @@ void Scene::establish(Lava &lava) {
 	printf("Lava: %d sprites\n", instances.size());
 	printf("Lava: stream: %.2f Mb/frame\n", static_cast<float>(instances.size() * sizeof(Instance)) / (1 << 20));
 	printf("Lava: stream: %.2f Mb/second (for 60 fps)\n", 60 * static_cast<float>(instances.size() * sizeof(Instance)) / (1 << 20));
-	printf("Lava: fillrate: %d Mpixels/frame\n", (instances.size()) * width * height / 1000000);
+	printf("Lava: fillrate: %.0f Mpixels/frame\n", (instances.size()) * width * height * scale * scale / 1000000);
 
 	// vector<Vertex> vertices2;
 	// vertices2.resize(vertices.size());
