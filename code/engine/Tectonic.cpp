@@ -227,12 +227,13 @@ void Tectonic::prepareFrame(uint32_t craterIndex) {
 			resizeDescriptorSets(lava.textureImageViews.size());
 
 			for (size_t i = 0; i < lava.textureImageViews.size(); i++) {
-				VkBuffer vertexBuffers[] { lava.vertexBuffers[i] };
 				VkDeviceSize offsets[] { 0 };
-				vkCmdBindVertexBuffers(commandBuffers[inFlightIndex], 0, 1, vertexBuffers, offsets);
+				vkCmdBindVertexBuffers(commandBuffers[inFlightIndex], 0, 1, &lava.vertexBuffers[i], offsets);
+				vkCmdBindVertexBuffers(commandBuffers[inFlightIndex], 1, 1, &lava.instanceBuffers[i], offsets);
 				updateDescriptorSet(inFlightIndex, i, lava.textureImageViews[i]);
 				vkCmdBindDescriptorSets(commandBuffers[inFlightIndex], VK_PIPELINE_BIND_POINT_GRAPHICS, lava.pipelineLayout, 0, 1, &descriptorSets[i][inFlightIndex], 0, nullptr);
-				vkCmdDraw(commandBuffers[inFlightIndex], lava.vertexBufferSizes[i], 1, 0, 0);
+				// vkCmdDraw(commandBuffers[inFlightIndex], lava.vertexBufferSizes[i], 1, 0, 0);
+				vkCmdDraw(commandBuffers[inFlightIndex], lava.vertexBufferSizes[i], lava.instanceBufferSizes[i], 0, 0);
 			}
 
 		vkCmdEndRenderPass(commandBuffers[inFlightIndex]);
