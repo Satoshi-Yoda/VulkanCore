@@ -35,6 +35,7 @@ private:
 	vector<Sprite> sprites;
 
 	vector<Vertex> vertices;
+	vector<Instance> instances;
 
 	int width, height;
 	void* pixels;
@@ -44,6 +45,7 @@ private:
 	void move(vec2 shift);
 	void scale(float value);
 	void addSprite(int x, int y, int w, int h);
+	void addInstance(int x, int y);
 };
 
 #endif

@@ -21,14 +21,15 @@ Lava::~Lava() {
 		vkDeviceWaitIdle(mountain.device);
 	}
 
+	for (auto element : vertexBuffers)        if (element != VK_NULL_HANDLE) vkDestroyBuffer(mountain.device, element, nullptr);
+	for (auto element : vertexBufferMemorys)  if (element != VK_NULL_HANDLE) vkFreeMemory(mountain.device, element, nullptr);
 	for (auto element : stagingBuffers)       if (element != VK_NULL_HANDLE) vkDestroyBuffer(mountain.device, element, nullptr);
 	for (auto element : stagingBufferMemorys) if (element != VK_NULL_HANDLE) vkFreeMemory(mountain.device, element, nullptr);
 
-	for (auto element : vertexBuffers)       if (element != VK_NULL_HANDLE) vkDestroyBuffer(mountain.device, element, nullptr);
-	for (auto element : vertexBufferMemorys) if (element != VK_NULL_HANDLE) vkFreeMemory(mountain.device, element, nullptr);
-
-	for (auto element : instanceBuffers)       if (element != VK_NULL_HANDLE) vkDestroyBuffer(mountain.device, element, nullptr);
-	for (auto element : instanceBufferMemorys) if (element != VK_NULL_HANDLE) vkFreeMemory(mountain.device, element, nullptr);
+	for (auto element : instanceBuffers)              if (element != VK_NULL_HANDLE) vkDestroyBuffer(mountain.device, element, nullptr);
+	for (auto element : instanceBufferMemorys)        if (element != VK_NULL_HANDLE) vkFreeMemory(mountain.device, element, nullptr);
+	for (auto element : stagingInstanceBuffers)       if (element != VK_NULL_HANDLE) vkDestroyBuffer(mountain.device, element, nullptr);
+	for (auto element : stagingInstanceBufferMemorys) if (element != VK_NULL_HANDLE) vkFreeMemory(mountain.device, element, nullptr);
  
 	if (textureSampler != VK_NULL_HANDLE) vkDestroySampler(mountain.device, textureSampler, nullptr);
 
@@ -365,7 +366,7 @@ void Lava::establishTexture(int width, int height, void* pixels, VkImage& textur
 	textureImageView = rocks.createImageView(textureImage, preferred8bitFormat, VK_IMAGE_ASPECT_COLOR_BIT, mipLevels);
 }
 
-size_t Lava::addObject(vector<Vertex> vertices, int width, int height, void* pixels) {
+size_t Lava::addObject(vector<Vertex> vertices, vector<Instance> instances, int width, int height, void* pixels) {
 	size_t newSize = textureImageViews.size() + 1;
 	vertexBuffers.resize(newSize);
 	vertexBufferSizes.resize(newSize);
@@ -385,6 +386,7 @@ size_t Lava::addObject(vector<Vertex> vertices, int width, int height, void* pix
 
 	size_t last = newSize - 1;
 	establishVertexBuffer(vertices, last);
+	establishInstanceBuffer(instances, last);
 	establishTexture(width, height, pixels, textureImages[last], textureImageViews[last], textureImageMemorys[last]);
 
 	return last;

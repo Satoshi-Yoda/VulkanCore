@@ -57,14 +57,18 @@ void Scene::addSprite(int x, int y, int w, int h) {
 	vertices.push_back({ { x_max, y_min }, { 1.0f, 0.0f } });
 }
 
+void Scene::addInstance(int x, int y) {
+	instances.push_back({ { x, y } });
+}
+
 void Scene::establish(Lava &lava) {
 	loadTexture("pictures/tile.png", pixels, &width, &height);
 
 	int extent_h = 800 / 2;
 	int extent_w = 1500 / 2;
 	// int N = 1840000;   // static
-	int N = 419560; // stream
-	// int N = 301;
+	// int N = 419560; // stream
+	int N = 301;
 	int count = 0.97 * sqrt(2 * N) * extent_h / extent_w;
 	float step = 2.0f * extent_h / count;
 
@@ -89,7 +93,10 @@ void Scene::establish(Lava &lava) {
 	float speed = static_cast<float>(size) / (1 << 30) / delay;
 	// printf("Copied v2v %d MB in %.3fs at %.2f GB/s\n", size / (1 << 20), delay, speed);
 
-	lavaObjectId = lava.addObject(vertices2, width, height, pixels);
+	addInstance(0, 0);
+	addInstance(20, 20);
+
+	lavaObjectId = lava.addObject(vertices2, instances, width, height, pixels);
 
 	printf("Lava: %d draw calls\n", lava.texturesCount());
 
