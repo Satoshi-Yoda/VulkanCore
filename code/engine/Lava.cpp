@@ -149,7 +149,7 @@ void Lava::createPipeline() {
 	attributeDescriptions[1].location = 1;
 	attributeDescriptions[1].format = VK_FORMAT_R32G32_SFLOAT;
 	attributeDescriptions[1].offset = offsetof(Vertex, texCoord);
-	attributeDescriptions[2].binding = 1;
+	attributeDescriptions[2].binding = 1; 			// TODO figure out why this is not presented in shader?
 	attributeDescriptions[2].location = 2;
 	attributeDescriptions[2].format = VK_FORMAT_R32G32_SFLOAT;
 	attributeDescriptions[2].offset = offsetof(Instance, pos);
