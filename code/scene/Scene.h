@@ -26,7 +26,7 @@ public:
 
 	void load();
 	void establish(Lava &lava);
-	void update(Lava &lava, double t);
+	void update(Lava &lava, double t, double dt);
 
 private:
 	const string MODEL_PATH = "models/viking_room.obj";

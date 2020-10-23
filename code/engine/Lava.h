@@ -22,9 +22,6 @@ using glm::vec3;
 struct Vertex {
 	vec2 pos;
 	vec2 texCoord;
-
-	static VkVertexInputBindingDescription getBindingDescription();
-	static array<VkVertexInputAttributeDescription, 2> getAttributeDescriptions();
 };
 
 class Lava {

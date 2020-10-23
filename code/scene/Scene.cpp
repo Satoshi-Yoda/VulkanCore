@@ -62,8 +62,8 @@ void Scene::establish(Lava &lava) {
 
 	int extent_h = 800 / 2;
 	int extent_w = 1500 / 2;
-	int N = 1840000;   // static
-	// int N = 419560; // stream
+	// int N = 1840000;   // static
+	int N = 419560; // stream
 	// int N = 301;
 	int count = 0.97 * sqrt(2 * N) * extent_h / extent_w;
 	float step = 2.0f * extent_h / count;
@@ -87,21 +87,21 @@ void Scene::establish(Lava &lava) {
 	auto finish = chrono::high_resolution_clock::now();
 	auto delay = chrono::duration_cast<chrono::duration<double>>(finish - start).count();
 	float speed = static_cast<float>(size) / (1 << 30) / delay;
-	printf("Copied v2v %d MB in %.3fs at %.2f GB/s\n", size / (1 << 20), delay, speed);
+	// printf("Copied v2v %d MB in %.3fs at %.2f GB/s\n", size / (1 << 20), delay, speed);
 
 	lavaObjectId = lava.addObject(vertices2, width, height, pixels);
 
 	printf("Lava: %d draw calls\n", lava.texturesCount());
 
 	freeTexture(pixels); // TODO move somewhere, maybe
-	vertices.clear();
-	vertices.shrink_to_fit();
+	// vertices.clear();
+	// vertices.shrink_to_fit();
 }
 
-void Scene::update(Lava &lava, double t) {
-	// for (auto& v : vertices) {
-	// 	vec2 add { 0, 1 * sin(t) };
-	// 	v.pos = v.pos + add;
-	// }
-	// lava.updateVertexBuffer(lavaObjectId, vertices);
+void Scene::update(Lava &lava, double t, double dt) {
+	for (auto& v : vertices) {
+		vec2 add { 0, 40 * cos(t) * dt };
+		v.pos = v.pos + add;
+	}
+	lava.updateVertexBuffer(lavaObjectId, vertices);
 }

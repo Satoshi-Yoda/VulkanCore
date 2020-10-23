@@ -42,9 +42,13 @@ int main() {
 		uint64_t frame = 0;
 		chrono::time_point<chrono::high_resolution_clock> lastWindowTitleUpdate;
 
+		double t = chrono::duration_cast<chrono::duration<double>>(chrono::high_resolution_clock::now() - finishLoading).count();
+
 		while (!glfwWindowShouldClose(mountain.window)) {
-			double t = chrono::duration_cast<chrono::duration<double>>(chrono::high_resolution_clock::now() - finishLoading).count();
-			scene.update(lava, t);
+			double new_t = chrono::duration_cast<chrono::duration<double>>(chrono::high_resolution_clock::now() - finishLoading).count();
+			double dt = new_t - t;
+			t = new_t;
+			scene.update(lava, t, dt);
 			tectonic.drawFrame();
 			glfwPollEvents();
 

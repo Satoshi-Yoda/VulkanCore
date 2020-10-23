@@ -6,33 +6,6 @@
 
 using namespace std;
 
-// TODO move that out of Vertex struct
-VkVertexInputBindingDescription Vertex::getBindingDescription() {
-	VkVertexInputBindingDescription bindingDescription {};
-	bindingDescription.binding = 0;
-	bindingDescription.stride = sizeof(Vertex);
-	bindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
-
-	return bindingDescription;
-}
-
-// TODO move that out of Vertex struct
-array<VkVertexInputAttributeDescription, 2> Vertex::getAttributeDescriptions() {
-	array<VkVertexInputAttributeDescription, 2> attributeDescriptions {};
-
-	attributeDescriptions[0].binding = 0;
-	attributeDescriptions[0].location = 0;
-	attributeDescriptions[0].format = VK_FORMAT_R32G32_SFLOAT;
-	attributeDescriptions[0].offset = offsetof(Vertex, pos);
-
-	attributeDescriptions[1].binding = 0;
-	attributeDescriptions[1].location = 1;
-	attributeDescriptions[1].format = VK_FORMAT_R32G32_SFLOAT;
-	attributeDescriptions[1].offset = offsetof(Vertex, texCoord);
-
-	return attributeDescriptions;
-}
-
 Lava::Lava(Ash &ash, Mountain &mountain, Rocks &rocks, Crater &crater) : ash(ash), mountain(mountain), rocks(rocks), crater(crater) {
 	createTextureSampler();
 
@@ -150,8 +123,22 @@ void Lava::createPipeline() {
 
 	vector<VkPipelineShaderStageCreateInfo> shaderStages { vertShaderStageInfo, fragShaderStageInfo };
 
-	auto bindingDescription    = Vertex::getBindingDescription();
-	auto attributeDescriptions = Vertex::getAttributeDescriptions();
+	VkVertexInputBindingDescription bindingDescription {};
+	bindingDescription.binding = 0;
+	bindingDescription.stride = sizeof(Vertex);
+	bindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
+
+	array<VkVertexInputAttributeDescription, 2> attributeDescriptions {};
+
+	attributeDescriptions[0].binding = 0;
+	attributeDescriptions[0].location = 0;
+	attributeDescriptions[0].format = VK_FORMAT_R32G32_SFLOAT;
+	attributeDescriptions[0].offset = offsetof(Vertex, pos);
+
+	attributeDescriptions[1].binding = 0;
+	attributeDescriptions[1].location = 1;
+	attributeDescriptions[1].format = VK_FORMAT_R32G32_SFLOAT;
+	attributeDescriptions[1].offset = offsetof(Vertex, texCoord);
 
 	VkPipelineVertexInputStateCreateInfo vertexInputInfo { VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO };
 	vertexInputInfo.vertexBindingDescriptionCount = 1;
@@ -272,11 +259,11 @@ void Lava::establishVertexBuffer(vector<Vertex> vertices, size_t id) {
 	VkBuffer& stagingBuffer = stagingBuffers[id];
 	VkDeviceMemory& stagingBufferMemory = stagingBufferMemorys[id];
 
-	printf("Creating vertex stage buffer...\n");
+	// printf("Creating vertex stage buffer...\n");
 	rocks.createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
 	rocks.copyDataToBuffer(vertices.data(), stagingBufferMemory, static_cast<size_t>(bufferSize));
 
-	printf("Creating working vertex buffer...\n");
+	// printf("Creating working vertex buffer...\n");
 	rocks.createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, vertexBuffer, vertexBufferMemory);
 	rocks.copyBufferToBuffer(stagingBuffer, vertexBuffer, bufferSize, VK_ACCESS_VERTEX_ATTRIBUTE_READ_BIT);
 
@@ -294,8 +281,12 @@ void Lava::updateVertexBuffer(size_t id, vector<Vertex> vertices) {
 
 	VkDeviceSize bufferSize = sizeof(Vertex) * vertices.size();
 
-	memcpy(stagingBufferMappedPointers[id], vertices.data(), static_cast<size_t>(bufferSize));
+	// this is do realtime mapping
 	// rocks.copyDataToBuffer(vertices.data(), stagingBufferMemory, static_cast<size_t>(bufferSize));
+
+	// and this is just using existing maps
+	memcpy(stagingBufferMappedPointers[id], vertices.data(), static_cast<size_t>(bufferSize));
+
 	rocks.copyBufferToBuffer(stagingBuffer, vertexBuffer, bufferSize, VK_ACCESS_VERTEX_ATTRIBUTE_READ_BIT);
 }
 

@@ -316,5 +316,12 @@ void Tectonic::drawFrame() {
 	// TODO
 	// Sascha Willems just use that...
 	// Check what was there about "extensive" sync?
+	//
+	// Actually there is some performance drop:
+	//		60 -> 59 for a lot of static sprites
+	//		7700 -> 5600 for 300 sprites
+	//		60 -> 50 for a lot of stream sprites
+	//
+	// So, maybe use it only when windowed AND vsync.
 	// vkQueueWaitIdle(mountain.queue); 
 }
