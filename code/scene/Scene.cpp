@@ -40,7 +40,7 @@ void Scene::scale(float value) {
 	}
 }
 
-void Scene::addSprite(int x, int y, int w, int h) {
+void Scene::initRect(int x, int y, int w, int h) {
 	float scale = 1.0f;
 
 	int x_min = x - w * scale / 2;
@@ -64,51 +64,55 @@ void Scene::addInstance(int x, int y) {
 void Scene::establish(Lava &lava) {
 	loadTexture("pictures/tile.png", pixels, &width, &height);
 
+	initRect(0, 0, width, height);
+
 	int extent_h = 800 / 2;
 	int extent_w = 1500 / 2;
 	// int N = 1840000;   // static
-	// int N = 419560; // stream
-	int N = 301;
+	// int N = 419560; // stream with vertices
+	int N = 1700000; // stream with instances
+	// int N = 301;
 	int count = 0.97 * sqrt(2 * N) * extent_h / extent_w;
 	float step = 2.0f * extent_h / count;
 
 	for (float x = -extent_w; x < extent_w; x += step)
 	for (float y = -extent_h; y < extent_h; y += step)
 	{
-		addSprite(x, y, width, height);
+		addInstance(x, y);
 	}
 
-	printf("Lava: %d = %d faces\n", count * count * 2 * extent_w / extent_h, vertices.size() / 3);
-	printf("Lava: %d sprites\n", vertices.size() / 6);
-	printf("Lava: %d Mpixels / frame\n", (vertices.size() / 6) * width * height / 1000000);
+	printf("Lava: %d vertices\n", vertices.size());
+	printf("Lava: %d sprites\n", instances.size());
+	printf("Lava: stream: %.2f Mb/frame\n", static_cast<float>(instances.size() * sizeof(Instance)) / (1 << 20));
+	printf("Lava: stream: %.2f Mb/second (for 60 fps)\n", 60 * static_cast<float>(instances.size() * sizeof(Instance)) / (1 << 20));
+	printf("Lava: fillrate: %d Mpixels/frame\n", (instances.size()) * width * height / 1000000);
 
-	vector<Vertex> vertices2;
-	vertices2.resize(vertices.size());
-	size_t size = sizeof(Vertex) * vertices.size();
+	// vector<Vertex> vertices2;
+	// vertices2.resize(vertices.size());
+	// size_t size = sizeof(Vertex) * vertices.size();
 
-	auto start = chrono::high_resolution_clock::now();
-	memcpy(vertices2.data(), vertices.data(), size);
-	auto finish = chrono::high_resolution_clock::now();
-	auto delay = chrono::duration_cast<chrono::duration<double>>(finish - start).count();
-	float speed = static_cast<float>(size) / (1 << 30) / delay;
+	// auto start = chrono::high_resolution_clock::now();
+	// memcpy(vertices2.data(), vertices.data(), size);
+	// auto finish = chrono::high_resolution_clock::now();
+	// auto delay = chrono::duration_cast<chrono::duration<double>>(finish - start).count();
+	// float speed = static_cast<float>(size) / (1 << 30) / delay;
 	// printf("Copied v2v %d MB in %.3fs at %.2f GB/s\n", size / (1 << 20), delay, speed);
 
-	addInstance(0, 0);
-	addInstance(20, 20);
-
-	lavaObjectId = lava.addObject(vertices2, instances, width, height, pixels);
+	lavaObjectId = lava.addObject(vertices, instances, width, height, pixels);
 
 	printf("Lava: %d draw calls\n", lava.texturesCount());
 
 	freeTexture(pixels); // TODO move somewhere, maybe
-	// vertices.clear();
-	// vertices.shrink_to_fit();
+	vertices.clear();
+	vertices.shrink_to_fit();
+	// instances.clear();
+	// instances.shrink_to_fit();
 }
 
 void Scene::update(Lava &lava, double t, double dt) {
-	for (auto& v : vertices) {
+	for (auto& s : instances) {
 		vec2 add { 0, 40 * cos(t) * dt };
-		v.pos = v.pos + add;
+		s.pos = s.pos + add;
 	}
-	lava.updateVertexBuffer(lavaObjectId, vertices);
+	lava.updateInstanceBuffer(lavaObjectId, instances);
 }
