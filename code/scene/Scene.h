@@ -36,6 +36,7 @@ private:
 
 	vector<Vertex> vertices;
 	vector<Instance> instances;
+	vector<size_t> updatableIndexes;
 
 	int width, height;
 	void* pixels;

@@ -2,6 +2,7 @@
 
 #include <chrono>
 #include <iostream>
+#include <random>
 #include <string>
 #include <vector>
 
@@ -73,7 +74,9 @@ void Scene::establish(Lava &lava) {
 	// int N = 1840000;   // static
 	// int N = 419560; // stream with vertices
 	// int N = 1700000; // stream with instances (92% from static) 780 Mb/second
-	int N = 301;
+	int N = 700000; // dynamic with instances
+	float percent = 0.1;
+	// int N = 301;
 
 	// 0.5 scale
 	// int N = 5888000;
@@ -118,6 +121,14 @@ void Scene::establish(Lava &lava) {
 	vertices.shrink_to_fit();
 	// instances.clear();
 	// instances.shrink_to_fit();
+
+	mt19937_64 random {};
+	uniform_int_distribution<size_t> distribution { 0, instances.size() - 1 };
+
+	for (int i = 0; i < N * percent; i++) {
+		size_t index = distribution(random);
+		updatableIndexes.push_back(index);
+	}
 }
 
 void Scene::update(Lava &lava, double t, double dt) {
@@ -127,14 +138,11 @@ void Scene::update(Lava &lava, double t, double dt) {
 	// }
 	// lava.updateInstanceBuffer(lavaObjectId, instances);
 
-	vector<size_t> indexes;
-	indexes.push_back(2);
-	indexes.push_back(5);
-
-	for (auto i : indexes) {
-		vec2 add { 0, 40 * cos(t) * dt };
-		instances[i].pos = instances[i].pos + add;
+	for (auto i : updatableIndexes) {
+		float add = 40 * cos(t) * dt;
+		vec2 addv { add, add };
+		instances[i].pos = instances[i].pos + addv;
 	}
 
-	lava.updateInstances(lavaObjectId, instances, indexes);
+	lava.updateInstances(lavaObjectId, instances, updatableIndexes);
 }
