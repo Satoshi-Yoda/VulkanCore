@@ -50,6 +50,7 @@ public:
 	size_t texturesCount();
 	void updateVertexBuffer(size_t id, vector<Vertex> vertices);
 	void updateInstanceBuffer(size_t id, vector<Instance> instances);
+	void updateInstances(size_t id, vector<Instance> instances, vector<uint32_t> indexes);
 
 private:
 	Ash& ash;
@@ -68,7 +69,7 @@ private:
 	vector<void*> stagingBufferMappedPointers;
 	vector<VkBuffer> stagingInstanceBuffers;
 	vector<VkDeviceMemory> stagingInstanceBufferMemorys;
-	vector<void*> stagingInstanceBufferMappedPointers;
+	vector<void*> stagingInstanceBufferMappedPointers; // TODO rename somehow
 	vector<VkImage> textureImages;
 	vector<VkDeviceMemory> textureImageMemorys;
 

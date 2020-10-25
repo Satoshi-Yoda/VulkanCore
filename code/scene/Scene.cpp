@@ -72,8 +72,8 @@ void Scene::establish(Lava &lava) {
 	// full scale
 	// int N = 1840000;   // static
 	// int N = 419560; // stream with vertices
-	int N = 1700000; // stream with instances (92% from static) 780 Mb/second
-	// int N = 301;
+	// int N = 1700000; // stream with instances (92% from static) 780 Mb/second
+	int N = 301;
 
 	// 0.5 scale
 	// int N = 5888000;
@@ -121,9 +121,20 @@ void Scene::establish(Lava &lava) {
 }
 
 void Scene::update(Lava &lava, double t, double dt) {
-	for (auto& s : instances) {
+	// for (auto& s : instances) {
+	// 	vec2 add { 0, 40 * cos(t) * dt };
+	// 	s.pos = s.pos + add;
+	// }
+	// lava.updateInstanceBuffer(lavaObjectId, instances);
+
+	vector<uint32_t> indexes;
+	indexes.push_back(2);
+	indexes.push_back(5);
+
+	for (auto i : indexes) {
 		vec2 add { 0, 40 * cos(t) * dt };
-		s.pos = s.pos + add;
+		instances[i].pos = instances[i].pos + add;
 	}
-	lava.updateInstanceBuffer(lavaObjectId, instances);
+
+	lava.updateInstances(lavaObjectId, instances, indexes);
 }

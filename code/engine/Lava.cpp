@@ -317,9 +317,9 @@ void Lava::establishInstanceBuffer(vector<Instance> instances, size_t id) {
 }
 
 void Lava::updateVertexBuffer(size_t id, vector<Vertex> vertices) {
-	VkBuffer& vertexBuffer = vertexBuffers[id];
+	VkBuffer& buffer = vertexBuffers[id];
 	VkBuffer& stagingBuffer = stagingBuffers[id];
-	VkDeviceMemory& stagingBufferMemory = stagingBufferMemorys[id];
+	// VkDeviceMemory& stagingBufferMemory = stagingBufferMemorys[id];
 
 	VkDeviceSize bufferSize = sizeof(Vertex) * vertices.size();
 
@@ -329,23 +329,39 @@ void Lava::updateVertexBuffer(size_t id, vector<Vertex> vertices) {
 	// and this is just using existing maps
 	memcpy(stagingBufferMappedPointers[id], vertices.data(), static_cast<size_t>(bufferSize));
 
-	rocks.copyBufferToBuffer(stagingBuffer, vertexBuffer, bufferSize, VK_ACCESS_VERTEX_ATTRIBUTE_READ_BIT);
+	rocks.copyBufferToBuffer(stagingBuffer, buffer, bufferSize, VK_ACCESS_VERTEX_ATTRIBUTE_READ_BIT);
 }
 
 void Lava::updateInstanceBuffer(size_t id, vector<Instance> instances) {
-	VkBuffer& instanceBuffer = instanceBuffers[id];
+	VkBuffer& buffer = instanceBuffers[id];
 	VkBuffer& stagingBuffer = stagingInstanceBuffers[id];
-	VkDeviceMemory& stagingBufferMemory = stagingInstanceBufferMemorys[id];
+	// VkDeviceMemory& stagingBufferMemory = stagingInstanceBufferMemorys[id];
 
 	VkDeviceSize bufferSize = sizeof(Instance) * instances.size();
 
 	// this is do realtime mapping
-	// rocks.copyDataToBuffer(instances.data(), stagingInstanceBufferMemory, static_cast<size_t>(bufferSize));
+	// rocks.copyDataToBuffer(instances.data(), stagingBufferMemory, static_cast<size_t>(bufferSize));
 
 	// and this is just using existing maps
 	memcpy(stagingInstanceBufferMappedPointers[id], instances.data(), static_cast<size_t>(bufferSize));
 
-	rocks.copyBufferToBuffer(stagingBuffer, instanceBuffer, bufferSize, VK_ACCESS_VERTEX_ATTRIBUTE_READ_BIT);
+	rocks.copyBufferToBuffer(stagingBuffer, buffer, bufferSize, VK_ACCESS_VERTEX_ATTRIBUTE_READ_BIT);
+}
+
+void Lava::updateInstances(size_t id, vector<Instance> instances, vector<uint32_t> indexes) {
+	VkBuffer& buffer = instanceBuffers[id];
+	VkBuffer& stagingBuffer = stagingInstanceBuffers[id];
+
+	VkDeviceSize bufferSize = sizeof(Instance) * instances.size();
+
+	// memcpy(stagingInstanceBufferMappedPointers[id], instances.data(), static_cast<size_t>(bufferSize));
+
+	Instance* stagingVector = reinterpret_cast<Instance*>(stagingInstanceBufferMappedPointers[id]);
+	for (auto i : indexes) {
+		stagingVector[i] = instances[i];
+	}
+
+	rocks.copyBufferToBuffer(stagingBuffer, buffer, bufferSize, VK_ACCESS_VERTEX_ATTRIBUTE_READ_BIT);
 }
 
 void Lava::establishTexture(int width, int height, void* pixels, VkImage& textureImage, VkImageView& textureImageView, VkDeviceMemory& textureImageMemory) {
