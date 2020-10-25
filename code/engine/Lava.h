@@ -50,7 +50,7 @@ public:
 	size_t texturesCount();
 	void updateVertexBuffer(size_t id, vector<Vertex> vertices);
 	void updateInstanceBuffer(size_t id, vector<Instance> instances);
-	void updateInstances(size_t id, vector<Instance> instances, vector<uint32_t> indexes);
+	void updateInstances(size_t id, vector<Instance> instances, vector<size_t> indexes);
 
 private:
 	Ash& ash;

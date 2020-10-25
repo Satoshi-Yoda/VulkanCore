@@ -205,7 +205,7 @@ void Rocks::createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPr
 	vkBindBufferMemory(mountain.device, buffer, bufferMemory, 0)          >> ash("Failed to bind buffer memory!");
 }
 
-void Rocks::copyBufferToBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size, VkAccessFlags resultAccessFlags) {
+void Rocks::copyBufferToBuffer(VkBuffer& srcBuffer, VkBuffer& dstBuffer, VkDeviceSize size, VkAccessFlags resultAccessFlags) {
 	// auto start = chrono::high_resolution_clock::now();
 
 	VkCommandBuffer tempCommandBuffer = beginSingleTimeCommands();
@@ -235,7 +235,33 @@ void Rocks::copyBufferToBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceS
 	// printf("Copied b2b %d MB in %.3fs at %.2f GB/s\n", size / (1 << 20), delay, speed);
 }
 
-void Rocks::copyDataToBuffer(const void* srcPointer, VkDeviceMemory bufferMemory, size_t size) {
+void Rocks::copyBufferToBuffer(VkBuffer& srcBuffer, VkBuffer& dstBuffer, vector<VkBufferCopy> regions, VkAccessFlags resultAccessFlags) {
+	// auto start = chrono::high_resolution_clock::now();
+
+	VkCommandBuffer tempCommandBuffer = beginSingleTimeCommands();
+
+	vkCmdCopyBuffer(tempCommandBuffer, srcBuffer, dstBuffer, static_cast<uint32_t>(regions.size()), regions.data());
+
+	VkBufferMemoryBarrier barrier { VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER };
+	barrier.srcAccessMask = VK_ACCESS_MEMORY_WRITE_BIT;
+	barrier.dstAccessMask = resultAccessFlags;
+	barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+	barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+	barrier.buffer = dstBuffer;
+	barrier.offset = 0;
+	barrier.size = VK_WHOLE_SIZE;
+
+	vkCmdPipelineBarrier(tempCommandBuffer, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_VERTEX_INPUT_BIT, 0, 0, nullptr, 1, &barrier, 0, nullptr);
+
+	endSingleTimeCommands(tempCommandBuffer);
+
+	// auto finish = chrono::high_resolution_clock::now();
+	// auto delay = chrono::duration_cast<chrono::duration<double>>(finish - start).count();
+	// float speed = static_cast<float>(size) / (1 << 30) / delay;
+	// printf("Copied b2b %d MB in %.3fs at %.2f GB/s\n", size / (1 << 20), delay, speed);
+}
+
+void Rocks::copyDataToBuffer(const void* srcPointer, VkDeviceMemory& bufferMemory, size_t size) {
 	void* dstPointer;
 	vkMapMemory(mountain.device, bufferMemory, 0, VK_WHOLE_SIZE, 0, &dstPointer);
 
@@ -254,7 +280,7 @@ void Rocks::copyDataToBuffer(const void* srcPointer, VkDeviceMemory bufferMemory
 	vkUnmapMemory(mountain.device, bufferMemory);
 }
 
-void Rocks::copyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height) {
+void Rocks::copyBufferToImage(VkBuffer& buffer, VkImage& image, uint32_t width, uint32_t height) {
 	VkCommandBuffer commandBuffer = beginSingleTimeCommands();
 
 	VkBufferImageCopy region {};

@@ -30,9 +30,10 @@ public:
 	VkCommandBuffer beginSingleTimeCommands();
 	void endSingleTimeCommands(VkCommandBuffer commandBuffer);
 
-	void copyBufferToBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size, VkAccessFlags resultAccessFlags);
-	void copyDataToBuffer(const void* srcPointer, VkDeviceMemory bufferMemory, size_t size);
-	void copyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height);
+	void copyBufferToBuffer(VkBuffer& srcBuffer, VkBuffer& dstBuffer, VkDeviceSize size, VkAccessFlags resultAccessFlags);
+	void copyBufferToBuffer(VkBuffer& srcBuffer, VkBuffer& dstBuffer, vector<VkBufferCopy> regions, VkAccessFlags resultAccessFlags);
+	void copyDataToBuffer(const void* srcPointer, VkDeviceMemory& bufferMemory, size_t size);
+	void copyBufferToImage(VkBuffer& buffer, VkImage& image, uint32_t width, uint32_t height);
 
 	vector<char> readFile(const string& filename);
 

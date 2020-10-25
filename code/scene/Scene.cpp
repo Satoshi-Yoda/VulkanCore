@@ -127,7 +127,7 @@ void Scene::update(Lava &lava, double t, double dt) {
 	// }
 	// lava.updateInstanceBuffer(lavaObjectId, instances);
 
-	vector<uint32_t> indexes;
+	vector<size_t> indexes;
 	indexes.push_back(2);
 	indexes.push_back(5);
 
