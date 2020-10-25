@@ -73,9 +73,9 @@ void Scene::establish(Lava &lava) {
 	// full scale
 	// int N = 1840000;   // static
 	// int N = 419560; // stream with vertices
-	// int N = 1700000; // stream with instances (92% from static) 780 Mb/second
-	int N = 700000; // dynamic with instances
-	float percent = 0.1;
+	int N = 1700000; // stream with instances (92% from static) 780 Mb/second
+	// int N = 100000; // dynamic 10% with instances
+	float percent = 0.012;
 	// int N = 301;
 
 	// 0.5 scale
@@ -132,17 +132,15 @@ void Scene::establish(Lava &lava) {
 }
 
 void Scene::update(Lava &lava, double t, double dt) {
-	// for (auto& s : instances) {
-	// 	vec2 add { 0, 40 * cos(t) * dt };
-	// 	s.pos = s.pos + add;
-	// }
-	// lava.updateInstanceBuffer(lavaObjectId, instances);
-
 	for (auto i : updatableIndexes) {
 		float add = 40 * cos(t) * dt;
 		vec2 addv { add, add };
 		instances[i].pos = instances[i].pos + addv;
 	}
 
+	// TODO
+	// so, if changed about 1% or less, then updateInstances(), else updateInstanceBuffer()
+	// and updateInstances() loads CPU, but updateInstanceBuffer() loads PCI-E,
 	lava.updateInstances(lavaObjectId, instances, updatableIndexes);
+	// lava.updateInstanceBuffer(lavaObjectId, instances);
 }
