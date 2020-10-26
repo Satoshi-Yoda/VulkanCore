@@ -1,9 +1,9 @@
-#include "engine/Ash.h"
-#include "engine/Crater.h"
-#include "engine/Lava.h"
-#include "engine/Mountain.h"
-#include "engine/Rocks.h"
-#include "engine/Tectonic.h"
+#include "core/Ash.h"
+#include "core/Crater.h"
+#include "core/Lava.h"
+#include "core/Mountain.h"
+#include "core/Rocks.h"
+#include "core/Tectonic.h"
 #include "scene/Scene.h"
 
 #include <chrono>

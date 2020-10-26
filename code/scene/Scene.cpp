@@ -9,8 +9,8 @@
 #define TINYOBJLOADER_IMPLEMENTATION
 #include <tiny_obj_loader.h>
 
-#include "../engine/Lava.h"
-#include "../engine/Tectonic.h"
+#include "../core/Lava.h"
+#include "../core/Tectonic.h"
 #include "../utils/Loader.h"
 // #include "../utils/utils.h"
 

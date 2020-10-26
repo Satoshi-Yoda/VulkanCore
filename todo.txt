@@ -1,3 +1,14 @@
+Qualities:
+ + batch drawing + v0.1
+ - color selection
+ - text & rubber kerning
+ - rare updates
+ - workers & multithreading
+ - replays
+
+Path:
+ ? Look at cpu ram vertex buffer at vulkan tutorial, without staging buffer for dynamic & stream mode
+
 Omitted:
  - indexed drawing
  - z-buffering
@@ -6,19 +17,7 @@ Omitted:
 
 Features:
  - sprite lifecycle
- - instanced drawing
-
-Qualities:
- - color selection
- - text & rubber kerning
- - rare updates
- - workers & multithreading
- - replays
+ + instanced drawing
 
 Optimizations:
  - create lazy hash? map for descriptorSets with keys: uniformBuffer + currentTextureView + currentTextureSampler instead of updating them every frame
-
-Path:
- - Look at cpu ram vertex buffer at vulkan tutorial, without staging buffer
- - Copy only modified vertices, aka dynamic mode
- - Indexed drawing

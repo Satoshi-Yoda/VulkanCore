@@ -1,7 +1,7 @@
 #include "Basis.h"
 
-#include "../engine/Lava.h"
-#include "../engine/Tectonic.h"
+#include "../core/Lava.h"
+#include "../core/Tectonic.h"
 #include "../utils/Loader.h"
 
 using namespace std;

@@ -10,8 +10,8 @@
 #define GLM_FORCE_RADIANS
 #include <glm/glm.hpp>
 
-#include "../engine/Lava.h"
-#include "../engine/Tectonic.h"
+#include "../core/Lava.h"
+#include "../core/Tectonic.h"
 
 #include "Sprite.h"
 

@@ -4,8 +4,8 @@
 #include <string>
 #include <vector>
 
-#include "../engine/Lava.h"
-#include "../engine/Tectonic.h"
+#include "../core/Lava.h"
+#include "../core/Tectonic.h"
 
 // - contatins all data about where child objects will be drawn
 // - can have parent basis
