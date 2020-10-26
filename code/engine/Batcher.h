@@ -14,8 +14,9 @@ public:
 	Batcher();
 	~Batcher();
 
-private:
 	void loadFolder(string folder);
+
+private:
 };
 
 #endif

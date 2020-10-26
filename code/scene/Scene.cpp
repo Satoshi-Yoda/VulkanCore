@@ -6,9 +6,6 @@
 #include <string>
 #include <vector>
 
-#define TINYOBJLOADER_IMPLEMENTATION
-#include <tiny_obj_loader.h>
-
 #include "../core/Lava.h"
 #include "../core/Tectonic.h"
 #include "../utils/Loader.h"

@@ -4,6 +4,7 @@
 #include "core/Mountain.h"
 #include "core/Rocks.h"
 #include "core/Tectonic.h"
+#include "engine/Batcher.h"
 #include "scene/Scene.h"
 
 #include <chrono>
@@ -19,10 +20,12 @@ int main() {
 	try {
 		auto start_createInstance = chrono::high_resolution_clock::now();
 
+		Batcher batcher {};
 		Scene scene {};
 
 		thread loadSceneThread([&](){
 			scene.load();
+			batcher.loadFolder("pictures");
 		});
 
 		Ash ash {};
