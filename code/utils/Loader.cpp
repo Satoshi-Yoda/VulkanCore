@@ -8,14 +8,16 @@
 
 using namespace std;
 
-void loadTexture(string filename, void* &data, int *width, int *height) {
+void loadTexture(string filename, void* &data, int *width, int *height, bool silent) {
 	auto start = chrono::high_resolution_clock::now();
 
 	int channels;
 	stbi_uc* pixels = stbi_load(filename.data(), width, height, &channels, STBI_rgb_alpha);
 	data = reinterpret_cast<void*>(pixels);
 
-	printf("Loaded %s in %.3fs\n", filename.data(), chrono::duration_cast<chrono::duration<double>>(chrono::high_resolution_clock::now() - start).count());
+	if (silent == false) {
+		printf("Loaded %s in %.3fs\n", filename.data(), chrono::duration_cast<chrono::duration<double>>(chrono::high_resolution_clock::now() - start).count());
+	}
 }
 
 void freeTexture(void* &data) {

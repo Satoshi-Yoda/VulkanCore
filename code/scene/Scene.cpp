@@ -58,7 +58,7 @@ void Scene::addInstance(int x, int y) {
 }
 
 void Scene::establish(Lava &lava) {
-	loadTexture("pictures/tile.png", pixels, &width, &height);
+	loadTexture("pictures/tile.png", pixels, &width, &height, false);
 
 	float scale = 1.0f;
 	initRect(0, 0, width, height, scale);
