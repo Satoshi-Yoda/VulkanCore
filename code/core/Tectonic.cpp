@@ -104,7 +104,7 @@ void Tectonic::updateInFlightUniformBuffer() {
 
 	UniformBufferObject ubo {};
 	ubo.shift = { 0.0f, 0.0f };
-	ubo.scale = { 2.0f / crater.extent.width, -2.0f / crater.extent.height };
+	ubo.scale = { 2.0f / crater.extent.width, 2.0f / crater.extent.height };
 
 	// TODO map only once, and keep it mapped, better for performance
 	void* data;

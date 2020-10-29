@@ -70,12 +70,12 @@ void Batcher::initQuad(string filename, uint32_t w, uint32_t h) {
 	int y_max = y_min + h * scale;
 
 	vertices[filename].push_back({ { x_min, y_max }, { 0.0f, 1.0f } });
-	vertices[filename].push_back({ { x_min, y_min }, { 0.0f, 0.0f } });
 	vertices[filename].push_back({ { x_max, y_max }, { 1.0f, 1.0f } });
+	vertices[filename].push_back({ { x_min, y_min }, { 0.0f, 0.0f } });
 
 	vertices[filename].push_back({ { x_max, y_max }, { 1.0f, 1.0f } });
-	vertices[filename].push_back({ { x_min, y_min }, { 0.0f, 0.0f } });
 	vertices[filename].push_back({ { x_max, y_min }, { 1.0f, 0.0f } });
+	vertices[filename].push_back({ { x_min, y_min }, { 0.0f, 0.0f } });
 }
 
 void Batcher::initSampleInstance(string filename) {
