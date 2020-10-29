@@ -4,16 +4,11 @@
 #include <string>
 #include <vector>
 
-// #define GLFW_INCLUDE_VULKAN
-// #include <GLFW/glfw3.h>
-
 #define GLM_FORCE_RADIANS
 #include <glm/glm.hpp>
 
 #include "../core/Lava.h"
 #include "../core/Tectonic.h"
-
-#include "Sprite.h"
 
 using std::vector;
 using std::string;
@@ -29,8 +24,6 @@ public:
 	void update(Lava &lava, double t, double dt);
 
 private:
-	vector<Sprite> sprites;
-
 	vector<Vertex> vertices;
 	vector<Instance> instances;
 	vector<size_t> updatableIndexes;

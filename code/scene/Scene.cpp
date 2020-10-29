@@ -7,7 +7,6 @@
 #include <vector>
 
 #include "../core/Lava.h"
-#include "../core/Tectonic.h"
 #include "../utils/Loader.h"
 // #include "../utils/utils.h"
 
@@ -70,10 +69,10 @@ void Scene::establish(Lava &lava) {
 	// full scale
 	// int N = 1840000;   // static
 	// int N = 419560; // stream with vertices
-	int N = 1700000; // stream with instances (92% from static) 780 Mb/second
+	// int N = 1700000; // stream with instances (92% from static) 780 Mb/second
 	// int N = 100000; // dynamic 10% with instances
 	float percent = 0.012;
-	// int N = 301;
+	int N = 301;
 
 	// 0.5 scale
 	// int N = 5888000;

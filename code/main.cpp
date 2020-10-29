@@ -21,12 +21,11 @@ int main() {
 		auto start_createInstance = chrono::high_resolution_clock::now();
 
 		Batcher batcher {};
-		Scene scene {};
+		// Scene scene {};
 
 		thread loadSceneThread([&](){
-			scene.load();
-			// batcher.loadFolder("_crops");
-			batcher.loadFolderNth("_crops", 12);
+			// scene.load();
+			batcher.loadFolderNth("_crops_some", 1);
 		});
 
 		Ash ash {};
@@ -37,7 +36,8 @@ int main() {
 		Tectonic tectonic { ash, mountain, rocks, crater, lava };
 
 		loadSceneThread.join();
-		scene.establish(lava);
+		// scene.establish(lava);
+		batcher.establish(lava);
 
 		mountain.showWindow();
 
@@ -52,7 +52,7 @@ int main() {
 			double new_t = chrono::duration_cast<chrono::duration<double>>(chrono::high_resolution_clock::now() - finishLoading).count();
 			double dt = new_t - t;
 			t = new_t;
-			scene.update(lava, t, dt);
+			// scene.update(lava, t, dt);
 			tectonic.drawFrame();
 			glfwPollEvents();
 
