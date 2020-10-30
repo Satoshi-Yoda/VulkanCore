@@ -18,6 +18,7 @@ public:
 	void loadFolder(string folder);
 	void loadFolderNth(string folder, uint32_t workers);
 	void establish(Lava& lava);
+	void addInstance(string filename, Instance instance);
 
 private:
 	unordered_map<string, int> width, height;

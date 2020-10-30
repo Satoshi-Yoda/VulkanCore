@@ -93,3 +93,7 @@ void Batcher::establish(Lava& lava) {
 		auto lavaObjectId = lava.addObject(vertices[key], instances[key], width[key], height[key], pixels[key]);
 	}
 }
+
+void Batcher::addInstance(string filename, Instance instance) {
+
+}
