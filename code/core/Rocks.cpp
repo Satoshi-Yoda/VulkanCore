@@ -300,7 +300,7 @@ void Rocks::copyBufferToImage(VkBuffer& buffer, VkImage& image, uint32_t width, 
 }
 
 vector<char> Rocks::readFile(const string& filename) {
-	ifstream file(filename, ios::ate | ios::binary);
+	ifstream file { filename, ios::ate | ios::binary };
 	file.is_open() >> ash("Failed to open shader file!"); // TODO printf with ash
 
 	size_t fileSize = static_cast<size_t>(file.tellg());
