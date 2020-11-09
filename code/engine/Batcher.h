@@ -25,6 +25,7 @@ private:
 	unordered_map<string, void*> pixels;
 	unordered_map<string, vector<Vertex>> vertices;
 	unordered_map<string, vector<Instance>> instances;
+	size_t texturesBytes;
 
 	void initQuad(string name, uint32_t w, uint32_t h);
 	void initSampleInstance(string name);
