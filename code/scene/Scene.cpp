@@ -24,19 +24,6 @@ void Scene::load() {
 	// loadTexture("pictures/tile.png", pixels, &width, &height);
 }
 
-void Scene::move(vec2 shift) {
-	for (auto& v : vertices) {
-		v.pos[0] += shift[0];
-		v.pos[1] += shift[1];
-	}
-}
-
-void Scene::scale(float value) {
-	for (auto& v : vertices) {
-		v.pos *= value;
-	}
-}
-
 void Scene::initRect(int x, int y, int w, int h, float scale) {
 	int x_min = x - w * scale / 2;
 	int x_max = x_min + w * scale;

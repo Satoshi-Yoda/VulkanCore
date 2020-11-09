@@ -18,7 +18,7 @@ public:
 	void loadFolder(string folder);
 	void loadFolderNth(string folder, uint32_t workers);
 	void establish(Lava& lava);
-	void addInstance(string filename, Instance instance);
+	void addInstance(string name, Instance instance);
 
 private:
 	unordered_map<string, int> width, height;
@@ -26,8 +26,8 @@ private:
 	unordered_map<string, vector<Vertex>> vertices;
 	unordered_map<string, vector<Instance>> instances;
 
-	void initQuad(string filename, uint32_t w, uint32_t h);
-	void initSampleInstance(string filename);
+	void initQuad(string name, uint32_t w, uint32_t h);
+	void initSampleInstance(string name);
 };
 
 #endif

@@ -18,7 +18,7 @@ int main() {
 	printf("\n");
 
 	try {
-		auto start_createInstance = chrono::high_resolution_clock::now();
+		auto startLoading = chrono::high_resolution_clock::now();
 
 		Batcher batcher {};
 		// Scene scene {};
@@ -42,7 +42,7 @@ int main() {
 		mountain.showWindow();
 
 		auto finishLoading = chrono::high_resolution_clock::now();
-		printf("Initialized in %.3fs\n", chrono::duration_cast<chrono::duration<double>>(finishLoading - start_createInstance).count());
+		printf("Initialized in %.3fs\n", chrono::duration_cast<chrono::duration<double>>(finishLoading - startLoading).count());
 		uint64_t frame = 0;
 		chrono::time_point<chrono::high_resolution_clock> lastWindowTitleUpdate;
 
