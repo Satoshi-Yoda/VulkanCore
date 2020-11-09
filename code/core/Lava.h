@@ -1,6 +1,7 @@
 #ifndef LAVA_H
 #define LAVA_H
 
+#include <mutex>
 #include <vector>
 
 #define GLFW_INCLUDE_VULKAN
@@ -13,8 +14,9 @@
 #include "Rocks.h"
 #include "Crater.h"
 
-using std::vector;
 using std::array;
+using std::mutex;
+using std::vector;
 using glm::vec2;
 using glm::vec3;
 
@@ -72,6 +74,8 @@ private:
 	vector<void*> stagingInstanceBufferMappedPointers; // TODO rename somehow
 	vector<VkImage> textureImages;
 	vector<VkDeviceMemory> textureImageMemorys;
+
+	mutex establishMutex;
 
 	void createRenderPass();
 	void createPipeline();

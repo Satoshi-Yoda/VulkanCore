@@ -16,8 +16,8 @@ public:
 	~Batcher();
 
 	void loadFolder(string folder);
-	void loadFolderNth(string folder, uint32_t workers);
-	void establish(Lava& lava);
+	void loadFolderNth(string folder, uint32_t workers = 1);
+	void establish(Lava& lava, uint32_t workers = 1);
 	void addInstance(string name, Instance instance);
 
 private:

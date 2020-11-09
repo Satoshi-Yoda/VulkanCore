@@ -37,7 +37,7 @@ int main() {
 
 		loadSceneThread.join();
 		// scene.establish(lava);
-		batcher.establish(lava);
+		batcher.establish(lava, 1);
 
 		mountain.showWindow();
 

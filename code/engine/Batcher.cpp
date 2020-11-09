@@ -1,5 +1,6 @@
 #include "Batcher.h"
 
+#include <algorithm>
 #include <filesystem>
 #include <iostream>
 #include <mutex>
@@ -72,9 +73,7 @@ void Batcher::loadFolderNth(string folder, uint32_t workers) {
 		}));
 	}
 
-	for (auto& t : threads) {
-		t.join();
-	}
+	for (auto& t : threads) t.join();
 
 	texturesBytes = 0;
 	for (const auto& file : files) {
@@ -111,13 +110,33 @@ void Batcher::initSampleInstance(string name) {
 	instances[name].push_back({ { x(random), y(random) } });
 }
 
-void Batcher::establish(Lava& lava) {
+void Batcher::establish(Lava& lava, uint32_t workers) {
 	auto start = chrono::high_resolution_clock::now();
 
-	for (auto& it : pixels) {
-		string key = it.first;
-		auto lavaObjectId = lava.addObject(vertices[key], instances[key], width[key], height[key], pixels[key]);
+	vector<string> keys { pixels.size() };
+	transform(pixels.begin(), pixels.end(), keys.begin(), [](auto pair){ return pair.first; });
+
+	uint32_t chunk = pixels.size() / workers;
+	uint32_t rest  = pixels.size() - chunk * workers;
+	vector<thread> threads;
+
+	for (uint32_t w = 0; w < workers; w++) {
+		threads.push_back(thread([=, &lava](){
+			uint32_t start = chunk * w;
+			uint32_t length = (w == workers - 1) ? (chunk + rest) : chunk;
+			for (uint32_t i = start; i < start + length; i++) {
+				string name = keys[i];
+				auto lavaObjectId = lava.addObject(vertices[name], instances[name], width[name], height[name], pixels[name]);
+			}
+		}));
 	}
+
+	for (auto& t : threads) t.join();
+
+	// for (auto& it : pixels) {
+	// 	string key = it.first;
+	// 	auto lavaObjectId = lava.addObject(vertices[key], instances[key], width[key], height[key], pixels[key]);
+	// }
 
 	auto time = chrono::duration_cast<chrono::duration<double>>(chrono::high_resolution_clock::now() - start).count();
 	printf("Established %d lava objects in %.3fs (%.2f Gb/s)\n", pixels.size(), time, texturesBytes / time / (1 << 30));
