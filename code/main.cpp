@@ -25,7 +25,7 @@ int main() {
 
 		thread loadSceneThread([&](){
 			// scene.load();
-			batcher.loadFolderNth("_crops_some", 1);
+			batcher.loadFolderNth("_crops_uptoride", 12);
 		});
 
 		Ash ash {};
