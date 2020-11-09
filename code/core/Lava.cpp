@@ -399,24 +399,22 @@ void Lava::establishTexture(int width, int height, void* pixels, VkImage& textur
 }
 
 size_t Lava::addObject(vector<Vertex> vertices, vector<Instance> instances, int width, int height, void* pixels) {
-	establishMutex.lock();
-		size_t newSize = textureImageViews.size() + 1;
-		vertexBuffers.resize(newSize);
-		vertexBufferSizes.resize(newSize);
-		vertexBufferMemorys.resize(newSize);
-		instanceBuffers.resize(newSize);
-		instanceBufferSizes.resize(newSize);
-		instanceBufferMemorys.resize(newSize);
-		stagingBuffers.resize(newSize);
-		stagingBufferMemorys.resize(newSize);
-		stagingBufferMappedPointers.resize(newSize);
-		stagingInstanceBuffers.resize(newSize);
-		stagingInstanceBufferMemorys.resize(newSize);
-		stagingInstanceBufferMappedPointers.resize(newSize);
-		textureImages.resize(newSize);
-		textureImageViews.resize(newSize);
-		textureImageMemorys.resize(newSize);
-	establishMutex.unlock();
+	size_t newSize = textureImageViews.size() + 1;
+	vertexBuffers.resize(newSize);
+	vertexBufferSizes.resize(newSize);
+	vertexBufferMemorys.resize(newSize);
+	instanceBuffers.resize(newSize);
+	instanceBufferSizes.resize(newSize);
+	instanceBufferMemorys.resize(newSize);
+	stagingBuffers.resize(newSize);
+	stagingBufferMemorys.resize(newSize);
+	stagingBufferMappedPointers.resize(newSize);
+	stagingInstanceBuffers.resize(newSize);
+	stagingInstanceBufferMemorys.resize(newSize);
+	stagingInstanceBufferMappedPointers.resize(newSize);
+	textureImages.resize(newSize);
+	textureImageViews.resize(newSize);
+	textureImageMemorys.resize(newSize);
 
 	size_t last = newSize - 1;
 	establishVertexBuffer(vertices, last);

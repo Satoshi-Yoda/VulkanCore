@@ -75,8 +75,6 @@ private:
 	vector<VkImage> textureImages;
 	vector<VkDeviceMemory> textureImageMemorys;
 
-	mutex establishMutex;
-
 	void createRenderPass();
 	void createPipeline();
 
