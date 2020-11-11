@@ -19,12 +19,12 @@ public:
 	Rocks(Ash &ash, Mountain &mountain);
 	~Rocks();
 
-	void createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer& buffer, VkDeviceMemory& bufferMemory);
+	// void createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer& buffer, VkDeviceMemory& bufferMemory);
 	void createBufferVMA(VkDeviceSize size, VkBufferUsageFlags usage, VmaMemoryUsage memoryUsage, VkBuffer& buffer, VmaAllocation& bufferAllocation, VmaAllocationInfo& bufferAllocationInfo);
 	VkShaderModule createShaderModule(const vector<char>& code);
-	void createImage(uint32_t width, uint32_t height, uint32_t mipLevels, VkSampleCountFlagBits numSamples,
-			VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties,
-			VkImage& image, VkDeviceMemory& imageMemory);
+	// void createImage(uint32_t width, uint32_t height, uint32_t mipLevels, VkSampleCountFlagBits numSamples,
+	// 		VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties,
+	// 		VkImage& image, VkDeviceMemory& imageMemory);
 	void createImageVMA(uint32_t width, uint32_t height, uint32_t mipLevels, VkSampleCountFlagBits numSamples,
 			VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VmaMemoryUsage memoryUsage,
 			VkImage& image, VmaAllocation& imageAllocation);

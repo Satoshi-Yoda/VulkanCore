@@ -21,37 +21,37 @@ VkShaderModule Rocks::createShaderModule(const vector<char>& code) {
 	return shaderModule;
 }
 
-void Rocks::createImage(uint32_t width, uint32_t height, uint32_t mipLevels, VkSampleCountFlagBits numSamples,
-		VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties,
-		VkImage& image, VkDeviceMemory& imageMemory)
-{
-	VkImageCreateInfo imageInfo { VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO };
-	imageInfo.imageType = VK_IMAGE_TYPE_2D;
-	imageInfo.extent.width = width;
-	imageInfo.extent.height = height;
-	imageInfo.extent.depth = 1;
-	imageInfo.mipLevels = mipLevels;
-	imageInfo.arrayLayers = 1;
-	imageInfo.format = format;
-	imageInfo.tiling = tiling;
-	imageInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-	imageInfo.usage = usage;
-	imageInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
-	imageInfo.samples = numSamples;
-	imageInfo.flags = 0; // TODO Here is sparse images & cube images
+// void Rocks::createImage(uint32_t width, uint32_t height, uint32_t mipLevels, VkSampleCountFlagBits numSamples,
+// 		VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties,
+// 		VkImage& image, VkDeviceMemory& imageMemory)
+// {
+// 	VkImageCreateInfo imageInfo { VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO };
+// 	imageInfo.imageType = VK_IMAGE_TYPE_2D;
+// 	imageInfo.extent.width = width;
+// 	imageInfo.extent.height = height;
+// 	imageInfo.extent.depth = 1;
+// 	imageInfo.mipLevels = mipLevels;
+// 	imageInfo.arrayLayers = 1;
+// 	imageInfo.format = format;
+// 	imageInfo.tiling = tiling;
+// 	imageInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+// 	imageInfo.usage = usage;
+// 	imageInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+// 	imageInfo.samples = numSamples;
+// 	imageInfo.flags = 0; // TODO Here is sparse images & cube images
 
-	vkCreateImage(mountain.device, &imageInfo, nullptr, &image) >> ash("Failed to create image!");
+// 	vkCreateImage(mountain.device, &imageInfo, nullptr, &image) >> ash("Failed to create image!");
 
-	VkMemoryRequirements memRequirements;
-	vkGetImageMemoryRequirements(mountain.device, image, &memRequirements);
+// 	VkMemoryRequirements memRequirements;
+// 	vkGetImageMemoryRequirements(mountain.device, image, &memRequirements);
 
-	VkMemoryAllocateInfo allocInfo { VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO };
-	allocInfo.allocationSize = memRequirements.size;
-	allocInfo.memoryTypeIndex = findMemoryType(memRequirements.memoryTypeBits, properties);
+// 	VkMemoryAllocateInfo allocInfo { VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO };
+// 	allocInfo.allocationSize = memRequirements.size;
+// 	allocInfo.memoryTypeIndex = findMemoryType(memRequirements.memoryTypeBits, properties);
 
-	vkAllocateMemory(mountain.device, &allocInfo, nullptr, &imageMemory) >> ash("Failed to allocate image memory!");
-	vkBindImageMemory(mountain.device, image, imageMemory, 0)            >> ash("Failed to bind image memory!");
-}
+// 	vkAllocateMemory(mountain.device, &allocInfo, nullptr, &imageMemory) >> ash("Failed to allocate image memory!");
+// 	vkBindImageMemory(mountain.device, image, imageMemory, 0)            >> ash("Failed to bind image memory!");
+// }
 
 void Rocks::createImageVMA(uint32_t width, uint32_t height, uint32_t mipLevels, VkSampleCountFlagBits numSamples,
 		VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VmaMemoryUsage memoryUsage,
@@ -209,26 +209,26 @@ void Rocks::endSingleTimeCommands(VkCommandBuffer tempCommandBuffer) {
 	vkFreeCommandBuffers(mountain.device, mountain.commandPool, 1, &tempCommandBuffer);
 }
 
-void Rocks::createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer& buffer, VkDeviceMemory& bufferMemory) {
-	VkBufferCreateInfo bufferInfo { VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO };
-	bufferInfo.size = size;
-	bufferInfo.usage = usage;
-	bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
-	bufferInfo.queueFamilyIndexCount = 0;
-	bufferInfo.pQueueFamilyIndices = nullptr;
+// void Rocks::createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer& buffer, VkDeviceMemory& bufferMemory) {
+// 	VkBufferCreateInfo bufferInfo { VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO };
+// 	bufferInfo.size = size;
+// 	bufferInfo.usage = usage;
+// 	bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+// 	bufferInfo.queueFamilyIndexCount = 0;
+// 	bufferInfo.pQueueFamilyIndices = nullptr;
 
-	vkCreateBuffer(mountain.device, &bufferInfo, nullptr, &buffer) >> ash("Failed to create buffer!");
+// 	vkCreateBuffer(mountain.device, &bufferInfo, nullptr, &buffer) >> ash("Failed to create buffer!");
 
-	VkMemoryRequirements requirements;
-	vkGetBufferMemoryRequirements(mountain.device, buffer, &requirements);
+// 	VkMemoryRequirements requirements;
+// 	vkGetBufferMemoryRequirements(mountain.device, buffer, &requirements);
 
-	VkMemoryAllocateInfo allocInfo { VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO };
-	allocInfo.allocationSize = requirements.size;
-	allocInfo.memoryTypeIndex = findMemoryType(requirements.memoryTypeBits, properties);
+// 	VkMemoryAllocateInfo allocInfo { VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO };
+// 	allocInfo.allocationSize = requirements.size;
+// 	allocInfo.memoryTypeIndex = findMemoryType(requirements.memoryTypeBits, properties);
 
-	vkAllocateMemory(mountain.device, &allocInfo, nullptr, &bufferMemory) >> ash("Failed to allocate buffer memory!");
-	vkBindBufferMemory(mountain.device, buffer, bufferMemory, 0)          >> ash("Failed to bind buffer memory!");
-}
+// 	vkAllocateMemory(mountain.device, &allocInfo, nullptr, &bufferMemory) >> ash("Failed to allocate buffer memory!");
+// 	vkBindBufferMemory(mountain.device, buffer, bufferMemory, 0)          >> ash("Failed to bind buffer memory!");
+// }
 
 void Rocks::createBufferVMA(VkDeviceSize size, VkBufferUsageFlags usage, VmaMemoryUsage memoryUsage, VkBuffer& buffer, VmaAllocation& bufferAllocation, VmaAllocationInfo& bufferAllocationInfo) {
 	VkBufferCreateInfo bufferInfo { VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO };
