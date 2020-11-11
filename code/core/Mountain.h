@@ -8,6 +8,8 @@
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
 
+#include "vk_mem_alloc.h"
+
 #include "Ash.h"
 
 using std::vector;
@@ -23,6 +25,7 @@ public:
 	VkQueue queue;
 	VkCommandPool commandPool;
 	VkDescriptorPool descriptorPool;
+	VmaAllocator allocator;
 
 	// public for now, not used here!
 	bool framebufferResized = false;
@@ -61,6 +64,7 @@ private:
 	void createInstance();
 	void createSurface();
 	void createDevice();
+	void createAllocator();
 	void createCommandPool();
 	void createDescriptorPool();
 

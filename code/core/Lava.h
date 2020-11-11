@@ -7,6 +7,8 @@
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
 
+#include "vk_mem_alloc.h"
+
 #define GLM_FORCE_RADIANS
 #include <glm/glm.hpp>
 
@@ -73,7 +75,8 @@ private:
 	vector<VkDeviceMemory> stagingInstanceBufferMemorys;
 	vector<void*> stagingInstanceBufferMappedPointers; // TODO rename somehow
 	vector<VkImage> textureImages;
-	vector<VkDeviceMemory> textureImageMemorys;
+	// vector<VkDeviceMemory> textureImageMemorys;
+	vector<VmaAllocation> textureAllocations;
 
 	void createRenderPass();
 	void createPipeline();
@@ -86,6 +89,7 @@ private:
 	void establishVertexBuffer(vector<Vertex> vertices, size_t id);
 	void establishInstanceBuffer(vector<Instance> instances, size_t id);
 	void establishTexture(int width, int height, void* pixels, VkImage& textureImage, VkImageView& textureImageView, VkDeviceMemory& textureImageMemory);
+	void establishTextureVMA(int width, int height, void* pixels, VkImage& textureImage, VkImageView& textureImageView, VmaAllocation& textureAllocation);
 };
 
 #endif

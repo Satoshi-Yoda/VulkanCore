@@ -3,6 +3,9 @@
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
 
+#define VMA_IMPLEMENTATION
+#include "vk_mem_alloc.h"
+
 #define GLM_FORCE_RADIANS
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
 #include <glm/vec4.hpp>
@@ -50,6 +53,7 @@ Mountain::Mountain(Ash &ash) : ash(ash) {
 	setupDebugMessenger();
 	createSurface();
 	createDevice();
+	createAllocator();
 	createCommandPool();
 	createDescriptorPool();
 }
@@ -61,6 +65,8 @@ Mountain::~Mountain() {
 
 	if (commandPool != VK_NULL_HANDLE) vkDestroyCommandPool(device, commandPool, nullptr);
 	if (descriptorPool != VK_NULL_HANDLE) vkDestroyDescriptorPool(device, descriptorPool, nullptr);
+
+	vmaDestroyAllocator(allocator);
 
 	if (device != VK_NULL_HANDLE) vkDestroyDevice(device, nullptr);
 	if (USE_VALIDATION_LAYERS) DestroyDebugUtilsMessengerEXT(instance, debugMessenger, nullptr);
@@ -143,7 +149,7 @@ void Mountain::createInstance() {
 	appInfo.pApplicationName = "VulkanCore";
 	appInfo.applicationVersion = VK_MAKE_VERSION(0, 0, 0);
 	appInfo.pEngineName = "Engine";
-	appInfo.engineVersion = VK_MAKE_VERSION(0, 0, 30);
+	appInfo.engineVersion = VK_MAKE_VERSION(0, 0, 31);
 	appInfo.apiVersion = VK_API_VERSION_1_0;
 
 	auto requiredExtensions = getRequiredExtensions();
@@ -285,6 +291,16 @@ void Mountain::createDevice() {
 
 	vkGetDeviceQueue(device, queueFamilyIndex, 0, &queue);
 	if (DISPLAY_QUEUES) printf("Selected and stored queue family index %d\n", queueFamilyIndex);
+}
+
+void Mountain::createAllocator() {
+	VmaAllocatorCreateInfo allocatorInfo {};
+	allocatorInfo.vulkanApiVersion = VK_API_VERSION_1_0;
+	allocatorInfo.physicalDevice = physicalDevice;
+	allocatorInfo.device = device;
+	allocatorInfo.instance = instance;
+
+	vmaCreateAllocator(&allocatorInfo, &allocator);
 }
 
 bool Mountain::checkDeviceExtensionSupport(VkPhysicalDevice physicalDevice) {

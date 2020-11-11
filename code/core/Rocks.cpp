@@ -53,6 +53,31 @@ void Rocks::createImage(uint32_t width, uint32_t height, uint32_t mipLevels, VkS
 	vkBindImageMemory(mountain.device, image, imageMemory, 0)            >> ash("Failed to bind image memory!");
 }
 
+void Rocks::createImageVMA(uint32_t width, uint32_t height, uint32_t mipLevels, VkSampleCountFlagBits numSamples,
+		VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VmaMemoryUsage memoryUsage,
+		VkImage& image, VmaAllocation& imageAllocation)
+{
+	VkImageCreateInfo imageInfo { VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO };
+	imageInfo.imageType = VK_IMAGE_TYPE_2D;
+	imageInfo.extent.width = width;
+	imageInfo.extent.height = height;
+	imageInfo.extent.depth = 1;
+	imageInfo.mipLevels = mipLevels;
+	imageInfo.arrayLayers = 1;
+	imageInfo.format = format;
+	imageInfo.tiling = tiling;
+	imageInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+	imageInfo.usage = usage;
+	imageInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+	imageInfo.samples = numSamples;
+	imageInfo.flags = 0; // TODO Here is sparse images & cube images
+
+	VmaAllocationCreateInfo allocInfo {};
+	allocInfo.usage = memoryUsage;
+
+	vmaCreateImage(mountain.allocator, &imageInfo, &allocInfo, &image, &imageAllocation, nullptr) >> ash("Failed to create VMA image!");
+}
+
 VkImageView Rocks::createImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags, uint32_t mipLevels) {
 	VkImageViewCreateInfo info { VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO };
 	info.image = image;

@@ -34,8 +34,13 @@ Lava::~Lava() {
 	if (textureSampler != VK_NULL_HANDLE) vkDestroySampler(mountain.device, textureSampler, nullptr);
 
 	for (auto element : textureImageViews)   if (element != VK_NULL_HANDLE) vkDestroyImageView(mountain.device, element, nullptr);
-	for (auto element : textureImages)       if (element != VK_NULL_HANDLE) vkDestroyImage(mountain.device, element, nullptr);
-	for (auto element : textureImageMemorys) if (element != VK_NULL_HANDLE) vkFreeMemory(mountain.device, element, nullptr);
+	// for (auto element : textureImages)       if (element != VK_NULL_HANDLE) vkDestroyImage(mountain.device, element, nullptr);
+	// for (auto element : textureImageMemorys) if (element != VK_NULL_HANDLE) vkFreeMemory(mountain.device, element, nullptr);
+
+	for (size_t i = 0; i < textureImages.size(); i++) {
+	// for (auto allocation : textureAllocations) {
+		vmaDestroyImage(mountain.allocator, textureImages[i], textureAllocations[i]);
+	}
 
 	if (descriptorSetLayout  != VK_NULL_HANDLE) vkDestroyDescriptorSetLayout(mountain.device, descriptorSetLayout, nullptr);
 	if (descriptorSetLayout2 != VK_NULL_HANDLE) vkDestroyDescriptorSetLayout(mountain.device, descriptorSetLayout2, nullptr);
@@ -398,6 +403,34 @@ void Lava::establishTexture(int width, int height, void* pixels, VkImage& textur
 	textureImageView = rocks.createImageView(textureImage, preferred8bitFormat, VK_IMAGE_ASPECT_COLOR_BIT, mipLevels);
 }
 
+void Lava::establishTextureVMA(int width, int height, void* pixels, VkImage& textureImage, VkImageView& textureImageView, VmaAllocation& textureAllocation) {
+	int mipLevels = 1;
+	// mipLevels = static_cast<uint32_t>(floor(log2(max(width, height)))) + 1;
+	VkDeviceSize imageSize = width * height * 4;
+
+	VkBuffer stagingBuffer;
+	VkDeviceMemory stagingBufferMemory;
+	rocks.createBuffer(imageSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
+	rocks.copyDataToBuffer(pixels, stagingBufferMemory, imageSize);
+
+	auto preferred8bitFormat = crater.USE_GAMMA_CORRECT ? VK_FORMAT_R8G8B8A8_SRGB : VK_FORMAT_R8G8B8A8_UNORM;
+
+	rocks.createImageVMA(static_cast<uint32_t>(width), static_cast<uint32_t>(height), mipLevels, VK_SAMPLE_COUNT_1_BIT, preferred8bitFormat,
+		VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VMA_MEMORY_USAGE_GPU_ONLY,
+		textureImage, textureAllocation);
+
+	// TODO use common command buffer for this following operations to ensure performance:
+	rocks.transitionImageLayout(textureImage, preferred8bitFormat, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, mipLevels); // TODO check why in tutorial no mipLevels here
+	rocks.copyBufferToImage(stagingBuffer, textureImage, static_cast<uint32_t>(width), static_cast<uint32_t>(height));
+	rocks.transitionImageLayout(textureImage, preferred8bitFormat, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, mipLevels);
+	// generateMipmaps(textureImage, VK_FORMAT_R8G8B8A8_SRGB, width, height, mipLevels);
+
+	vkDestroyBuffer(mountain.device, stagingBuffer, nullptr);
+	vkFreeMemory(mountain.device, stagingBufferMemory, nullptr);
+
+	textureImageView = rocks.createImageView(textureImage, preferred8bitFormat, VK_IMAGE_ASPECT_COLOR_BIT, mipLevels);
+}
+
 size_t Lava::addObject(vector<Vertex> vertices, vector<Instance> instances, int width, int height, void* pixels) {
 	size_t newSize = textureImageViews.size() + 1;
 	vertexBuffers.resize(newSize);
@@ -414,12 +447,14 @@ size_t Lava::addObject(vector<Vertex> vertices, vector<Instance> instances, int 
 	stagingInstanceBufferMappedPointers.resize(newSize);
 	textureImages.resize(newSize);
 	textureImageViews.resize(newSize);
-	textureImageMemorys.resize(newSize);
+	// textureImageMemorys.resize(newSize);
+	textureAllocations.resize(newSize);
 
 	size_t last = newSize - 1;
 	establishVertexBuffer(vertices, last);
 	establishInstanceBuffer(instances, last);
-	establishTexture(width, height, pixels, textureImages[last], textureImageViews[last], textureImageMemorys[last]);
+	// establishTexture(width, height, pixels, textureImages[last], textureImageViews[last], textureImageMemorys[last]);
+	establishTextureVMA(width, height, pixels, textureImages[last], textureImageViews[last], textureAllocations[last]);
 
 	return last;
 }
