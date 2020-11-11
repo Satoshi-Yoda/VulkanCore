@@ -68,13 +68,17 @@ private:
 
 	// vector<VkDeviceMemory> vertexBufferMemorys; // TODO maybe move somewhere? To the "storage"?
 	vector<VmaAllocation> vertexBufferAllocations; // TODO maybe move somewhere? To the "storage"?
-	vector<VkDeviceMemory> instanceBufferMemorys;
+	// vector<VkDeviceMemory> instanceBufferMemorys;
+	vector<VmaAllocation> instanceBufferAllocations;
+	vector<VmaAllocationInfo> instanceBufferAllocationInfos;
 	// vector<VkBuffer> stagingBuffers; // TODO rename to stagingVertexBuffers
 	// vector<VkDeviceMemory> stagingBufferMemorys;
 	// vector<void*> stagingBufferMappedPointers;
 	vector<VkBuffer> stagingInstanceBuffers;
-	vector<VkDeviceMemory> stagingInstanceBufferMemorys;
-	vector<void*> stagingInstanceBufferMappedPointers; // TODO rename somehow
+	vector<VmaAllocation> stagingInstanceBufferAllocations;
+	vector<VmaAllocationInfo> stagingInstanceBufferAllocationInfos;
+	// vector<VkDeviceMemory> stagingInstanceBufferMemorys;
+	// vector<void*> stagingInstanceBufferMappedPointers; // TODO rename somehow
 	vector<VkImage> textureImages;
 	// vector<VkDeviceMemory> textureImageMemorys;
 	vector<VmaAllocation> textureAllocations;
