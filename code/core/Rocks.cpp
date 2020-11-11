@@ -230,6 +230,21 @@ void Rocks::createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPr
 	vkBindBufferMemory(mountain.device, buffer, bufferMemory, 0)          >> ash("Failed to bind buffer memory!");
 }
 
+void Rocks::createBufferVMA(VkDeviceSize size, VkBufferUsageFlags usage, VmaMemoryUsage memoryUsage, VkBuffer& buffer, VmaAllocation& bufferAllocation, VmaAllocationInfo& bufferAllocationInfo) {
+	VkBufferCreateInfo bufferInfo { VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO };
+	bufferInfo.size = size;
+	bufferInfo.usage = usage;
+	bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+	bufferInfo.queueFamilyIndexCount = 0;
+	bufferInfo.pQueueFamilyIndices = nullptr;
+
+	VmaAllocationCreateInfo allocationCreateInfo {};
+	allocationCreateInfo.usage = memoryUsage;
+	allocationCreateInfo.flags = (memoryUsage == VMA_MEMORY_USAGE_CPU_ONLY) ? VMA_ALLOCATION_CREATE_MAPPED_BIT : 0;
+
+	vmaCreateBuffer(mountain.allocator, &bufferInfo, &allocationCreateInfo, &buffer, &bufferAllocation, &bufferAllocationInfo) >> ash("Failed to create VMA buffer!");
+}
+
 void Rocks::copyBufferToBuffer(VkBuffer& srcBuffer, VkBuffer& dstBuffer, VkDeviceSize size, VkAccessFlags resultAccessFlags) {
 	// auto start = chrono::high_resolution_clock::now();
 

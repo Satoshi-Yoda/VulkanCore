@@ -39,8 +39,10 @@ Tectonic::~Tectonic() {
 		if (renderFinishedSemaphores[i] != VK_NULL_HANDLE) vkDestroySemaphore  (mountain.device, renderFinishedSemaphores[i], nullptr);
 		if (fences[i]                   != VK_NULL_HANDLE) vkDestroyFence      (mountain.device, fences[i], nullptr);
 		if (framebuffers[i]             != VK_NULL_HANDLE) vkDestroyFramebuffer(mountain.device, framebuffers[i], nullptr);
-		if (uniformBuffers[i]           != VK_NULL_HANDLE) vkDestroyBuffer     (mountain.device, uniformBuffers[i], nullptr);
-		if (uniformBuffersMemory[i]     != VK_NULL_HANDLE) vkFreeMemory        (mountain.device, uniformBuffersMemory[i], nullptr);
+		// if (uniformBuffers[i]           != VK_NULL_HANDLE) vkDestroyBuffer     (mountain.device, uniformBuffers[i], nullptr);
+		// if (uniformBuffersMemory[i]     != VK_NULL_HANDLE) vkFreeMemory        (mountain.device, uniformBuffersMemory[i], nullptr);
+
+		vmaDestroyBuffer(mountain.allocator, uniformBuffers[i], uniformBuffersAllocations[i]);
 	}
 }
 
@@ -67,7 +69,8 @@ void Tectonic::createInFlightResources() {
 
 void Tectonic::createUniformBuffers() {
 	for (size_t i = 0; i < IN_FLIGHT_FRAMES; i++) {
-		rocks.createBuffer(sizeof(UniformBufferObject), VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, uniformBuffers[i], uniformBuffersMemory[i]);
+		// rocks.createBuffer(sizeof(UniformBufferObject), VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, uniformBuffers[i], uniformBuffersMemory[i]);
+		rocks.createBufferVMA(sizeof(UniformBufferObject), VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VMA_MEMORY_USAGE_CPU_ONLY, uniformBuffers[i], uniformBuffersAllocations[i], uniformBuffersAllocationInfos[i]);
 	}
 }
 
@@ -107,10 +110,12 @@ void Tectonic::updateInFlightUniformBuffer() {
 	ubo.scale = { 2.0f / (crater.extent.width + 1), 2.0f / (crater.extent.height + 1) };
 
 	// TODO map only once, and keep it mapped, better for performance
-	void* data;
-	vkMapMemory(mountain.device, uniformBuffersMemory[inFlightIndex], 0, sizeof(ubo), 0, &data);
-	memcpy(data, &ubo, sizeof(ubo));
-	vkUnmapMemory(mountain.device, uniformBuffersMemory[inFlightIndex]);
+	// void* data;
+	// vkMapMemory(mountain.device, uniformBuffersMemory[inFlightIndex], 0, sizeof(ubo), 0, &data);
+	// memcpy(data, &ubo, sizeof(ubo));
+	// vkUnmapMemory(mountain.device, uniformBuffersMemory[inFlightIndex]);
+
+	memcpy(uniformBuffersAllocationInfos[inFlightIndex].pMappedData, &ubo, sizeof(ubo));
 }
 
 void Tectonic::updateDescriptorSet(size_t frameIndex, size_t textureIndex, VkImageView& imageView) {

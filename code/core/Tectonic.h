@@ -7,6 +7,8 @@
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
 
+#include "vk_mem_alloc.h"
+
 #include "Mountain.h"
 #include "Crater.h"
 #include "Lava.h"
@@ -31,13 +33,15 @@ private:
 	const static int IN_FLIGHT_FRAMES = 2;
 	int inFlightIndex = 0;
 
-	array<VkCommandBuffer, IN_FLIGHT_FRAMES> commandBuffers;
-	array<VkSemaphore,     IN_FLIGHT_FRAMES> imageAvailableSemaphores;
-	array<VkSemaphore,     IN_FLIGHT_FRAMES> renderFinishedSemaphores;
-	array<VkFence,         IN_FLIGHT_FRAMES> fences;
-	array<VkFramebuffer,   IN_FLIGHT_FRAMES> framebuffers;
-	array<VkBuffer,        IN_FLIGHT_FRAMES> uniformBuffers;
-	array<VkDeviceMemory,  IN_FLIGHT_FRAMES> uniformBuffersMemory;
+	array<VkCommandBuffer,   IN_FLIGHT_FRAMES> commandBuffers;
+	array<VkSemaphore,       IN_FLIGHT_FRAMES> imageAvailableSemaphores;
+	array<VkSemaphore,       IN_FLIGHT_FRAMES> renderFinishedSemaphores;
+	array<VkFence,           IN_FLIGHT_FRAMES> fences;
+	array<VkFramebuffer,     IN_FLIGHT_FRAMES> framebuffers;
+	array<VkBuffer,          IN_FLIGHT_FRAMES> uniformBuffers;
+	// array<VkDeviceMemory,    IN_FLIGHT_FRAMES> uniformBuffersMemory;
+	array<VmaAllocation,     IN_FLIGHT_FRAMES> uniformBuffersAllocations;
+	array<VmaAllocationInfo, IN_FLIGHT_FRAMES> uniformBuffersAllocationInfos;
 	vector<array<VkDescriptorSet, IN_FLIGHT_FRAMES>> descriptorSets;
 
 	void createInFlightResources();
