@@ -13,7 +13,7 @@ VMA_INCLUDE     = ${VMA_HOME}
 VULKAN_LIB = ${VULKAN_HOME}/Lib
 GLFW_LIB   = ${GLFW_HOME}/lib-mingw-w64
 
-COMPILE = -std=c++17 -O3 -msse2
+COMPILE = -std=c++17 -O3 -msse2 ${gcc_params}
 INCLUDE = -I${VULKAN_INCLUDE} -I${GLFW_INCLUDE} -I${GLM_INCLUDE} -I${STB_INCLUDE} -I${VMA_INCLUDE}
 LINK = ${VULKAN_LIB}/vulkan-1.lib ${GLFW_LIB}/glfw3.dll
 
