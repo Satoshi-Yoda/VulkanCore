@@ -52,7 +52,7 @@ public:
 
 	size_t addObject(vector<Vertex> vertices, vector<Instance> instances, int width, int height, void* pixels);
 	size_t texturesCount();
-	void updateVertexBuffer(size_t id, vector<Vertex> vertices);
+	// void updateVertexBuffer(size_t id, vector<Vertex> vertices);
 	void updateInstanceBuffer(size_t id, vector<Instance> instances);
 	void updateInstances(size_t id, vector<Instance> instances, vector<size_t> indexes);
 
@@ -68,9 +68,9 @@ private:
 
 	vector<VkDeviceMemory> vertexBufferMemorys; // TODO maybe move somewhere? To the "storage"?
 	vector<VkDeviceMemory> instanceBufferMemorys;
-	vector<VkBuffer> stagingBuffers; // TODO rename to stagingVertexBuffers
-	vector<VkDeviceMemory> stagingBufferMemorys;
-	vector<void*> stagingBufferMappedPointers;
+	// vector<VkBuffer> stagingBuffers; // TODO rename to stagingVertexBuffers
+	// vector<VkDeviceMemory> stagingBufferMemorys;
+	// vector<void*> stagingBufferMappedPointers;
 	vector<VkBuffer> stagingInstanceBuffers;
 	vector<VkDeviceMemory> stagingInstanceBufferMemorys;
 	vector<void*> stagingInstanceBufferMappedPointers; // TODO rename somehow
