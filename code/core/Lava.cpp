@@ -419,6 +419,8 @@ void Lava::establishTextureVMA(int width, int height, void* pixels, VkImage& tex
 		VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VMA_MEMORY_USAGE_GPU_ONLY,
 		textureImage, textureAllocation);
 
+	// TODO use use common command buffer for a collection of textures (add it as a parameter to establishTextureVMA, or make a separate function)
+
 	// TODO use common command buffer for this following operations to ensure performance:
 	rocks.transitionImageLayout(textureImage, preferred8bitFormat, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, mipLevels); // TODO check why in tutorial no mipLevels here
 	rocks.copyBufferToImage(stagingBuffer, textureImage, static_cast<uint32_t>(width), static_cast<uint32_t>(height));
