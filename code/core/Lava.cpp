@@ -21,10 +21,14 @@ Lava::~Lava() {
 		vkDeviceWaitIdle(mountain.device);
 	}
 
-	for (auto element : vertexBuffers)        if (element != VK_NULL_HANDLE) vkDestroyBuffer(mountain.device, element, nullptr);
-	for (auto element : vertexBufferMemorys)  if (element != VK_NULL_HANDLE) vkFreeMemory(mountain.device, element, nullptr);
+	// for (auto element : vertexBuffers)        if (element != VK_NULL_HANDLE) vkDestroyBuffer(mountain.device, element, nullptr);
+	// for (auto element : vertexBufferMemorys)  if (element != VK_NULL_HANDLE) vkFreeMemory(mountain.device, element, nullptr);
 	// for (auto element : stagingBuffers)       if (element != VK_NULL_HANDLE) vkDestroyBuffer(mountain.device, element, nullptr);
 	// for (auto element : stagingBufferMemorys) if (element != VK_NULL_HANDLE) vkFreeMemory(mountain.device, element, nullptr);
+
+	for (size_t i = 0; i < vertexBuffers.size(); i++) {
+		vmaDestroyBuffer(mountain.allocator, vertexBuffers[i], vertexBufferAllocations[i]);
+	}
 
 	for (auto element : instanceBuffers)              if (element != VK_NULL_HANDLE) vkDestroyBuffer(mountain.device, element, nullptr);
 	for (auto element : instanceBufferMemorys)        if (element != VK_NULL_HANDLE) vkFreeMemory(mountain.device, element, nullptr);
@@ -38,7 +42,6 @@ Lava::~Lava() {
 	// for (auto element : textureImageMemorys) if (element != VK_NULL_HANDLE) vkFreeMemory(mountain.device, element, nullptr);
 
 	for (size_t i = 0; i < textureImages.size(); i++) {
-	// for (auto allocation : textureAllocations) {
 		vmaDestroyImage(mountain.allocator, textureImages[i], textureAllocations[i]);
 	}
 
@@ -268,7 +271,9 @@ void Lava::createPipeline() {
 void Lava::establishVertexBuffer(vector<Vertex> vertices, size_t id) {
 	VkBuffer& vertexBuffer = vertexBuffers[id];
 	uint32_t& vertexBufferSize = vertexBufferSizes[id];
-	VkDeviceMemory& vertexBufferMemory = vertexBufferMemorys[id];
+	// VkDeviceMemory& vertexBufferMemory = vertexBufferMemorys[id];
+	VmaAllocation& vertexBufferAllocation = vertexBufferAllocations[id];
+	VmaAllocationInfo vertexBufferAllocationInfo;
 
 	vertexBufferSize = vertices.size();
 	VkDeviceSize bufferSize = sizeof(Vertex) * vertices.size();
@@ -287,7 +292,8 @@ void Lava::establishVertexBuffer(vector<Vertex> vertices, size_t id) {
 	rocks.createBufferVMA(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VMA_MEMORY_USAGE_CPU_ONLY, stagingBuffer, stagingBufferAllocation, stagingBufferAllocationInfo);
 	memcpy(stagingBufferAllocationInfo.pMappedData, vertices.data(), static_cast<size_t>(bufferSize));
 
-	rocks.createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, vertexBuffer, vertexBufferMemory);
+	// rocks.createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, vertexBuffer, vertexBufferMemory);
+	rocks.createBufferVMA(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VMA_MEMORY_USAGE_GPU_ONLY, vertexBuffer, vertexBufferAllocation, vertexBufferAllocationInfo);
 	rocks.copyBufferToBuffer(stagingBuffer, vertexBuffer, bufferSize, VK_ACCESS_VERTEX_ATTRIBUTE_READ_BIT);
 
 	// void* &dstPointer = stagingBufferMappedPointers[id];
@@ -309,22 +315,31 @@ void Lava::establishInstanceBuffer(vector<Instance> instances, size_t id) {
 
 	// TODO try keep staging buffers and reuse them later
 	// did it, for now
-	VkBuffer& stagingBuffer = stagingInstanceBuffers[id];
-	VkDeviceMemory& stagingBufferMemory = stagingInstanceBufferMemorys[id];
+	// VkBuffer& stagingBuffer = stagingInstanceBuffers[id];
+	// VkDeviceMemory& stagingBufferMemory = stagingInstanceBufferMemorys[id];
 
-	// printf("Creating vertex stage buffer...\n");
-	rocks.createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
-	rocks.copyDataToBuffer(instances.data(), stagingBufferMemory, static_cast<size_t>(bufferSize));
+	// // printf("Creating vertex stage buffer...\n");
+	// rocks.createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
+	// rocks.copyDataToBuffer(instances.data(), stagingBufferMemory, static_cast<size_t>(bufferSize));
+
+	VkBuffer stagingBuffer;
+	VmaAllocation stagingBufferAllocation;
+	VmaAllocationInfo stagingBufferAllocationInfo;
+
+	rocks.createBufferVMA(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VMA_MEMORY_USAGE_CPU_ONLY, stagingBuffer, stagingBufferAllocation, stagingBufferAllocationInfo);
+	memcpy(stagingBufferAllocationInfo.pMappedData, instances.data(), static_cast<size_t>(bufferSize));
 
 	// printf("Creating working vertex buffer...\n");
 	rocks.createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, instanceBuffer, instanceBufferMemory);
 	rocks.copyBufferToBuffer(stagingBuffer, instanceBuffer, bufferSize, VK_ACCESS_VERTEX_ATTRIBUTE_READ_BIT);
 
-	void* &dstPointer = stagingInstanceBufferMappedPointers[id];
-	vkMapMemory(mountain.device, stagingBufferMemory, 0, VK_WHOLE_SIZE, 0, &dstPointer);
+	// void* &dstPointer = stagingInstanceBufferMappedPointers[id];
+	// vkMapMemory(mountain.device, stagingBufferMemory, 0, VK_WHOLE_SIZE, 0, &dstPointer);
 
 	// vkDestroyBuffer(mountain.device, stagingBuffer, nullptr);
 	// vkFreeMemory(mountain.device, stagingBufferMemory, nullptr);
+
+	vmaDestroyBuffer(mountain.allocator, stagingBuffer, stagingBufferAllocation);
 }
 
 // void Lava::updateVertexBuffer(size_t id, vector<Vertex> vertices) {
@@ -443,7 +458,8 @@ size_t Lava::addObject(vector<Vertex> vertices, vector<Instance> instances, int 
 	size_t newSize = textureImageViews.size() + 1;
 	vertexBuffers.resize(newSize);
 	vertexBufferSizes.resize(newSize);
-	vertexBufferMemorys.resize(newSize);
+	// vertexBufferMemorys.resize(newSize);
+	vertexBufferAllocations.resize(newSize);
 	instanceBuffers.resize(newSize);
 	instanceBufferSizes.resize(newSize);
 	instanceBufferMemorys.resize(newSize);

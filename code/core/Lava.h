@@ -66,7 +66,8 @@ private:
 
 	int mipLevels = 1;
 
-	vector<VkDeviceMemory> vertexBufferMemorys; // TODO maybe move somewhere? To the "storage"?
+	// vector<VkDeviceMemory> vertexBufferMemorys; // TODO maybe move somewhere? To the "storage"?
+	vector<VmaAllocation> vertexBufferAllocations; // TODO maybe move somewhere? To the "storage"?
 	vector<VkDeviceMemory> instanceBufferMemorys;
 	// vector<VkBuffer> stagingBuffers; // TODO rename to stagingVertexBuffers
 	// vector<VkDeviceMemory> stagingBufferMemorys;
