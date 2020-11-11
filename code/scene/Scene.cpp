@@ -78,8 +78,8 @@ void Scene::establish(Lava &lava) {
 		addInstance(x, y);
 	}
 
-	printf("Lava: %d vertices\n", vertices.size());
-	printf("Lava: %d sprites\n", instances.size());
+	printf("Lava: %lld vertices\n", vertices.size());
+	printf("Lava: %lld sprites\n", instances.size());
 	printf("Lava: stream: %.2f Mb/frame\n", static_cast<float>(instances.size() * sizeof(Instance)) / (1 << 20));
 	printf("Lava: stream: %.2f Mb/second (for 60 fps)\n", 60 * static_cast<float>(instances.size() * sizeof(Instance)) / (1 << 20));
 	printf("Lava: fillrate: %.0f Mpixels/frame\n", (instances.size()) * width * height * scale * scale / 1000000);
@@ -97,7 +97,7 @@ void Scene::establish(Lava &lava) {
 
 	lavaObjectId = lava.addObject(vertices, instances, width, height, pixels);
 
-	printf("Lava: %d draw calls\n", lava.texturesCount());
+	printf("Lava: %lld draw calls\n", lava.texturesCount());
 
 	freeTexture(pixels); // TODO move somewhere, maybe
 	vertices.clear();

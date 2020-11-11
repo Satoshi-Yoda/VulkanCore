@@ -36,6 +36,7 @@ VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(
 			case VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT: severity = "[VERBOSE]"; break;
 			case VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT: severity = "[WARNING]"; break;
 			case VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT:   severity = "[ERROR]";   break;
+			default:                                              severity = "[DEFAULT]"; break;
 		}
 		cerr << severity << " Validation layer: " << pCallbackData->pMessage << endl << endl;
 	}
@@ -187,9 +188,9 @@ bool Mountain::checkRequiredExtensionsSupport(vector<const char*> &requiredExten
 	for (auto extension : extensions) {
 		supported.insert(extension.extensionName);
 		if (required.find(extension.extensionName) != required.end()) {
-			if (DISPLAY_INSTANCE_EXTENSIONS) printf(" + %s\n", extension);
+			if (DISPLAY_INSTANCE_EXTENSIONS) printf(" + %s v%d\n", extension.extensionName, extension.specVersion);
 		} else {
-			if (DISPLAY_INSTANCE_EXTENSIONS) printf("   %s\n", extension);
+			if (DISPLAY_INSTANCE_EXTENSIONS) printf("   %s v%d\n", extension.extensionName, extension.specVersion);
 		}
 	}
 	if (DISPLAY_INSTANCE_EXTENSIONS) printf("\n");
@@ -231,9 +232,9 @@ void Mountain::checkValidationLayerSupport() {
 	for (auto layer : availableLayers) {
 		available.insert(layer.layerName);
 		if (required.find(layer.layerName) != required.end()) {
-			if (DISPLAY_LAYERS) printf(" + %s\n", layer);
+			if (DISPLAY_LAYERS) printf(" + %s sv%d iv%d (%s)\n", layer.layerName, layer.specVersion, layer.implementationVersion, layer.description);
 		} else {
-			if (DISPLAY_LAYERS) printf("   %s\n", layer);
+			if (DISPLAY_LAYERS) printf("   %s sv%d iv%d (%s)\n", layer.layerName, layer.specVersion, layer.implementationVersion, layer.description);
 		}
 	}
 	if (DISPLAY_LAYERS) printf("\n");
@@ -315,9 +316,9 @@ bool Mountain::checkDeviceExtensionSupport(VkPhysicalDevice physicalDevice) {
 	for (auto extension : availableExtensions) {
 		if (required.find(extension.extensionName) != required.end()) {
 			required.erase(extension.extensionName);
-			if (DISPLAY_DEVICE_EXTENSIONS) printf(" + %s\n", extension);
+			if (DISPLAY_DEVICE_EXTENSIONS) printf(" + %s v%d\n", extension.extensionName, extension.specVersion);
 		} else {
-			if (DISPLAY_DEVICE_EXTENSIONS) printf("   %s\n", extension);
+			if (DISPLAY_DEVICE_EXTENSIONS) printf("   %s v%d\n", extension.extensionName, extension.specVersion);
 		}
 	}
 	if (DISPLAY_DEVICE_EXTENSIONS) printf("\n");

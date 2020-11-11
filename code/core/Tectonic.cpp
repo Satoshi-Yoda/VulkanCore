@@ -98,22 +98,16 @@ void Tectonic::resizeDescriptorSets(size_t size) {
 }
 
 void Tectonic::updateInFlightUniformBuffer() {
-	static auto startTime = chrono::high_resolution_clock::now();
-	static auto  lastTime = chrono::high_resolution_clock::now();
-	auto      currentTime = chrono::high_resolution_clock::now();
-	float time = chrono::duration<float, chrono::seconds::period>(currentTime - startTime).count();
-	float dt = chrono::duration<float, chrono::seconds::period>(currentTime - lastTime).count();
-	lastTime = currentTime;
+	// static auto startTime = chrono::high_resolution_clock::now();
+	// static auto  lastTime = chrono::high_resolution_clock::now();
+	// auto      currentTime = chrono::high_resolution_clock::now();
+	// float time = chrono::duration<float, chrono::seconds::period>(currentTime - startTime).count();
+	// float dt = chrono::duration<float, chrono::seconds::period>(currentTime - lastTime).count();
+	// lastTime = currentTime;
 
 	UniformBufferObject ubo {};
 	ubo.shift = { 0.0f, 0.0f };
 	ubo.scale = { 2.0f / (crater.extent.width + 1), 2.0f / (crater.extent.height + 1) };
-
-	// TODO map only once, and keep it mapped, better for performance
-	// void* data;
-	// vkMapMemory(mountain.device, uniformBuffersMemory[inFlightIndex], 0, sizeof(ubo), 0, &data);
-	// memcpy(data, &ubo, sizeof(ubo));
-	// vkUnmapMemory(mountain.device, uniformBuffersMemory[inFlightIndex]);
 
 	memcpy(uniformBuffersAllocationInfos[inFlightIndex].pMappedData, &ubo, sizeof(ubo));
 }

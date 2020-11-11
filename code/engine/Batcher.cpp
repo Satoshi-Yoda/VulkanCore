@@ -75,7 +75,7 @@ void Batcher::loadFolderNth(string folder, uint32_t workers) {
 		texturesBytes += width[name] * height[name] * 4;
 	}
 
-	printf("Loaded %d .png files (%d Mb textures) from %s in %.3fs\n", files.size(), texturesBytes / (1 << 20), folder.data(), chrono::duration_cast<chrono::duration<double>>(chrono::high_resolution_clock::now() - start).count());
+	printf("Loaded %lld .png files (%lld Mb textures) from %s in %.3fs\n", files.size(), texturesBytes / (1 << 20), folder.data(), chrono::duration_cast<chrono::duration<double>>(chrono::high_resolution_clock::now() - start).count());
 }
 
 void Batcher::initQuad(string name, uint32_t w, uint32_t h) {
@@ -109,11 +109,12 @@ void Batcher::establish(Lava& lava) {
 
 	for (auto& it : pixels) {
 		string key = it.first;
-		auto lavaObjectId = lava.addObject(vertices[key], instances[key], width[key], height[key], pixels[key]);
+		lava.addObject(vertices[key], instances[key], width[key], height[key], pixels[key]);
+		// TODO save returned lavaObjectId
 	}
 
 	auto time = chrono::duration_cast<chrono::duration<double>>(chrono::high_resolution_clock::now() - start).count();
-	printf("Established %d lava objects in %.3fs (%.2f Gb/s)\n", pixels.size(), time, texturesBytes / time / (1 << 30));
+	printf("Established %lld lava objects in %.3fs (%.2f Gb/s)\n", pixels.size(), time, texturesBytes / time / (1 << 30));
 }
 
 void Batcher::addInstance(string name, Instance instance) {
