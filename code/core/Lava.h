@@ -93,7 +93,7 @@ private:
 
 	void establishVertexBuffer(vector<Vertex> vertices, size_t id);
 	void establishInstanceBuffer(vector<Instance> instances, size_t id);
-	void establishTexture(int width, int height, void* pixels, VkImage& textureImage, VkImageView& textureImageView, VkDeviceMemory& textureImageMemory);
+	// void establishTexture(int width, int height, void* pixels, VkImage& textureImage, VkImageView& textureImageView, VkDeviceMemory& textureImageMemory);
 	void establishTextureVMA(int width, int height, void* pixels, VkImage& textureImage, VkImageView& textureImageView, VmaAllocation& textureAllocation);
 };
 

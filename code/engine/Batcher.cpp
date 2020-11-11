@@ -50,12 +50,6 @@ void Batcher::loadFolderNth(string folder, uint32_t workers) {
 			uint32_t length = (w == workers - 1) ? (chunk + rest) : chunk;
 			for (uint32_t i = start; i < start + length; i++) {
 				string name = files[i].stem().string();
-				bool full;
-				putMutex.lock();
-					full = (vertices.size() >= 800);
-				putMutex.unlock();
-				if (full) break;
-
 				void* tempPixels;
 				int tempWidth, tempHeight;
 
