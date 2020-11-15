@@ -36,6 +36,7 @@ struct Instance {
 // store batch all data in 1 class with state
 // make establish(), freeCPU(), freeGPU(), etc methods
 // store lavaObjectId, stats in that class
+// aspects: working, staging, live
 
 struct BatchCreateData {
 	vector<Vertex> vertices;
