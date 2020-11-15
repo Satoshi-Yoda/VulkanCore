@@ -32,6 +32,11 @@ struct Instance {
 	vec2 pos;
 };
 
+// TODO
+// store batch all data in 1 class with state
+// make establish(), freeCPU(), freeGPU(), etc methods
+// store lavaObjectId, stats in that class
+
 struct BatchCreateData {
 	vector<Vertex> vertices;
 	vector<Instance> instances;
@@ -81,6 +86,7 @@ public:
 
 	size_t addObject(vector<Vertex> vertices, vector<Instance> instances, int width, int height, void* pixels);
 	size_t addBatch(BatchCreateData& createData);
+	void addBatches(vector<BatchCreateData> createDatas);
 	// void updateVertexBuffer(size_t id, vector<Vertex> vertices);
 	void updateInstanceBuffer(size_t id, vector<Instance> instances);
 	void updateInstances(size_t id, vector<Instance> instances, vector<size_t> indexes);

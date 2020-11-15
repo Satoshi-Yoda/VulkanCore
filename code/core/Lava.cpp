@@ -26,24 +26,32 @@ Lava::~Lava() {
 	// for (auto element : stagingBuffers)       if (element != VK_NULL_HANDLE) vkDestroyBuffer(mountain.device, element, nullptr);
 	// for (auto element : stagingBufferMemorys) if (element != VK_NULL_HANDLE) vkFreeMemory(mountain.device, element, nullptr);
 
-	for (size_t i = 0; i < vertexBuffers.size(); i++) vmaDestroyBuffer(mountain.allocator, vertexBuffers[i], vertexBufferAllocations[i]);
+	// for (size_t i = 0; i < vertexBuffers.size(); i++) vmaDestroyBuffer(mountain.allocator, vertexBuffers[i], vertexBufferAllocations[i]);
 
 	// for (auto element : instanceBuffers)              if (element != VK_NULL_HANDLE) vkDestroyBuffer(mountain.device, element, nullptr);
 	// for (auto element : instanceBufferMemorys)        if (element != VK_NULL_HANDLE) vkFreeMemory(mountain.device, element, nullptr);
 
-	for (size_t i = 0; i < instanceBuffers.size(); i++) vmaDestroyBuffer(mountain.allocator, instanceBuffers[i], instanceBufferAllocations[i]);
-	for (size_t i = 0; i < stagingInstanceBuffers.size(); i++) vmaDestroyBuffer(mountain.allocator, stagingInstanceBuffers[i], stagingInstanceBufferAllocations[i]);
+	// for (size_t i = 0; i < instanceBuffers.size(); i++) vmaDestroyBuffer(mountain.allocator, instanceBuffers[i], instanceBufferAllocations[i]);
+	// for (size_t i = 0; i < stagingInstanceBuffers.size(); i++) vmaDestroyBuffer(mountain.allocator, stagingInstanceBuffers[i], stagingInstanceBufferAllocations[i]);
 
 	// for (auto element : stagingInstanceBuffers)       if (element != VK_NULL_HANDLE) vkDestroyBuffer(mountain.device, element, nullptr);
 	// for (auto element : stagingInstanceBufferMemorys) if (element != VK_NULL_HANDLE) vkFreeMemory(mountain.device, element, nullptr);
  
 	if (textureSampler != VK_NULL_HANDLE) vkDestroySampler(mountain.device, textureSampler, nullptr);
 
-	for (auto element : textureImageViews)   if (element != VK_NULL_HANDLE) vkDestroyImageView(mountain.device, element, nullptr);
+	// for (auto element : textureImageViews)   if (element != VK_NULL_HANDLE) vkDestroyImageView(mountain.device, element, nullptr);
 	// for (auto element : textureImages)       if (element != VK_NULL_HANDLE) vkDestroyImage(mountain.device, element, nullptr);
 	// for (auto element : textureImageMemorys) if (element != VK_NULL_HANDLE) vkFreeMemory(mountain.device, element, nullptr);
 
-	for (size_t i = 0; i < textureImages.size(); i++) vmaDestroyImage(mountain.allocator, textureImages[i], textureAllocations[i]);
+	// for (size_t i = 0; i < textureImages.size(); i++) vmaDestroyImage(mountain.allocator, textureImages[i], textureAllocations[i]);
+
+	for (size_t i = 0; i < batchData.size(); i++) {
+		vmaDestroyBuffer(mountain.allocator, batchData[i].vertexBuffer, batchData[i].vertexAllocation);
+		vmaDestroyBuffer(mountain.allocator, batchData[i].instanceBuffer, batchData[i].instanceAllocation);
+		vmaDestroyBuffer(mountain.allocator, batchData[i].stagingInstanceBuffer, batchData[i].stagingInstanceAllocation);
+		vkDestroyImageView(mountain.device, batchData[i].textureView, nullptr);
+		vmaDestroyImage(mountain.allocator, batchData[i].textureImage, batchData[i].textureAllocation);
+	}
 
 	if (descriptorSetLayout  != VK_NULL_HANDLE) vkDestroyDescriptorSetLayout(mountain.device, descriptorSetLayout, nullptr);
 	if (descriptorSetLayout2 != VK_NULL_HANDLE) vkDestroyDescriptorSetLayout(mountain.device, descriptorSetLayout2, nullptr);
@@ -547,6 +555,11 @@ size_t Lava::addBatch(BatchCreateData& createData) {
 	establishTextureVMA(createData.width, createData.height, createData.pixels, batchData[last].textureImage, batchData[last].textureView, batchData[last].textureAllocation);
 
 	return last;
+}
+
+void Lava::addBatches(vector<BatchCreateData> createDatas) {
+
+
 }
 
 void Lava::createTextureSampler() {
