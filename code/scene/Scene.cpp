@@ -97,7 +97,7 @@ void Scene::establish(Lava &lava) {
 
 	lavaObjectId = lava.addObject(vertices, instances, width, height, pixels);
 
-	printf("Lava: %lld draw calls\n", lava.texturesCount());
+	printf("Lava: %lld draw calls\n", lava.batchData.size());
 
 	freeTexture(pixels); // TODO move somewhere, maybe
 	vertices.clear();

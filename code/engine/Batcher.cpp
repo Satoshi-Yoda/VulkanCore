@@ -62,6 +62,14 @@ void Batcher::loadFolderNth(string folder, uint32_t workers) {
 					height[name] = tempHeight;
 					initQuad(name, width[name], height[name]);
 					initSampleInstance(name);
+
+					BatchCreateData data {};
+					data.pixels = tempPixels;
+					data.width  = tempWidth;
+					data.height = tempHeight;
+					data.vertices = vertices[name];
+					data.instances = instances[name];
+					batches[name] = data;
 				putMutex.unlock();
 			}
 		}));
@@ -109,7 +117,17 @@ void Batcher::establish(Lava& lava) {
 
 	for (auto& it : pixels) {
 		string key = it.first;
-		lava.addObject(vertices[key], instances[key], width[key], height[key], pixels[key]);
+		// lava.addObject(vertices[key], instances[key], width[key], height[key], pixels[key]);
+
+		BatchCreateData data {};
+		data.pixels = pixels[key];
+		data.width  = width[key];
+		data.height = height[key];
+		data.vertices = vertices[key];
+		data.instances = instances[key];
+		lava.addBatch(data);
+
+		// lava.addBatch(batches[key]);
 		// TODO save returned lavaObjectId
 	}
 

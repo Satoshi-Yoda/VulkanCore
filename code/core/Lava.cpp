@@ -305,6 +305,28 @@ void Lava::establishVertexBuffer(vector<Vertex> vertices, size_t id) {
 	vmaDestroyBuffer(mountain.allocator, stagingBuffer, stagingBufferAllocation);
 }
 
+void Lava::establishVertexBuffer2(vector<Vertex> vertices, size_t id) {
+	VkBuffer& vertexBuffer = batchData[id].vertexBuffer;
+	uint32_t& vertexBufferSize = batchData[id].vertexCount;
+	VmaAllocation& vertexBufferAllocation = batchData[id].vertexAllocation;
+	VmaAllocationInfo vertexBufferAllocationInfo;
+
+	vertexBufferSize = vertices.size();
+	VkDeviceSize bufferSize = sizeof(Vertex) * vertices.size();
+
+	VkBuffer stagingBuffer;
+	VmaAllocation stagingBufferAllocation;
+	VmaAllocationInfo stagingBufferAllocationInfo;
+
+	rocks.createBufferVMA(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VMA_MEMORY_USAGE_CPU_ONLY, stagingBuffer, stagingBufferAllocation, stagingBufferAllocationInfo);
+	memcpy(stagingBufferAllocationInfo.pMappedData, vertices.data(), static_cast<size_t>(bufferSize));
+
+	rocks.createBufferVMA(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VMA_MEMORY_USAGE_GPU_ONLY, vertexBuffer, vertexBufferAllocation, vertexBufferAllocationInfo);
+	rocks.copyBufferToBuffer(stagingBuffer, vertexBuffer, bufferSize, VK_ACCESS_VERTEX_ATTRIBUTE_READ_BIT);
+
+	vmaDestroyBuffer(mountain.allocator, stagingBuffer, stagingBufferAllocation);
+}
+
 void Lava::establishInstanceBuffer(vector<Instance> instances, size_t id) {
 	VkBuffer& instanceBuffer = instanceBuffers[id];
 	uint32_t& instanceBufferSize = instanceBufferSizes[id];
@@ -343,6 +365,26 @@ void Lava::establishInstanceBuffer(vector<Instance> instances, size_t id) {
 	// vkFreeMemory(mountain.device, stagingBufferMemory, nullptr);
 
 	// vmaDestroyBuffer(mountain.allocator, stagingBuffer, stagingBufferAllocation);
+}
+
+void Lava::establishInstanceBuffer2(vector<Instance> instances, size_t id) {
+	VkBuffer& instanceBuffer = batchData[id].instanceBuffer;
+	uint32_t& instanceBufferSize = batchData[id].instanceCount;
+	VmaAllocation& instanceBufferAllocation = batchData[id].instanceAllocation;
+	VmaAllocationInfo& instanceBufferAllocationInfo = batchData[id].instanceAllocationInfo;
+
+	instanceBufferSize = instances.size();
+	VkDeviceSize bufferSize = sizeof(Instance) * instances.size();
+
+	VkBuffer& stagingBuffer = batchData[id].stagingInstanceBuffer;
+	VmaAllocation& stagingBufferAllocation = batchData[id].stagingInstanceAllocation;
+	VmaAllocationInfo& stagingBufferAllocationInfo = batchData[id].stagingInstanceAllocationInfo;
+
+	rocks.createBufferVMA(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VMA_MEMORY_USAGE_CPU_ONLY, stagingBuffer, stagingBufferAllocation, stagingBufferAllocationInfo);
+	memcpy(stagingBufferAllocationInfo.pMappedData, instances.data(), static_cast<size_t>(bufferSize));
+
+	rocks.createBufferVMA(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VMA_MEMORY_USAGE_GPU_ONLY, instanceBuffer, instanceBufferAllocation, instanceBufferAllocationInfo);
+	rocks.copyBufferToBuffer(stagingBuffer, instanceBuffer, bufferSize, VK_ACCESS_VERTEX_ATTRIBUTE_READ_BIT);
 }
 
 // void Lava::updateVertexBuffer(size_t id, vector<Vertex> vertices) {
@@ -495,8 +537,16 @@ size_t Lava::addObject(vector<Vertex> vertices, vector<Instance> instances, int 
 	return last;
 }
 
-size_t Lava::texturesCount() {
-	return textureImageViews.size();
+size_t Lava::addBatch(BatchCreateData& createData) {
+	size_t newSize = batchData.size() + 1;
+	batchData.resize(newSize);
+
+	size_t last = newSize - 1;
+	establishVertexBuffer2(createData.vertices, last);
+	establishInstanceBuffer2(createData.instances, last);
+	establishTextureVMA(createData.width, createData.height, createData.pixels, batchData[last].textureImage, batchData[last].textureView, batchData[last].textureAllocation);
+
+	return last;
 }
 
 void Lava::createTextureSampler() {

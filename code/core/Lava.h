@@ -32,6 +32,33 @@ struct Instance {
 	vec2 pos;
 };
 
+struct BatchCreateData {
+	vector<Vertex> vertices;
+	vector<Instance> instances;
+	int width;
+	int height;
+	void* pixels;
+};
+
+struct BatchLiveData {
+	VkBuffer vertexBuffer;
+	VmaAllocation vertexAllocation;
+	uint32_t vertexCount;
+
+	VkBuffer instanceBuffer;
+	VmaAllocation instanceAllocation;
+	VmaAllocationInfo instanceAllocationInfo;
+	uint32_t instanceCount;
+
+	VkBuffer stagingInstanceBuffer;
+	VmaAllocation stagingInstanceAllocation;
+	VmaAllocationInfo stagingInstanceAllocationInfo;
+
+	VkImage textureImage;
+	VmaAllocation textureAllocation;
+	VkImageView textureView;
+};
+
 class Lava {
 public:
 	Lava(Ash &ash, Mountain &mountain, Rocks &rocks, Crater &crater);
@@ -50,8 +77,10 @@ public:
 	vector<VkImageView> textureImageViews;
 	VkSampler textureSampler;
 
+	vector<BatchLiveData> batchData;
+
 	size_t addObject(vector<Vertex> vertices, vector<Instance> instances, int width, int height, void* pixels);
-	size_t texturesCount();
+	size_t addBatch(BatchCreateData& createData);
 	// void updateVertexBuffer(size_t id, vector<Vertex> vertices);
 	void updateInstanceBuffer(size_t id, vector<Instance> instances);
 	void updateInstances(size_t id, vector<Instance> instances, vector<size_t> indexes);
@@ -92,7 +121,9 @@ private:
 	void createDescriptorSetLayout2();
 
 	void establishVertexBuffer(vector<Vertex> vertices, size_t id);
+	void establishVertexBuffer2(vector<Vertex> vertices, size_t id);
 	void establishInstanceBuffer(vector<Instance> instances, size_t id);
+	void establishInstanceBuffer2(vector<Instance> instances, size_t id);
 	// void establishTexture(int width, int height, void* pixels, VkImage& textureImage, VkImageView& textureImageView, VkDeviceMemory& textureImageMemory);
 	void establishTextureVMA(int width, int height, void* pixels, VkImage& textureImage, VkImageView& textureImageView, VmaAllocation& textureAllocation);
 };

@@ -223,15 +223,26 @@ void Tectonic::prepareFrame(uint32_t craterIndex) {
 			vkCmdSetViewport(commandBuffers[inFlightIndex], 0, 1, &viewport);
 			vkCmdSetScissor (commandBuffers[inFlightIndex], 0, 1, &scissor);
 
-			resizeDescriptorSets(lava.textureImageViews.size());
+			// resizeDescriptorSets(lava.textureImageViews.size());
 
-			for (size_t i = 0; i < lava.textureImageViews.size(); i++) {
+			// for (size_t i = 0; i < lava.textureImageViews.size(); i++) {
+			// 	VkDeviceSize offsets[] { 0 };
+			// 	vkCmdBindVertexBuffers(commandBuffers[inFlightIndex], 0, 1, &lava.vertexBuffers[i], offsets);
+			// 	vkCmdBindVertexBuffers(commandBuffers[inFlightIndex], 1, 1, &lava.instanceBuffers[i], offsets);
+			// 	updateDescriptorSet(inFlightIndex, i, lava.textureImageViews[i]);
+			// 	vkCmdBindDescriptorSets(commandBuffers[inFlightIndex], VK_PIPELINE_BIND_POINT_GRAPHICS, lava.pipelineLayout, 0, 1, &descriptorSets[i][inFlightIndex], 0, nullptr);
+			// 	vkCmdDraw(commandBuffers[inFlightIndex], lava.vertexBufferSizes[i], lava.instanceBufferSizes[i], 0, 0);
+			// }
+
+			resizeDescriptorSets(lava.batchData.size());
+
+			for (size_t i = 0; i < lava.batchData.size(); i++) {
 				VkDeviceSize offsets[] { 0 };
-				vkCmdBindVertexBuffers(commandBuffers[inFlightIndex], 0, 1, &lava.vertexBuffers[i], offsets);
-				vkCmdBindVertexBuffers(commandBuffers[inFlightIndex], 1, 1, &lava.instanceBuffers[i], offsets);
-				updateDescriptorSet(inFlightIndex, i, lava.textureImageViews[i]);
+				vkCmdBindVertexBuffers(commandBuffers[inFlightIndex], 0, 1, &lava.batchData[i].vertexBuffer, offsets);
+				vkCmdBindVertexBuffers(commandBuffers[inFlightIndex], 1, 1, &lava.batchData[i].instanceBuffer, offsets);
+				updateDescriptorSet(inFlightIndex, i, lava.batchData[i].textureView);
 				vkCmdBindDescriptorSets(commandBuffers[inFlightIndex], VK_PIPELINE_BIND_POINT_GRAPHICS, lava.pipelineLayout, 0, 1, &descriptorSets[i][inFlightIndex], 0, nullptr);
-				vkCmdDraw(commandBuffers[inFlightIndex], lava.vertexBufferSizes[i], lava.instanceBufferSizes[i], 0, 0);
+				vkCmdDraw(commandBuffers[inFlightIndex], lava.batchData[i].vertexCount, lava.batchData[i].instanceCount, 0, 0);
 			}
 
 		vkCmdEndRenderPass(commandBuffers[inFlightIndex]);
