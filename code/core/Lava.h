@@ -49,20 +49,26 @@ struct BatchCreateData {
 struct BatchLiveData {
 	VkBuffer vertexBuffer;
 	VmaAllocation vertexAllocation;
+	VmaAllocationInfo vertexInfo;
 	uint32_t vertexCount;
+	VkBuffer stagingVertexBuffer;
+	VmaAllocation stagingVertexAllocation;
+	VmaAllocationInfo stagingVertexInfo;
 
 	VkBuffer instanceBuffer;
 	VmaAllocation instanceAllocation;
-	VmaAllocationInfo instanceAllocationInfo;
+	VmaAllocationInfo instanceInfo;
 	uint32_t instanceCount;
-
 	VkBuffer stagingInstanceBuffer;
 	VmaAllocation stagingInstanceAllocation;
-	VmaAllocationInfo stagingInstanceAllocationInfo;
+	VmaAllocationInfo stagingInstanceInfo;
 
 	VkImage textureImage;
 	VmaAllocation textureAllocation;
 	VkImageView textureView;
+	VkBuffer stagingTextureBuffer;
+	VmaAllocation stagingTextureAllocation;
+	VmaAllocationInfo stagingTextureInfo;
 };
 
 class Lava {

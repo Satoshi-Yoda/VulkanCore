@@ -47,10 +47,12 @@ Lava::~Lava() {
 
 	for (size_t i = 0; i < batchData.size(); i++) {
 		vmaDestroyBuffer(mountain.allocator, batchData[i].vertexBuffer, batchData[i].vertexAllocation);
+		vmaDestroyBuffer(mountain.allocator, batchData[i].stagingVertexBuffer, batchData[i].stagingVertexAllocation);
 		vmaDestroyBuffer(mountain.allocator, batchData[i].instanceBuffer, batchData[i].instanceAllocation);
 		vmaDestroyBuffer(mountain.allocator, batchData[i].stagingInstanceBuffer, batchData[i].stagingInstanceAllocation);
 		vkDestroyImageView(mountain.device, batchData[i].textureView, nullptr);
 		vmaDestroyImage(mountain.allocator, batchData[i].textureImage, batchData[i].textureAllocation);
+		vmaDestroyBuffer(mountain.allocator, batchData[i].stagingTextureBuffer, batchData[i].stagingTextureAllocation);
 	}
 
 	if (descriptorSetLayout  != VK_NULL_HANDLE) vkDestroyDescriptorSetLayout(mountain.device, descriptorSetLayout, nullptr);
@@ -315,21 +317,21 @@ void Lava::establishVertexBuffer(vector<Vertex> vertices, size_t id) {
 
 void Lava::establishVertexBuffer2(vector<Vertex> vertices, size_t index, VkCommandBuffer externalCommandBuffer) {
 	VkBuffer& vertexBuffer = batchData[index].vertexBuffer;
-	uint32_t& vertexBufferSize = batchData[index].vertexCount;
-	VmaAllocation& vertexBufferAllocation = batchData[index].vertexAllocation;
-	VmaAllocationInfo vertexBufferAllocationInfo;
+	uint32_t& vertexCount = batchData[index].vertexCount;
+	VmaAllocation& vertexAllocation = batchData[index].vertexAllocation;
+	VmaAllocationInfo& vertexInfo = batchData[index].vertexInfo;
 
-	vertexBufferSize = vertices.size();
+	vertexCount = static_cast<uint32_t>(vertices.size());
 	VkDeviceSize bufferSize = sizeof(Vertex) * vertices.size();
 
-	VkBuffer stagingBuffer;
-	VmaAllocation stagingBufferAllocation;
-	VmaAllocationInfo stagingBufferAllocationInfo;
+	VkBuffer& stagingBuffer = batchData[index].stagingVertexBuffer;
+	VmaAllocation& stagingAllocation = batchData[index].stagingVertexAllocation;
+	VmaAllocationInfo& stagingInfo = batchData[index].stagingVertexInfo;
 
-	rocks.createBufferVMA(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VMA_MEMORY_USAGE_CPU_ONLY, stagingBuffer, stagingBufferAllocation, stagingBufferAllocationInfo);
-	memcpy(stagingBufferAllocationInfo.pMappedData, vertices.data(), static_cast<size_t>(bufferSize));
+	rocks.createBufferVMA(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VMA_MEMORY_USAGE_CPU_ONLY, stagingBuffer, stagingAllocation, stagingInfo);
+	memcpy(stagingInfo.pMappedData, vertices.data(), static_cast<size_t>(bufferSize));
 
-	rocks.createBufferVMA(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VMA_MEMORY_USAGE_GPU_ONLY, vertexBuffer, vertexBufferAllocation, vertexBufferAllocationInfo);
+	rocks.createBufferVMA(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VMA_MEMORY_USAGE_GPU_ONLY, vertexBuffer, vertexAllocation, vertexInfo);
 
 	bool useExternalCommandBuffer = (externalCommandBuffer != nullptr);
 	VkCommandBuffer commandBuffer = useExternalCommandBuffer ? externalCommandBuffer : rocks.beginSingleTimeCommands();
@@ -339,8 +341,6 @@ void Lava::establishVertexBuffer2(vector<Vertex> vertices, size_t index, VkComma
 	if (useExternalCommandBuffer == false) {
 		rocks.endSingleTimeCommands(commandBuffer);
 	}
-
-	vmaDestroyBuffer(mountain.allocator, stagingBuffer, stagingBufferAllocation);
 }
 
 void Lava::establishInstanceBuffer(vector<Instance> instances, size_t id) {
@@ -385,21 +385,21 @@ void Lava::establishInstanceBuffer(vector<Instance> instances, size_t id) {
 
 void Lava::establishInstanceBuffer2(vector<Instance> instances, size_t index, VkCommandBuffer externalCommandBuffer) {
 	VkBuffer& instanceBuffer = batchData[index].instanceBuffer;
-	uint32_t& instanceBufferSize = batchData[index].instanceCount;
-	VmaAllocation& instanceBufferAllocation = batchData[index].instanceAllocation;
-	VmaAllocationInfo& instanceBufferAllocationInfo = batchData[index].instanceAllocationInfo;
+	uint32_t& instanceCount = batchData[index].instanceCount;
+	VmaAllocation& instanceAllocation = batchData[index].instanceAllocation;
+	VmaAllocationInfo& instanceInfo = batchData[index].instanceInfo;
 
-	instanceBufferSize = instances.size();
+	instanceCount = static_cast<uint32_t>(instances.size());
 	VkDeviceSize bufferSize = sizeof(Instance) * instances.size();
 
 	VkBuffer& stagingBuffer = batchData[index].stagingInstanceBuffer;
-	VmaAllocation& stagingBufferAllocation = batchData[index].stagingInstanceAllocation;
-	VmaAllocationInfo& stagingBufferAllocationInfo = batchData[index].stagingInstanceAllocationInfo;
+	VmaAllocation& stagingAllocation = batchData[index].stagingInstanceAllocation;
+	VmaAllocationInfo& stagingInfo = batchData[index].stagingInstanceInfo;
 
-	rocks.createBufferVMA(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VMA_MEMORY_USAGE_CPU_ONLY, stagingBuffer, stagingBufferAllocation, stagingBufferAllocationInfo);
-	memcpy(stagingBufferAllocationInfo.pMappedData, instances.data(), static_cast<size_t>(bufferSize));
+	rocks.createBufferVMA(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VMA_MEMORY_USAGE_CPU_ONLY, stagingBuffer, stagingAllocation, stagingInfo);
+	memcpy(stagingInfo.pMappedData, instances.data(), static_cast<size_t>(bufferSize));
 
-	rocks.createBufferVMA(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VMA_MEMORY_USAGE_GPU_ONLY, instanceBuffer, instanceBufferAllocation, instanceBufferAllocationInfo);
+	rocks.createBufferVMA(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VMA_MEMORY_USAGE_GPU_ONLY, instanceBuffer, instanceAllocation, instanceInfo);
 
 	bool useExternalCommandBuffer = (externalCommandBuffer != nullptr);
 	VkCommandBuffer commandBuffer = useExternalCommandBuffer ? externalCommandBuffer : rocks.beginSingleTimeCommands();
@@ -504,14 +504,16 @@ void Lava::establishTextureVMA(int width, int height, void* pixels, size_t index
 	// mipLevels = static_cast<uint32_t>(floor(log2(max(width, height)))) + 1;
 	VkDeviceSize imageSize = width * height * 4;
 
-	VkBuffer stagingBuffer;
-	// VkDeviceMemory stagingBufferMemory;
-	VmaAllocation stagingBufferAllocation;
-	VmaAllocationInfo stagingBufferAllocationInfo;
-	// rocks.createBuffer(imageSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
-	rocks.createBufferVMA(imageSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VMA_MEMORY_USAGE_CPU_ONLY, stagingBuffer, stagingBufferAllocation, stagingBufferAllocationInfo);
-	// rocks.copyDataToBuffer(pixels, stagingBufferMemory, imageSize);
-	memcpy(stagingBufferAllocationInfo.pMappedData, pixels, static_cast<size_t>(imageSize));
+	// VkBuffer stagingBuffer;
+	// VmaAllocation stagingAllocation;
+	// VmaAllocationInfo stagingInfo;
+
+	VkBuffer& stagingBuffer = batchData[index].stagingTextureBuffer;
+	VmaAllocation& stagingAllocation = batchData[index].stagingTextureAllocation;
+	VmaAllocationInfo& stagingInfo = batchData[index].stagingTextureInfo;
+
+	rocks.createBufferVMA(imageSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VMA_MEMORY_USAGE_CPU_ONLY, stagingBuffer, stagingAllocation, stagingInfo);
+	memcpy(stagingInfo.pMappedData, pixels, static_cast<size_t>(imageSize));
 
 	auto preferred8bitFormat = crater.USE_GAMMA_CORRECT ? VK_FORMAT_R8G8B8A8_SRGB : VK_FORMAT_R8G8B8A8_UNORM;
 
@@ -533,7 +535,7 @@ void Lava::establishTextureVMA(int width, int height, void* pixels, size_t index
 		rocks.endSingleTimeCommands(commandBuffer);
 	}
 
-	vmaDestroyBuffer(mountain.allocator, stagingBuffer, stagingBufferAllocation);
+	// vmaDestroyBuffer(mountain.allocator, stagingBuffer, stagingAllocation);
 
 	textureImageView = rocks.createImageView(textureImage, preferred8bitFormat, VK_IMAGE_ASPECT_COLOR_BIT, mipLevels);
 }
@@ -591,11 +593,12 @@ void Lava::addBatches(vector<BatchCreateData> createDataVector) {
 	VkCommandBuffer commandBuffer = rocks.beginSingleTimeCommands();
 
 	for (auto& createData : createDataVector) {
-		establishVertexBuffer2(createData.vertices, index);
+		// establishVertexBuffer2(createData.vertices, index);
+		establishVertexBuffer2(createData.vertices, index, commandBuffer);
 		// establishInstanceBuffer2(createData.instances, index);
 		establishInstanceBuffer2(createData.instances, index, commandBuffer);
-		establishTextureVMA(createData.width, createData.height, createData.pixels, index);
-		// establishTextureVMA(createData.width, createData.height, createData.pixels, index, commandBuffer);
+		// establishTextureVMA(createData.width, createData.height, createData.pixels, index);
+		establishTextureVMA(createData.width, createData.height, createData.pixels, index, commandBuffer);
 		index++;
 	}
 
