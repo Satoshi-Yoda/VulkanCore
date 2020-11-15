@@ -86,7 +86,7 @@ public:
 
 	size_t addObject(vector<Vertex> vertices, vector<Instance> instances, int width, int height, void* pixels);
 	size_t addBatch(BatchCreateData& createData);
-	void addBatches(vector<BatchCreateData> createDatas);
+	void addBatches(vector<BatchCreateData> createDataVector);
 	// void updateVertexBuffer(size_t id, vector<Vertex> vertices);
 	void updateInstanceBuffer(size_t id, vector<Instance> instances);
 	void updateInstances(size_t id, vector<Instance> instances, vector<size_t> indexes);

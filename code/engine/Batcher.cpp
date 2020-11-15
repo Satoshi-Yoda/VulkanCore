@@ -115,21 +115,30 @@ void Batcher::initSampleInstance(string name) {
 void Batcher::establish(Lava& lava) {
 	auto start = chrono::high_resolution_clock::now();
 
-	for (auto& it : pixels) {
-		string key = it.first;
-		// lava.addObject(vertices[key], instances[key], width[key], height[key], pixels[key]);
+	// for (auto& it : pixels) {
+	// 	string key = it.first;
+	// 	// lava.addObject(vertices[key], instances[key], width[key], height[key], pixels[key]);
 
-		BatchCreateData data {};
-		data.pixels = pixels[key];
-		data.width  = width[key];
-		data.height = height[key];
-		data.vertices = vertices[key];
-		data.instances = instances[key];
-		lava.addBatch(data);
+	// 	BatchCreateData data {};
+	// 	data.pixels = pixels[key];
+	// 	data.width  = width[key];
+	// 	data.height = height[key];
+	// 	data.vertices = vertices[key];
+	// 	data.instances = instances[key];
+	// 	// dataVector.push_back(data);
+	// 	lava.addBatch(data);
 
-		// lava.addBatch(batches[key]);
-		// TODO save returned lavaObjectId
+	// 	// lava.addBatch(batches[key]);
+	// 	// TODO save returned lavaObjectId
+	// }
+
+	vector<BatchCreateData> dataVector {};
+
+	for (auto& it : batches) {
+		dataVector.push_back(it.second);
 	}
+
+	lava.addBatches(dataVector);
 
 	auto time = chrono::duration_cast<chrono::duration<double>>(chrono::high_resolution_clock::now() - start).count();
 	printf("Established %lld lava objects in %.3fs (%.2f Gb/s)\n", pixels.size(), time, texturesBytes / time / (1 << 30));

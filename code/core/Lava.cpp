@@ -557,9 +557,17 @@ size_t Lava::addBatch(BatchCreateData& createData) {
 	return last;
 }
 
-void Lava::addBatches(vector<BatchCreateData> createDatas) {
+void Lava::addBatches(vector<BatchCreateData> createDataVector) {
+	size_t newSize = batchData.size() + createDataVector.size();
+	size_t index = batchData.size();
+	batchData.resize(newSize);
 
-
+	for (auto& createData : createDataVector) {
+		establishVertexBuffer2(createData.vertices, index);
+		establishInstanceBuffer2(createData.instances, index);
+		establishTextureVMA(createData.width, createData.height, createData.pixels, batchData[index].textureImage, batchData[index].textureView, batchData[index].textureAllocation);
+		index++;
+	}
 }
 
 void Lava::createTextureSampler() {
