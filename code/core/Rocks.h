@@ -29,17 +29,17 @@ public:
 			VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VmaMemoryUsage memoryUsage,
 			VkImage& image, VmaAllocation& imageAllocation);
 	VkImageView createImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags, uint32_t mipLevels);
-	void transitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout, uint32_t mipLevels);
+	void transitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout, uint32_t mipLevels, VkCommandBuffer useCommandBuffer = nullptr);
 
 	uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
 
 	VkCommandBuffer beginSingleTimeCommands();
 	void endSingleTimeCommands(VkCommandBuffer commandBuffer);
 
-	void copyBufferToBuffer(VkBuffer& srcBuffer, VkBuffer& dstBuffer, VkDeviceSize size, VkAccessFlags resultAccessFlags);
-	void copyBufferToBuffer(VkBuffer& srcBuffer, VkBuffer& dstBuffer, vector<VkBufferCopy> regions, VkAccessFlags resultAccessFlags);
+	void copyBufferToBuffer(VkBuffer& srcBuffer, VkBuffer& dstBuffer, VkDeviceSize size, VkAccessFlags resultAccessFlags, VkCommandBuffer externalCommandBuffer = nullptr);
+	void copyBufferToBuffer(VkBuffer& srcBuffer, VkBuffer& dstBuffer, vector<VkBufferCopy> regions, VkAccessFlags resultAccessFlags, VkCommandBuffer externalCommandBuffer = nullptr);
 	void copyDataToBuffer(const void* srcPointer, VkDeviceMemory& bufferMemory, size_t size);
-	void copyBufferToImage(VkBuffer& buffer, VkImage& image, uint32_t width, uint32_t height);
+	void copyBufferToImage(VkBuffer& buffer, VkImage& image, uint32_t width, uint32_t height, VkCommandBuffer externalCommandBuffer = nullptr);
 
 	vector<char> readFile(const string& filename);
 

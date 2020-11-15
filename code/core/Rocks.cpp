@@ -95,8 +95,9 @@ VkImageView Rocks::createImageView(VkImage image, VkFormat format, VkImageAspect
 	return imageView;
 }
 
-void Rocks::transitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout, uint32_t mipLevels) {
-	VkCommandBuffer commandBuffer = beginSingleTimeCommands();
+void Rocks::transitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout, uint32_t mipLevels, VkCommandBuffer externalCommandBuffer) {
+	bool useExternalCommandBuffer = (externalCommandBuffer != nullptr);
+	VkCommandBuffer commandBuffer = useExternalCommandBuffer ? externalCommandBuffer : beginSingleTimeCommands();
 
 	VkImageMemoryBarrier barrier { VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER };
 	barrier.oldLayout = oldLayout;
@@ -149,7 +150,9 @@ void Rocks::transitionImageLayout(VkImage image, VkFormat format, VkImageLayout 
 		1, &barrier
 	);
 
-	endSingleTimeCommands(commandBuffer);
+	if (useExternalCommandBuffer == false) {
+		endSingleTimeCommands(commandBuffer);
+	}
 }
 
 uint32_t Rocks::findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties) {
@@ -245,16 +248,18 @@ void Rocks::createBufferVMA(VkDeviceSize size, VkBufferUsageFlags usage, VmaMemo
 	vmaCreateBuffer(mountain.allocator, &bufferInfo, &allocationCreateInfo, &buffer, &bufferAllocation, &bufferAllocationInfo) >> ash("Failed to create VMA buffer!");
 }
 
-void Rocks::copyBufferToBuffer(VkBuffer& srcBuffer, VkBuffer& dstBuffer, VkDeviceSize size, VkAccessFlags resultAccessFlags) {
+void Rocks::copyBufferToBuffer(VkBuffer& srcBuffer, VkBuffer& dstBuffer, VkDeviceSize size, VkAccessFlags resultAccessFlags, VkCommandBuffer externalCommandBuffer) {
 	// auto start = chrono::high_resolution_clock::now();
 
-	VkCommandBuffer tempCommandBuffer = beginSingleTimeCommands();
+	// VkCommandBuffer commandBuffer = beginSingleTimeCommands();
+	bool useExternalCommandBuffer = (externalCommandBuffer != nullptr);
+	VkCommandBuffer commandBuffer = useExternalCommandBuffer ? externalCommandBuffer : beginSingleTimeCommands();
 
 	VkBufferCopy copyRegion {};
 	copyRegion.srcOffset = 0;
 	copyRegion.dstOffset = 0;
 	copyRegion.size = size;
-	vkCmdCopyBuffer(tempCommandBuffer, srcBuffer, dstBuffer, 1, &copyRegion);
+	vkCmdCopyBuffer(commandBuffer, srcBuffer, dstBuffer, 1, &copyRegion);
 
 	VkBufferMemoryBarrier barrier { VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER };
 	barrier.srcAccessMask = VK_ACCESS_MEMORY_WRITE_BIT;
@@ -265,9 +270,11 @@ void Rocks::copyBufferToBuffer(VkBuffer& srcBuffer, VkBuffer& dstBuffer, VkDevic
 	barrier.offset = 0;
 	barrier.size = VK_WHOLE_SIZE;
 
-	vkCmdPipelineBarrier(tempCommandBuffer, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_VERTEX_INPUT_BIT, 0, 0, nullptr, 1, &barrier, 0, nullptr);
+	vkCmdPipelineBarrier(commandBuffer, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_VERTEX_INPUT_BIT, 0, 0, nullptr, 1, &barrier, 0, nullptr);
 
-	endSingleTimeCommands(tempCommandBuffer);
+	if (useExternalCommandBuffer == false) {
+		endSingleTimeCommands(commandBuffer);
+	}
 
 	// auto finish = chrono::high_resolution_clock::now();
 	// auto delay = chrono::duration_cast<chrono::duration<double>>(finish - start).count();
@@ -275,12 +282,14 @@ void Rocks::copyBufferToBuffer(VkBuffer& srcBuffer, VkBuffer& dstBuffer, VkDevic
 	// printf("Copied b2b %d MB in %.3fs at %.2f GB/s\n", size / (1 << 20), delay, speed);
 }
 
-void Rocks::copyBufferToBuffer(VkBuffer& srcBuffer, VkBuffer& dstBuffer, vector<VkBufferCopy> regions, VkAccessFlags resultAccessFlags) {
+void Rocks::copyBufferToBuffer(VkBuffer& srcBuffer, VkBuffer& dstBuffer, vector<VkBufferCopy> regions, VkAccessFlags resultAccessFlags, VkCommandBuffer externalCommandBuffer) {
 	// auto start = chrono::high_resolution_clock::now();
 
-	VkCommandBuffer tempCommandBuffer = beginSingleTimeCommands();
+	// VkCommandBuffer commandBuffer = beginSingleTimeCommands();
+	bool useExternalCommandBuffer = (externalCommandBuffer != nullptr);
+	VkCommandBuffer commandBuffer = useExternalCommandBuffer ? externalCommandBuffer : beginSingleTimeCommands();
 
-	vkCmdCopyBuffer(tempCommandBuffer, srcBuffer, dstBuffer, static_cast<uint32_t>(regions.size()), regions.data());
+	vkCmdCopyBuffer(commandBuffer, srcBuffer, dstBuffer, static_cast<uint32_t>(regions.size()), regions.data());
 
 	VkBufferMemoryBarrier barrier { VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER };
 	barrier.srcAccessMask = VK_ACCESS_MEMORY_WRITE_BIT;
@@ -291,9 +300,11 @@ void Rocks::copyBufferToBuffer(VkBuffer& srcBuffer, VkBuffer& dstBuffer, vector<
 	barrier.offset = 0;
 	barrier.size = VK_WHOLE_SIZE;
 
-	vkCmdPipelineBarrier(tempCommandBuffer, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_VERTEX_INPUT_BIT, 0, 0, nullptr, 1, &barrier, 0, nullptr);
+	vkCmdPipelineBarrier(commandBuffer, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_VERTEX_INPUT_BIT, 0, 0, nullptr, 1, &barrier, 0, nullptr);
 
-	endSingleTimeCommands(tempCommandBuffer);
+	if (useExternalCommandBuffer == false) {
+		endSingleTimeCommands(commandBuffer);
+	}
 
 	// auto finish = chrono::high_resolution_clock::now();
 	// auto delay = chrono::duration_cast<chrono::duration<double>>(finish - start).count();
@@ -320,8 +331,10 @@ void Rocks::copyDataToBuffer(const void* srcPointer, VkDeviceMemory& bufferMemor
 	vkUnmapMemory(mountain.device, bufferMemory);
 }
 
-void Rocks::copyBufferToImage(VkBuffer& buffer, VkImage& image, uint32_t width, uint32_t height) {
-	VkCommandBuffer commandBuffer = beginSingleTimeCommands();
+void Rocks::copyBufferToImage(VkBuffer& buffer, VkImage& image, uint32_t width, uint32_t height, VkCommandBuffer externalCommandBuffer) {
+	// VkCommandBuffer commandBuffer = beginSingleTimeCommands();
+	bool useExternalCommandBuffer = (externalCommandBuffer != nullptr);
+	VkCommandBuffer commandBuffer = useExternalCommandBuffer ? externalCommandBuffer : beginSingleTimeCommands();
 
 	VkBufferImageCopy region {};
 	region.bufferOffset = 0;
@@ -336,7 +349,9 @@ void Rocks::copyBufferToImage(VkBuffer& buffer, VkImage& image, uint32_t width, 
 
 	vkCmdCopyBufferToImage(commandBuffer, buffer, image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
 
-	endSingleTimeCommands(commandBuffer);
+	if (useExternalCommandBuffer == false) {
+		endSingleTimeCommands(commandBuffer);
+	}
 }
 
 vector<char> Rocks::readFile(const string& filename) {
