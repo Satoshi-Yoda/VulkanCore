@@ -17,7 +17,6 @@ Scene::Scene() {}
 Scene::~Scene() {}
 
 void Scene::load() {
-	// loadTexture(TEXTURE_PATH.c_str(), pixels, &width, &height);
 	// TODO do some checking here that pixels != nullptr, or else: "Failed to load texture image!"
 	// TODO maybe some wrapper loader can return stub 1x1 image in that case
 
@@ -95,7 +94,14 @@ void Scene::establish(Lava &lava) {
 	// float speed = static_cast<float>(size) / (1 << 30) / delay;
 	// printf("Copied v2v %d MB in %.3fs at %.2f GB/s\n", size / (1 << 20), delay, speed);
 
-	lavaObjectId = lava.addObject(vertices, instances, width, height, pixels);
+	BatchCreateData data {};
+	data.pixels = pixels;
+	data.width  = width;
+	data.height = height;
+	data.vertices = vertices;
+	data.instances = instances;
+	// lavaObjectId = lava.addObject(vertices, instances, width, height, pixels);
+	lavaObjectId = lava.addBatch(data);
 
 	printf("Lava: %lld draw calls\n", lava.batchData.size());
 

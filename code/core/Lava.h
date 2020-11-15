@@ -79,22 +79,14 @@ public:
 	VkRenderPass renderPass;
 	VkPipelineLayout pipelineLayout;
 	VkPipeline pipeline;
-	vector<VkBuffer> vertexBuffers;
-	vector<uint32_t> vertexBufferSizes;
-	vector<VkBuffer> instanceBuffers;
-	vector<uint32_t> instanceBufferSizes;
 	VkDescriptorSetLayout descriptorSetLayout;
 	VkDescriptorSetLayout descriptorSetLayout2;
-
-	vector<VkImageView> textureImageViews;
 	VkSampler textureSampler;
 
 	vector<BatchLiveData> batchData;
 
-	size_t addObject(vector<Vertex> vertices, vector<Instance> instances, int width, int height, void* pixels);
 	size_t addBatch(BatchCreateData& createData);
 	void addBatches(vector<BatchCreateData> createDataVector);
-	// void updateVertexBuffer(size_t id, vector<Vertex> vertices);
 	void updateInstanceBuffer(size_t id, vector<Instance> instances);
 	void updateInstances(size_t id, vector<Instance> instances, vector<size_t> indexes);
 
@@ -104,26 +96,7 @@ private:
 	Rocks& rocks;
 	Crater& crater;
 
-	const string TEXTURE_PATH = "pictures/viking_room.png";
-
 	int mipLevels = 1;
-
-	// vector<VkDeviceMemory> vertexBufferMemorys; // TODO maybe move somewhere? To the "storage"?
-	vector<VmaAllocation> vertexBufferAllocations; // TODO maybe move somewhere? To the "storage"?
-	// vector<VkDeviceMemory> instanceBufferMemorys;
-	vector<VmaAllocation> instanceBufferAllocations;
-	vector<VmaAllocationInfo> instanceBufferAllocationInfos;
-	// vector<VkBuffer> stagingBuffers; // TODO rename to stagingVertexBuffers
-	// vector<VkDeviceMemory> stagingBufferMemorys;
-	// vector<void*> stagingBufferMappedPointers;
-	vector<VkBuffer> stagingInstanceBuffers;
-	vector<VmaAllocation> stagingInstanceBufferAllocations;
-	vector<VmaAllocationInfo> stagingInstanceBufferAllocationInfos;
-	// vector<VkDeviceMemory> stagingInstanceBufferMemorys;
-	// vector<void*> stagingInstanceBufferMappedPointers; // TODO rename somehow
-	vector<VkImage> textureImages;
-	// vector<VkDeviceMemory> textureImageMemorys;
-	vector<VmaAllocation> textureAllocations;
 
 	void createRenderPass();
 	void createPipeline();
@@ -133,11 +106,8 @@ private:
 	void createDescriptorSetLayout();
 	void createDescriptorSetLayout2();
 
-	void establishVertexBuffer(vector<Vertex> vertices, size_t id);
 	void establishVertexBuffer2(vector<Vertex> vertices, size_t index, VkCommandBuffer externalCommandBuffer = nullptr);
-	void establishInstanceBuffer(vector<Instance> instances, size_t id);
 	void establishInstanceBuffer2(vector<Instance> instances, size_t index, VkCommandBuffer externalCommandBuffer = nullptr);
-	// void establishTexture(int width, int height, void* pixels, VkImage& textureImage, VkImageView& textureImageView, VkDeviceMemory& textureImageMemory);
 	void establishTextureVMA(int width, int height, void* pixels, size_t index, VkCommandBuffer externalCommandBuffer = nullptr);
 };
 
