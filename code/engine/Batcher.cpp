@@ -33,9 +33,11 @@ void Batcher::loadFolderNth(string folder, uint32_t workers) {
 
 	vector<filesystem::path> files;
 
-	for (const auto& entry : filesystem::directory_iterator(folder)) {
-		// filenames.push_back(entry.path().filename().string());
-		files.push_back(entry.path());
+	for (const auto& entry : filesystem::recursive_directory_iterator(folder)) {
+		auto path = entry.path();
+		if (path.extension().string() == ".png") {
+			files.push_back(path);
+		}
 	}
 
 	uint32_t chunk = files.size() / workers;
