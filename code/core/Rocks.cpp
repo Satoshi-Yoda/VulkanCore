@@ -198,6 +198,7 @@ void Rocks::endSingleTimeCommands(VkCommandBuffer tempCommandBuffer) {
 	submitInfo.commandBufferCount = 1;
 	submitInfo.pCommandBuffers = &tempCommandBuffer;
 
+	// fence implementation, slightly faster (2.25 Gb/s -> 2.35 Gb/s for some data)
 	VkFenceCreateInfo fenceCreateInfo { VK_STRUCTURE_TYPE_FENCE_CREATE_INFO };
 	VkFence fence;
 	vkCreateFence(mountain.device, &fenceCreateInfo, nullptr, &fence) >> ash("Failed to create fence for waiting single time command buffer!");
