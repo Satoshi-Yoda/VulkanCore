@@ -127,11 +127,11 @@ private:
 	void createDescriptorSetLayout2();
 
 	void establishVertexBuffer(vector<Vertex> vertices, size_t id);
-	void establishVertexBuffer2(vector<Vertex> vertices, size_t id);
+	void establishVertexBuffer2(vector<Vertex> vertices, size_t index, VkCommandBuffer externalCommandBuffer = nullptr);
 	void establishInstanceBuffer(vector<Instance> instances, size_t id);
-	void establishInstanceBuffer2(vector<Instance> instances, size_t id);
+	void establishInstanceBuffer2(vector<Instance> instances, size_t index, VkCommandBuffer externalCommandBuffer = nullptr);
 	// void establishTexture(int width, int height, void* pixels, VkImage& textureImage, VkImageView& textureImageView, VkDeviceMemory& textureImageMemory);
-	void establishTextureVMA(int width, int height, void* pixels, VkImage& textureImage, VkImageView& textureImageView, VmaAllocation& textureAllocation);
+	void establishTextureVMA(int width, int height, void* pixels, size_t index, VkCommandBuffer externalCommandBuffer = nullptr);
 };
 
 #endif
