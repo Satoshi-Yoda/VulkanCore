@@ -35,7 +35,7 @@ struct Instance {
 // TODO
 // store batch all data in 1 class with state
 // make establish(), freeCPU(), freeGPU(), etc methods
-// store lavaObjectId, stats in that class
+// store lavaObjectId (just index), stats in that class
 // aspects: working, staging, live
 
 struct BatchCreateData {
@@ -87,8 +87,9 @@ public:
 
 	size_t addBatch(BatchCreateData& createData);
 	void addBatches(vector<BatchCreateData> createDataVector);
-	void updateInstanceBuffer(size_t id, vector<Instance> instances);
-	void updateInstances(size_t id, vector<Instance> instances, vector<size_t> indexes);
+	void resizeInstanceBuffer(size_t index, vector<Instance> instances);
+	void updateInstanceBuffer(size_t index, vector<Instance> instances);
+	void updateInstances(size_t index, vector<Instance> instances, vector<size_t> indexes);
 
 private:
 	Ash& ash;
@@ -106,6 +107,7 @@ private:
 	void createDescriptorSetLayout();
 	void createDescriptorSetLayout2();
 
+	// TODO make index first parameter
 	void establishVertexBuffer2(vector<Vertex> vertices, size_t index, VkCommandBuffer externalCommandBuffer = nullptr);
 	void establishInstanceBuffer2(vector<Instance> instances, size_t index, VkCommandBuffer externalCommandBuffer = nullptr);
 	void establishTextureVMA(int width, int height, void* pixels, size_t index, VkCommandBuffer externalCommandBuffer = nullptr);

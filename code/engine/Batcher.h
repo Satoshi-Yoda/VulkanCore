@@ -19,6 +19,7 @@ public:
 	void loadFolderNth(string folder, uint32_t workers = 1);
 	void establish(Lava& lava);
 	void addInstance(string name, Instance instance);
+	void update(double t, double dt);
 
 private:
 	unordered_map<string, int> width, height;
@@ -31,7 +32,7 @@ private:
 	size_t texturesBytes;
 
 	void initQuad(string name, uint32_t w, uint32_t h);
-	void initSampleInstance(string name);
+	void addSampleInstance(string name);
 };
 
 #endif

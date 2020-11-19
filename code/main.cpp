@@ -25,7 +25,7 @@ int main() {
 
 		thread loadSceneThread([&](){
 			// scene.load();
-			batcher.loadFolderNth("_crops_uptoride", 12);
+			batcher.loadFolderNth("_crops_harvester", 12);
 		});
 
 		Ash ash {};
@@ -49,9 +49,10 @@ int main() {
 		double t = chrono::duration_cast<chrono::duration<double>>(chrono::high_resolution_clock::now() - finishLoading).count();
 
 		while (!glfwWindowShouldClose(mountain.window)) {
-			// double new_t = chrono::duration_cast<chrono::duration<double>>(chrono::high_resolution_clock::now() - finishLoading).count();
-			// double dt = new_t - t;
-			// t = new_t;
+			double new_t = chrono::duration_cast<chrono::duration<double>>(chrono::high_resolution_clock::now() - finishLoading).count();
+			double dt = new_t - t;
+			t = new_t;
+			batcher.update(t, dt);
 			// scene.update(lava, t, dt);
 			tectonic.drawFrame();
 			glfwPollEvents();

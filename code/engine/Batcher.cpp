@@ -54,6 +54,7 @@ void Batcher::loadFolderNth(string folder, uint32_t workers) {
 			uint32_t length = (w == workers - 1) ? (chunk + rest) : chunk;
 			for (uint32_t i = start; i < start + length; i++) {
 				string name = files[i].stem().string();
+				// string name = files[i].string();
 				void* tempPixels;
 				int tempWidth, tempHeight;
 
@@ -65,7 +66,10 @@ void Batcher::loadFolderNth(string folder, uint32_t workers) {
 					width[name]  = tempWidth;
 					height[name] = tempHeight;
 					initQuad(name, width[name], height[name]);
-					initSampleInstance(name);
+					addSampleInstance(name);
+					addSampleInstance(name);
+					addSampleInstance(name);
+					addSampleInstance(name);
 
 					BatchCreateData data {};
 					data.pixels = tempPixels;
@@ -84,10 +88,12 @@ void Batcher::loadFolderNth(string folder, uint32_t workers) {
 	texturesBytes = 0;
 	for (const auto& file : files) {
 		string name = file.stem().string();
+		// string name = file.string();
 		texturesBytes += width[name] * height[name] * 4;
 	}
 
 	printf("Loaded %lld .png files (%.2f Mb files) from %s in %.3fs\n", files.size(), 1.0 * fileSizes / (1 << 20), folder.data(), chrono::duration_cast<chrono::duration<double>>(chrono::high_resolution_clock::now() - start).count());
+	printf("(%lld Mb textures)\n", texturesBytes / (1 << 20));
 }
 
 void Batcher::initQuad(string name, uint32_t w, uint32_t h) {
@@ -107,7 +113,7 @@ void Batcher::initQuad(string name, uint32_t w, uint32_t h) {
 	vertices[name].push_back({ { x_min, y_min }, { 0.0f, 0.0f } });
 }
 
-void Batcher::initSampleInstance(string name) {
+void Batcher::addSampleInstance(string name) {
 	random_device random {};
 	int border = 200;
 	uniform_int_distribution<int> x { - (1600 - border) / 2, (1600 - border) / 2 };
@@ -135,4 +141,11 @@ void Batcher::establish(Lava& lava) {
 
 void Batcher::addInstance(string name, Instance instance) {
 
+}
+
+void Batcher::update(double t, double dt) {
+	// if (t > instances[firstName].size()) {
+
+
+	// }
 }

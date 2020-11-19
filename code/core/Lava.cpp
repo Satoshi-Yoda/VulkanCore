@@ -425,29 +425,45 @@ void Lava::establishInstanceBuffer2(vector<Instance> instances, size_t index, Vk
 // 	rocks.copyBufferToBuffer(stagingBuffer, buffer, bufferSize, VK_ACCESS_VERTEX_ATTRIBUTE_READ_BIT);
 // }
 
-void Lava::updateInstanceBuffer(size_t id, vector<Instance> instances) {
-	/*
-	VkBuffer& buffer = instanceBuffers[id];
-	VkBuffer& stagingBuffer = stagingInstanceBuffers[id];
-	// VkDeviceMemory& stagingBufferMemory = stagingInstanceBufferMemorys[id];
+void Lava::resizeInstanceBuffer(size_t index, vector<Instance> instances) {
+#ifdef use_validation
+	if (instances.size() == batchData[index].instanceCount) {
+		throw invalid_argument("No need to resize instance buffer with the same size!");
+	}
+#endif
+
+	vmaDestroyBuffer(mountain.allocator, batchData[index].instanceBuffer,        batchData[index].instanceAllocation);
+	vmaDestroyBuffer(mountain.allocator, batchData[index].stagingInstanceBuffer, batchData[index].stagingInstanceAllocation);
+
+	if (instances.size() == 0) {
+		batchData[index].instanceCount = 0;
+	} else {
+		establishInstanceBuffer2(instances, index);
+	}
+}
+
+void Lava::updateInstanceBuffer(size_t index, vector<Instance> instances) {
+#ifdef use_validation
+	if (instances.size() != batchData[index].instanceCount) {
+		throw invalid_argument("Can not update instance buffer with different size!");
+	}
+#endif
+
+	VkBuffer& buffer               = batchData[index].instanceBuffer;
+	VkBuffer& stagingBuffer        = batchData[index].stagingInstanceBuffer;
+	VmaAllocationInfo& stagingInfo = batchData[index].stagingInstanceInfo;
 
 	VkDeviceSize bufferSize = sizeof(Instance) * instances.size();
 
-	// this is do realtime mapping
-	// rocks.copyDataToBuffer(instances.data(), stagingBufferMemory, static_cast<size_t>(bufferSize));
-
-	// and this is just using existing maps
-	// memcpy(stagingInstanceBufferMappedPointers[id], instances.data(), static_cast<size_t>(bufferSize));
-	memcpy(stagingInstanceBufferAllocationInfos[id].pMappedData, instances.data(), static_cast<size_t>(bufferSize));
+	memcpy(stagingInfo.pMappedData, instances.data(), static_cast<size_t>(bufferSize));
 
 	rocks.copyBufferToBuffer(stagingBuffer, buffer, bufferSize, VK_ACCESS_VERTEX_ATTRIBUTE_READ_BIT);
-	*/
 }
 
-void Lava::updateInstances(size_t id, vector<Instance> instances, vector<size_t> indexes) {
+void Lava::updateInstances(size_t index, vector<Instance> instances, vector<size_t> indexes) {
 	/*
-	// Instance* stagingVector = reinterpret_cast<Instance*>(stagingInstanceBufferMappedPointers[id]);
-	Instance* stagingVector = reinterpret_cast<Instance*>(stagingInstanceBufferAllocationInfos[id].pMappedData);
+	// Instance* stagingVector = reinterpret_cast<Instance*>(stagingInstanceBufferMappedPointers[index]);
+	Instance* stagingVector = reinterpret_cast<Instance*>(stagingInstanceBufferAllocationInfos[index].pMappedData);
 	for (auto& index : indexes) {
 		stagingVector[index] = instances[index];
 	}
@@ -462,8 +478,8 @@ void Lava::updateInstances(size_t id, vector<Instance> instances, vector<size_t>
 		regions[i].size = sizeof(Instance);
 	}
 
-	VkBuffer& buffer = instanceBuffers[id];
-	VkBuffer& stagingBuffer = stagingInstanceBuffers[id];
+	VkBuffer& buffer = instanceBuffers[index];
+	VkBuffer& stagingBuffer = stagingInstanceBuffers[index];
 
 	rocks.copyBufferToBuffer(stagingBuffer, buffer, regions, VK_ACCESS_VERTEX_ATTRIBUTE_READ_BIT);
 	*/
