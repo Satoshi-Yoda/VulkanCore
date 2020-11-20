@@ -3,12 +3,14 @@
 
 #include <string>
 #include <unordered_map>
+#include <map>
 #include <vector>
 
 #include "../core/Lava.h"
 
 using std::string;
 using std::unordered_map;
+using std::map;
 
 class Batcher {
 public:
@@ -19,15 +21,16 @@ public:
 	void loadFolderNth(string folder, uint32_t workers = 1);
 	void establish(Lava& lava);
 	void addInstance(string name, Instance instance);
-	void update(double t, double dt);
+	void update(Lava& lava, double t, double dt);
 
 private:
-	unordered_map<string, int> width, height;
-	unordered_map<string, void*> pixels;
-	unordered_map<string, vector<Vertex>> vertices;
-	unordered_map<string, vector<Instance>> instances;
+	map<string, int> width, height;
+	map<string, void*> pixels;
+	map<string, vector<Vertex>> vertices;
+	map<string, vector<Instance>> instances;
+	map<string, size_t> indexes;
 
-	unordered_map<string, BatchCreateData> batches;
+	map<string, BatchCreateData> batches;
 
 	size_t texturesBytes;
 

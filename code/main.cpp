@@ -52,7 +52,7 @@ int main() {
 			double new_t = chrono::duration_cast<chrono::duration<double>>(chrono::high_resolution_clock::now() - finishLoading).count();
 			double dt = new_t - t;
 			t = new_t;
-			batcher.update(t, dt);
+			batcher.update(lava, t, dt);
 			// scene.update(lava, t, dt);
 			tectonic.drawFrame();
 			glfwPollEvents();

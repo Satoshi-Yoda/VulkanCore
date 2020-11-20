@@ -1,8 +1,8 @@
 #include "Lava.h"
 #include "../utils/Loader.h"
 
-#include <vector>
 #include <array>
+#include <vector>
 
 using namespace std;
 
@@ -21,29 +21,7 @@ Lava::~Lava() {
 		vkDeviceWaitIdle(mountain.device);
 	}
 
-	// for (auto element : vertexBuffers)        if (element != VK_NULL_HANDLE) vkDestroyBuffer(mountain.device, element, nullptr);
-	// for (auto element : vertexBufferMemorys)  if (element != VK_NULL_HANDLE) vkFreeMemory(mountain.device, element, nullptr);
-	// for (auto element : stagingBuffers)       if (element != VK_NULL_HANDLE) vkDestroyBuffer(mountain.device, element, nullptr);
-	// for (auto element : stagingBufferMemorys) if (element != VK_NULL_HANDLE) vkFreeMemory(mountain.device, element, nullptr);
-
-	// for (size_t i = 0; i < vertexBuffers.size(); i++) vmaDestroyBuffer(mountain.allocator, vertexBuffers[i], vertexBufferAllocations[i]);
-
-	// for (auto element : instanceBuffers)              if (element != VK_NULL_HANDLE) vkDestroyBuffer(mountain.device, element, nullptr);
-	// for (auto element : instanceBufferMemorys)        if (element != VK_NULL_HANDLE) vkFreeMemory(mountain.device, element, nullptr);
-
-	// for (size_t i = 0; i < instanceBuffers.size(); i++) vmaDestroyBuffer(mountain.allocator, instanceBuffers[i], instanceBufferAllocations[i]);
-	// for (size_t i = 0; i < stagingInstanceBuffers.size(); i++) vmaDestroyBuffer(mountain.allocator, stagingInstanceBuffers[i], stagingInstanceBufferAllocations[i]);
-
-	// for (auto element : stagingInstanceBuffers)       if (element != VK_NULL_HANDLE) vkDestroyBuffer(mountain.device, element, nullptr);
-	// for (auto element : stagingInstanceBufferMemorys) if (element != VK_NULL_HANDLE) vkFreeMemory(mountain.device, element, nullptr);
- 
 	if (textureSampler != VK_NULL_HANDLE) vkDestroySampler(mountain.device, textureSampler, nullptr);
-
-	// for (auto element : textureImageViews)   if (element != VK_NULL_HANDLE) vkDestroyImageView(mountain.device, element, nullptr);
-	// for (auto element : textureImages)       if (element != VK_NULL_HANDLE) vkDestroyImage(mountain.device, element, nullptr);
-	// for (auto element : textureImageMemorys) if (element != VK_NULL_HANDLE) vkFreeMemory(mountain.device, element, nullptr);
-
-	// for (size_t i = 0; i < textureImages.size(); i++) vmaDestroyImage(mountain.allocator, textureImages[i], textureAllocations[i]);
 
 	for (size_t i = 0; i < batchData.size(); i++) {
 		vmaDestroyBuffer(mountain.allocator, batchData[i].vertexBuffer, batchData[i].vertexAllocation);
@@ -425,21 +403,57 @@ void Lava::establishInstanceBuffer2(vector<Instance> instances, size_t index, Vk
 // 	rocks.copyBufferToBuffer(stagingBuffer, buffer, bufferSize, VK_ACCESS_VERTEX_ATTRIBUTE_READ_BIT);
 // }
 
-void Lava::resizeInstanceBuffer(size_t index, vector<Instance> instances) {
+void Lava::resizeInstanceBuffer(size_t index, vector<Instance> instances, VkCommandBuffer externalCommandBuffer) {
 #ifdef use_validation
 	if (instances.size() == batchData[index].instanceCount) {
 		throw invalid_argument("No need to resize instance buffer with the same size!");
 	}
 #endif
 
-	vmaDestroyBuffer(mountain.allocator, batchData[index].instanceBuffer,        batchData[index].instanceAllocation);
-	vmaDestroyBuffer(mountain.allocator, batchData[index].stagingInstanceBuffer, batchData[index].stagingInstanceAllocation);
+	VkBuffer instanceBuffer          = batchData[index].instanceBuffer;
+	VmaAllocation instanceAllocation = batchData[index].instanceAllocation;
+	VkBuffer stagingBuffer           = batchData[index].stagingInstanceBuffer;
+	VmaAllocation stagingAllocation  = batchData[index].stagingInstanceAllocation;
+
+	// TODO can be optimized by calling this later in future frames, without wait, or something
+	vkQueueWaitIdle(mountain.queue);
+	vmaDestroyBuffer(mountain.allocator, instanceBuffer, instanceAllocation);
+	vmaDestroyBuffer(mountain.allocator, stagingBuffer, stagingAllocation);
 
 	if (instances.size() == 0) {
 		batchData[index].instanceCount = 0;
 	} else {
-		establishInstanceBuffer2(instances, index);
+		bool useExternalCommandBuffer = (externalCommandBuffer != nullptr);
+		VkCommandBuffer commandBuffer = useExternalCommandBuffer ? externalCommandBuffer : rocks.beginSingleTimeCommands();
+
+		establishInstanceBuffer2(instances, index, commandBuffer);
+
+		if (useExternalCommandBuffer == false) {
+			rocks.endSingleTimeCommands(commandBuffer);
+		}
 	}
+}
+
+void Lava::resizeInstanceBuffers(vector<size_t> indexVector, vector<vector<Instance>> instancesVector) {
+	#ifdef use_validation
+	if (indexVector.size() != instancesVector.size()) {
+		throw invalid_argument("Lava::resizeInstanceBuffers() wrong params!");
+	}
+	#endif
+
+	VkCommandBuffer commandBuffer = rocks.beginSingleTimeCommands();
+
+	for (size_t i = 0; i < indexVector.size(); i++) {
+		#ifdef use_validation
+		if (instancesVector[i].size() == batchData[indexVector[i]].instanceCount) {
+			throw invalid_argument("Lava::resizeInstanceBuffers() wrong params!");
+		}
+		#endif
+
+		resizeInstanceBuffer(indexVector[i], instancesVector[i], commandBuffer);
+	}
+
+	rocks.endSingleTimeCommands(commandBuffer);
 }
 
 void Lava::updateInstanceBuffer(size_t index, vector<Instance> instances) {

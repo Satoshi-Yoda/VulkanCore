@@ -65,9 +65,8 @@ void Batcher::loadFolderNth(string folder, uint32_t workers) {
 					pixels[name] = tempPixels;
 					width[name]  = tempWidth;
 					height[name] = tempHeight;
+					indexes[name] = i;
 					initQuad(name, width[name], height[name]);
-					addSampleInstance(name);
-					addSampleInstance(name);
 					addSampleInstance(name);
 					addSampleInstance(name);
 
@@ -143,9 +142,27 @@ void Batcher::addInstance(string name, Instance instance) {
 
 }
 
-void Batcher::update(double t, double dt) {
-	// if (t > instances[firstName].size()) {
+void Batcher::update(Lava& lava, double t, double dt) {
+	auto start = chrono::high_resolution_clock::now();
+	bool resized = false;
 
+	vector<size_t> indexVector;
+	vector<vector<Instance>> instancesVector;
 
-	// }
+	for (auto& it : batches) {
+		string name = it.first;
+		if (t > instances[name].size()) {
+			addSampleInstance(name);
+			// lava.resizeInstanceBuffer(indexes[name], instances[name]);
+			indexVector.push_back(indexes[name]);
+			instancesVector.push_back(instances[name]);
+			resized = true;
+		}
+	}
+
+	if (resized) {
+		lava.resizeInstanceBuffers(indexVector, instancesVector);
+		auto time = chrono::duration_cast<chrono::duration<double>>(chrono::high_resolution_clock::now() - start).count();
+		printf("resized %.2f, sprites %.0f in %.5f ms\n", t, round(batches.size() * t), 1000 * time);
+	}
 }
