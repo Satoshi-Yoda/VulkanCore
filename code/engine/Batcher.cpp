@@ -141,6 +141,8 @@ void Batcher::establish(Lava& lava) {
 }
 
 void Batcher::addInstance(string name, Instance instance) {
+	// TODO resize 1 -> 2 -> 4 -> 8 -> ...
+	// TODO implement vacuum instance
 	instances[name].push_back(instance);
 	lava->resizeInstanceBuffer(indexes[name], instances[name]);
 }
