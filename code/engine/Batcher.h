@@ -1,16 +1,18 @@
 #ifndef BATCHER_H
 #define BATCHER_H
 
+#include <map>
+#include <set>
 #include <string>
 #include <unordered_map>
-#include <map>
 #include <vector>
 
 #include "../core/Lava.h"
 
+using std::map;
+using std::set;
 using std::string;
 using std::unordered_map;
-using std::map;
 
 class Batcher {
 public:
@@ -35,7 +37,7 @@ private:
 	map<string, size_t> indexes;
 
 	map<string, BatchCreateData> batches;
-	vector<string> namesForUpdate;
+	set<string> namesForUpdate;
 
 	size_t texturesBytes;
 

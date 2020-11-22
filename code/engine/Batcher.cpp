@@ -147,7 +147,7 @@ void Batcher::addInstance(string name, Instance instance) {
 
 void Batcher::updateInstance(string name, size_t index, Instance instance) {
 	instances[name][index] = instance;
-	namesForUpdate.push_back(name);
+	namesForUpdate.insert(name);
 }
 
 void Batcher::update(double t, double dt) {
