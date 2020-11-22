@@ -12,42 +12,14 @@
 
 using namespace std;
 
-Scene::Scene() {}
+Scene::Scene(Batcher& batcher) : batcher(batcher) {}
 
 Scene::~Scene() {}
 
-void Scene::load() {
-	// TODO do some checking here that pixels != nullptr, or else: "Failed to load texture image!"
-	// TODO maybe some wrapper loader can return stub 1x1 image in that case
+void Scene::init() {
+	// "asteroid-s1.1"
 
-	// loadTexture("pictures/tile.png", pixels, &width, &height);
-}
-
-void Scene::initRect(int x, int y, int w, int h, float scale) {
-	int x_min = x - w * scale / 2;
-	int x_max = x_min + w * scale;
-	int y_min = y - h * scale / 2;
-	int y_max = y_min + h * scale;
-
-	vertices.push_back({ { x_min, y_max }, { 0.0f, 1.0f } });
-	vertices.push_back({ { x_min, y_min }, { 0.0f, 0.0f } });
-	vertices.push_back({ { x_max, y_max }, { 1.0f, 1.0f } });
-
-	vertices.push_back({ { x_max, y_max }, { 1.0f, 1.0f } });
-	vertices.push_back({ { x_min, y_min }, { 0.0f, 0.0f } });
-	vertices.push_back({ { x_max, y_min }, { 1.0f, 0.0f } });
-}
-
-void Scene::addInstance(int x, int y) {
-	instances.push_back({ { x, y } });
-}
-
-void Scene::establish(Lava &lava) {
-	loadTexture("pictures/tile.png", pixels, &width, &height, false);
-
-	float scale = 1.0f;
-	initRect(0, 0, width, height, scale);
-	printf("Lava: sprite %.0fx%.0f\n", round(width * scale), round(height * scale));
+	// printf("Lava: sprite %.0fx%.0f\n", round(width * scale), round(height * scale));
 
 	int extent_h = 800 / 2;
 	int extent_w = 1500 / 2;
@@ -74,14 +46,16 @@ void Scene::establish(Lava &lava) {
 	for (float x = -extent_w; x < extent_w; x += step)
 	for (float y = -extent_h; y < extent_h; y += step)
 	{
-		addInstance(x, y);
+		vec2 pos { x, y };
+		Instance instance { pos };
+		batcher.addInstance("bomb.6", instance);
+		instances.push_back(instance);
 	}
 
-	printf("Lava: %lld vertices\n", vertices.size());
-	printf("Lava: %lld sprites\n", instances.size());
-	printf("Lava: stream: %.2f Mb/frame\n", static_cast<float>(instances.size() * sizeof(Instance)) / (1 << 20));
-	printf("Lava: stream: %.2f Mb/second (for 60 fps)\n", 60 * static_cast<float>(instances.size() * sizeof(Instance)) / (1 << 20));
-	printf("Lava: fillrate: %.0f Mpixels/frame\n", (instances.size()) * width * height * scale * scale / 1000000);
+	// printf("Lava: %lld sprites\n", instances.size());
+	// printf("Lava: stream: %.2f Mb/frame\n", static_cast<float>(instances.size() * sizeof(Instance)) / (1 << 20));
+	// printf("Lava: stream: %.2f Mb/second (for 60 fps)\n", 60 * static_cast<float>(instances.size() * sizeof(Instance)) / (1 << 20));
+	// printf("Lava: fillrate: %.0f Mpixels/frame\n", (instances.size()) * width * height * scale * scale / 1000000);
 
 	// vector<Vertex> vertices2;
 	// vertices2.resize(vertices.size());
@@ -94,6 +68,7 @@ void Scene::establish(Lava &lava) {
 	// float speed = static_cast<float>(size) / (1 << 30) / delay;
 	// printf("Copied v2v %d MB in %.3fs at %.2f GB/s\n", size / (1 << 20), delay, speed);
 
+/*
 	BatchCreateData data {};
 	data.pixels = pixels;
 	data.width  = width;
@@ -110,6 +85,7 @@ void Scene::establish(Lava &lava) {
 	vertices.shrink_to_fit();
 	// instances.clear();
 	// instances.shrink_to_fit();
+*/
 
 	mt19937_64 random {};
 	uniform_int_distribution<size_t> distribution { 0, instances.size() - 1 };
@@ -120,16 +96,18 @@ void Scene::establish(Lava &lava) {
 	}
 }
 
-void Scene::update(Lava &lava, double t, double dt) {
+
+void Scene::update(double t, double dt) {
 	for (auto i : updatableIndexes) {
 		float add = 40 * cos(t) * dt;
 		vec2 addv { add, add };
 		instances[i].pos = instances[i].pos + addv;
+		batcher.updateInstance("bomb.6", i, instances[i]);
 	}
 
 	// TODO
 	// so, if changed about 1% or less, then updateInstances(), else updateInstanceBuffer()
 	// and updateInstances() loads CPU, but updateInstanceBuffer() loads PCI-E,
-	lava.updateInstances(lavaObjectId, instances, updatableIndexes);
+	// lava.updateInstances(lavaObjectId, instances, updatableIndexes);
 	// lava.updateInstanceBuffer(lavaObjectId, instances);
 }

@@ -67,8 +67,8 @@ void Batcher::loadFolderNth(string folder, uint32_t workers) {
 					height[name] = tempHeight;
 					indexes[name] = i;
 					initQuad(name, width[name], height[name]);
-					addSampleInstance(name);
-					addSampleInstance(name);
+					// addSampleInstance(name);
+					// addSampleInstance(name);
 
 					BatchCreateData data {};
 					data.pixels = tempPixels;
@@ -122,6 +122,8 @@ void Batcher::addSampleInstance(string name) {
 }
 
 void Batcher::establish(Lava& lava) {
+	this->lava = &lava;
+
 	auto start = chrono::high_resolution_clock::now();
 
 	// for (auto& it : batches) {
@@ -139,30 +141,43 @@ void Batcher::establish(Lava& lava) {
 }
 
 void Batcher::addInstance(string name, Instance instance) {
-
+	instances[name].push_back(instance);
+	lava->resizeInstanceBuffer(indexes[name], instances[name]);
 }
 
-void Batcher::update(Lava& lava, double t, double dt) {
-	auto start = chrono::high_resolution_clock::now();
-	bool resized = false;
+void Batcher::updateInstance(string name, size_t index, Instance instance) {
+	instances[name][index] = instance;
+	namesForUpdate.push_back(name);
+}
 
-	vector<size_t> indexVector;
-	vector<vector<Instance>> instancesVector;
-
-	for (auto& it : batches) {
-		string name = it.first;
-		if (t > instances[name].size()) {
-			addSampleInstance(name);
-			// lava.resizeInstanceBuffer(indexes[name], instances[name]);
-			indexVector.push_back(indexes[name]);
-			instancesVector.push_back(instances[name]);
-			resized = true;
-		}
+void Batcher::update(double t, double dt) {
+	for (auto& name : namesForUpdate) {
+		// TODO make Lava::updateInstanceBuffers()
+		lava->updateInstanceBuffer(indexes[name], instances[name]);
 	}
 
-	if (resized) {
-		lava.resizeInstanceBuffers(indexVector, instancesVector);
-		auto time = chrono::duration_cast<chrono::duration<double>>(chrono::high_resolution_clock::now() - start).count();
-		printf("resized %.2f, sprites %.0f in %.5f ms\n", t, round(batches.size() * t), 1000 * time);
-	}
+	namesForUpdate.clear();
+
+	// auto start = chrono::high_resolution_clock::now();
+	// bool resized = false;
+
+	// vector<size_t> indexVector;
+	// vector<vector<Instance>> instancesVector;
+
+	// for (auto& it : batches) {
+	// 	string name = it.first;
+	// 	if (t > instances[name].size()) {
+	// 		addSampleInstance(name);
+	// 		// lava.resizeInstanceBuffer(indexes[name], instances[name]);
+	// 		indexVector.push_back(indexes[name]);
+	// 		instancesVector.push_back(instances[name]);
+	// 		resized = true;
+	// 	}
+	// }
+
+	// if (resized) {
+	// 	lava->resizeInstanceBuffers(indexVector, instancesVector);
+	// 	auto time = chrono::duration_cast<chrono::duration<double>>(chrono::high_resolution_clock::now() - start).count();
+	// 	printf("resized %.2f, sprites %.0f in %.5f ms\n", t, round(batches.size() * t), 1000 * time);
+	// }
 }

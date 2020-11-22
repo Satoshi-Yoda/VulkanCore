@@ -39,8 +39,6 @@ Tectonic::~Tectonic() {
 		if (renderFinishedSemaphores[i] != VK_NULL_HANDLE) vkDestroySemaphore  (mountain.device, renderFinishedSemaphores[i], nullptr);
 		if (fences[i]                   != VK_NULL_HANDLE) vkDestroyFence      (mountain.device, fences[i], nullptr);
 		if (framebuffers[i]             != VK_NULL_HANDLE) vkDestroyFramebuffer(mountain.device, framebuffers[i], nullptr);
-		// if (uniformBuffers[i]           != VK_NULL_HANDLE) vkDestroyBuffer     (mountain.device, uniformBuffers[i], nullptr);
-		// if (uniformBuffersMemory[i]     != VK_NULL_HANDLE) vkFreeMemory        (mountain.device, uniformBuffersMemory[i], nullptr);
 
 		vmaDestroyBuffer(mountain.allocator, uniformBuffers[i], uniformBuffersAllocations[i]);
 	}
@@ -69,7 +67,6 @@ void Tectonic::createInFlightResources() {
 
 void Tectonic::createUniformBuffers() {
 	for (size_t i = 0; i < IN_FLIGHT_FRAMES; i++) {
-		// rocks.createBuffer(sizeof(UniformBufferObject), VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, uniformBuffers[i], uniformBuffersMemory[i]);
 		rocks.createBufferVMA(sizeof(UniformBufferObject), VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VMA_MEMORY_USAGE_CPU_ONLY, uniformBuffers[i], uniformBuffersAllocations[i], uniformBuffersAllocationInfos[i]);
 	}
 }
@@ -237,6 +234,8 @@ void Tectonic::prepareFrame(uint32_t craterIndex) {
 			resizeDescriptorSets(lava.batchData.size());
 
 			for (size_t i = 0; i < lava.batchData.size(); i++) {
+				if (lava.batchData[i].instanceCount == 0) continue;
+
 				VkDeviceSize offsets[] { 0 };
 				vkCmdBindVertexBuffers(commandBuffers[inFlightIndex], 0, 1, &lava.batchData[i].vertexBuffer, offsets);
 				vkCmdBindVertexBuffers(commandBuffers[inFlightIndex], 1, 1, &lava.batchData[i].instanceBuffer, offsets);

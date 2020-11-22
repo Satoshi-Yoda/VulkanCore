@@ -21,9 +21,13 @@ public:
 	void loadFolderNth(string folder, uint32_t workers = 1);
 	void establish(Lava& lava);
 	void addInstance(string name, Instance instance);
-	void update(Lava& lava, double t, double dt);
+	void updateInstance(string name, size_t index, Instance instance);
+	void update(double t, double dt);
 
 private:
+	Lava* lava;
+
+	// TODO remove
 	map<string, int> width, height;
 	map<string, void*> pixels;
 	map<string, vector<Vertex>> vertices;
@@ -31,6 +35,7 @@ private:
 	map<string, size_t> indexes;
 
 	map<string, BatchCreateData> batches;
+	vector<string> namesForUpdate;
 
 	size_t texturesBytes;
 

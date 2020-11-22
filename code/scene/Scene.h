@@ -9,6 +9,7 @@
 
 #include "../core/Lava.h"
 #include "../core/Tectonic.h"
+#include "../engine/Batcher.h"
 
 using std::vector;
 using std::string;
@@ -16,25 +17,17 @@ using glm::vec2;
 
 class Scene {
 public:
-	Scene();
+	Scene(Batcher& batcher);
 	~Scene();
 
-	void load();
-	void establish(Lava &lava);
-	void update(Lava &lava, double t, double dt);
+	void init();
+	void update(double t, double dt);
 
 private:
-	vector<Vertex> vertices;
+	Batcher& batcher;
+
 	vector<Instance> instances;
 	vector<size_t> updatableIndexes;
-
-	int width, height;
-	void* pixels;
-
-	size_t lavaObjectId;
-
-	void initRect(int x, int y, int w, int h, float scale);
-	void addInstance(int x, int y);
 };
 
 #endif

@@ -372,6 +372,8 @@ void Lava::establishInstanceBuffer2(vector<Instance> instances, size_t index, Vk
 	instanceCount = static_cast<uint32_t>(instances.size());
 	VkDeviceSize bufferSize = sizeof(Instance) * instances.size();
 
+	if (instanceCount == 0) return;
+
 	rocks.createBufferVMA(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VMA_MEMORY_USAGE_CPU_ONLY, stagingBuffer, stagingAllocation, stagingInfo);
 	memcpy(stagingInfo.pMappedData, instances.data(), static_cast<size_t>(bufferSize));
 

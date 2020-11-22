@@ -21,10 +21,8 @@ int main() {
 		auto startLoading = chrono::high_resolution_clock::now();
 
 		Batcher batcher {};
-		// Scene scene {};
 
 		thread loadSceneThread([&](){
-			// scene.load();
 			batcher.loadFolderNth("_crops_harvester", 12);
 		});
 
@@ -36,8 +34,10 @@ int main() {
 		Tectonic tectonic { ash, mountain, rocks, crater, lava };
 
 		loadSceneThread.join();
-		// scene.establish(lava);
 		batcher.establish(lava);
+
+		Scene scene { batcher };
+		scene.init();
 
 		mountain.showWindow();
 
@@ -52,8 +52,8 @@ int main() {
 			double new_t = chrono::duration_cast<chrono::duration<double>>(chrono::high_resolution_clock::now() - finishLoading).count();
 			double dt = new_t - t;
 			t = new_t;
-			batcher.update(lava, t, dt);
-			// scene.update(lava, t, dt);
+			scene.update(t, dt);
+			batcher.update(t, dt);
 			tectonic.drawFrame();
 			glfwPollEvents();
 

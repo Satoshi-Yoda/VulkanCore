@@ -39,7 +39,6 @@ private:
 	array<VkFence,           IN_FLIGHT_FRAMES> fences;
 	array<VkFramebuffer,     IN_FLIGHT_FRAMES> framebuffers;
 	array<VkBuffer,          IN_FLIGHT_FRAMES> uniformBuffers;
-	// array<VkDeviceMemory,    IN_FLIGHT_FRAMES> uniformBuffersMemory;
 	array<VmaAllocation,     IN_FLIGHT_FRAMES> uniformBuffersAllocations;
 	array<VmaAllocationInfo, IN_FLIGHT_FRAMES> uniformBuffersAllocationInfos;
 	vector<array<VkDescriptorSet, IN_FLIGHT_FRAMES>> descriptorSets;
