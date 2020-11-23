@@ -22,7 +22,17 @@ void Batcher::loadFolder(string folder) {
 
 	for (const auto& entry : filesystem::directory_iterator(folder)) {
 		string name = entry.path().stem().string();
-		loadTexture(entry.path().string(), pixels[name], &width[name], &height[name]);
+
+		void* tempPixels;
+		int tempWidth, tempHeight;
+		loadTexture(entry.path().string(), tempPixels, &tempWidth, &tempHeight);
+
+		BatchCreateData data {};
+		data.pixels = tempPixels;
+		data.width  = tempWidth;
+		data.height = tempHeight;
+		data.vertices = initQuad(tempWidth, tempHeight);
+		batches[name] = data;
 	}
 
 	printf("Loaded %s/*.png in %.3fs\n", folder.data(), chrono::duration_cast<chrono::duration<double>>(chrono::high_resolution_clock::now() - start).count());
@@ -58,25 +68,16 @@ void Batcher::loadFolderNth(string folder, uint32_t workers) {
 				void* tempPixels;
 				int tempWidth, tempHeight;
 
-				// printf("Loader worker %d: loaded %s\n", w, filename.data());
 				loadTexture(files[i].string(), tempPixels, &tempWidth, &tempHeight);
 
 				putMutex.lock();
-					pixels[name] = tempPixels;
-					width[name]  = tempWidth;
-					height[name] = tempHeight;
-					indexes[name] = i;
-					initQuad(name, width[name], height[name]);
-					// addSampleInstance(name);
-					// addSampleInstance(name);
-
 					BatchCreateData data {};
 					data.pixels = tempPixels;
 					data.width  = tempWidth;
 					data.height = tempHeight;
-					data.vertices = vertices[name];
-					data.instances = instances[name];
+					data.vertices = initQuad(tempWidth, tempHeight);
 					batches[name] = data;
+					indexes[name] = i;
 				putMutex.unlock();
 			}
 		}));
@@ -88,14 +89,14 @@ void Batcher::loadFolderNth(string folder, uint32_t workers) {
 	for (const auto& file : files) {
 		string name = file.stem().string();
 		// string name = file.string();
-		texturesBytes += width[name] * height[name] * 4;
+		texturesBytes += batches[name].width * batches[name].height * 4;
 	}
 
 	printf("Loaded %lld .png files (%.2f Mb files) from %s in %.3fs\n", files.size(), 1.0 * fileSizes / (1 << 20), folder.data(), chrono::duration_cast<chrono::duration<double>>(chrono::high_resolution_clock::now() - start).count());
 	printf("(%lld Mb textures)\n", texturesBytes / (1 << 20));
 }
 
-void Batcher::initQuad(string name, uint32_t w, uint32_t h) {
+vector<Vertex> Batcher::initQuad(uint32_t w, uint32_t h) {
 	float scale = 1.0f;
 
 	int x_min = 0 - w * scale / 2;
@@ -103,13 +104,17 @@ void Batcher::initQuad(string name, uint32_t w, uint32_t h) {
 	int y_min = 0 - h * scale / 2;
 	int y_max = y_min + h * scale;
 
-	vertices[name].push_back({ { x_min, y_max }, { 0.0f, 1.0f } });
-	vertices[name].push_back({ { x_max, y_max }, { 1.0f, 1.0f } });
-	vertices[name].push_back({ { x_min, y_min }, { 0.0f, 0.0f } });
+	vector<Vertex> result;
 
-	vertices[name].push_back({ { x_max, y_max }, { 1.0f, 1.0f } });
-	vertices[name].push_back({ { x_max, y_min }, { 1.0f, 0.0f } });
-	vertices[name].push_back({ { x_min, y_min }, { 0.0f, 0.0f } });
+	result.push_back({ { x_min, y_max }, { 0.0f, 1.0f } });
+	result.push_back({ { x_max, y_max }, { 1.0f, 1.0f } });
+	result.push_back({ { x_min, y_min }, { 0.0f, 0.0f } });
+
+	result.push_back({ { x_max, y_max }, { 1.0f, 1.0f } });
+	result.push_back({ { x_max, y_min }, { 1.0f, 0.0f } });
+	result.push_back({ { x_min, y_min }, { 0.0f, 0.0f } });
+
+	return result;
 }
 
 void Batcher::addSampleInstance(string name) {
@@ -118,7 +123,7 @@ void Batcher::addSampleInstance(string name) {
 	uniform_int_distribution<int> x { - (1600 - border) / 2, (1600 - border) / 2 };
 	uniform_int_distribution<int> y { -  (900 - border) / 2,  (900 - border) / 2 };
 
-	instances[name].push_back({ { x(random), y(random) } });
+	batches[name].instances.push_back({ { x(random), y(random) } });
 }
 
 void Batcher::establish(Lava& lava) {
@@ -137,7 +142,7 @@ void Batcher::establish(Lava& lava) {
 	lava.addBatches(dataVector);
 
 	auto time = chrono::duration_cast<chrono::duration<double>>(chrono::high_resolution_clock::now() - start).count();
-	printf("Established %lld lava objects (%lld Mb textures) in %.3fs (%.2f Gb/s)\n", pixels.size(), texturesBytes / (1 << 20), time, texturesBytes / time / (1 << 30));
+	printf("Established %lld lava objects (%lld Mb textures) in %.3fs (%.2f Gb/s)\n", batches.size(), texturesBytes / (1 << 20), time, texturesBytes / time / (1 << 30));
 }
 
 // TODO implement removeInstance(string name, size_t index)
@@ -146,19 +151,19 @@ void Batcher::establish(Lava& lava) {
 void Batcher::addInstance(string name, Instance instance) {
 	// TODO resize 1 -> 2 -> 4 -> 8 -> ...
 	// TODO implement vacuum instance
-	instances[name].push_back(instance);
-	lava->resizeInstanceBuffer(indexes[name], instances[name]);
+	batches[name].instances.push_back(instance);
+	lava->resizeInstanceBuffer(indexes[name], batches[name].instances);
 }
 
 void Batcher::updateInstance(string name, size_t index, Instance instance) {
-	instances[name][index] = instance;
+	batches[name].instances[index] = instance;
 	namesForUpdate.insert(name);
 }
 
 void Batcher::update(double t, double dt) {
 	for (auto& name : namesForUpdate) {
 		// TODO make Lava::updateInstanceBuffers()
-		lava->updateInstanceBuffer(indexes[name], instances[name]);
+		lava->updateInstanceBuffer(indexes[name], batches[name].instances);
 	}
 
 	namesForUpdate.clear();
@@ -171,11 +176,11 @@ void Batcher::update(double t, double dt) {
 
 	// for (auto& it : batches) {
 	// 	string name = it.first;
-	// 	if (t > instances[name].size()) {
+	// 	if (t > batches[name].size()) {
 	// 		addSampleInstance(name);
-	// 		// lava.resizeInstanceBuffer(indexes[name], instances[name]);
+	// 		// lava.resizeInstanceBuffer(indexes[name], batches[name].instances);
 	// 		indexVector.push_back(indexes[name]);
-	// 		instancesVector.push_back(instances[name]);
+	// 		instancesVector.push_back(batches[name].instances);
 	// 		resized = true;
 	// 	}
 	// }

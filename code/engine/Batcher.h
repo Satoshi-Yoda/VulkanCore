@@ -29,19 +29,13 @@ public:
 private:
 	Lava* lava;
 
-	// TODO remove
-	map<string, int> width, height;
-	map<string, void*> pixels;
-	map<string, vector<Vertex>> vertices;
-	map<string, vector<Instance>> instances;
-	map<string, size_t> indexes;
-
 	map<string, BatchCreateData> batches;
+	map<string, size_t> indexes;
 	set<string> namesForUpdate;
 
 	size_t texturesBytes;
 
-	void initQuad(string name, uint32_t w, uint32_t h);
+	vector<Vertex> initQuad(uint32_t w, uint32_t h);
 	void addSampleInstance(string name);
 };
 
