@@ -140,6 +140,9 @@ void Batcher::establish(Lava& lava) {
 	printf("Established %lld lava objects (%lld Mb textures) in %.3fs (%.2f Gb/s)\n", pixels.size(), texturesBytes / (1 << 20), time, texturesBytes / time / (1 << 30));
 }
 
+// TODO implement removeInstance(string name, size_t index)
+// TODO addInstance should find free instance and return its index
+
 void Batcher::addInstance(string name, Instance instance) {
 	// TODO resize 1 -> 2 -> 4 -> 8 -> ...
 	// TODO implement vacuum instance
