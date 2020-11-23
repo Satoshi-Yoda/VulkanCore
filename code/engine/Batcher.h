@@ -29,6 +29,8 @@ public:
 private:
 	Lava* lava;
 
+	const Instance VACUUM { { 1e16f, 1e16f } };
+
 	map<string, BatchCreateData> batches;
 	map<string, size_t> indexes;
 	set<string> namesForUpdate;

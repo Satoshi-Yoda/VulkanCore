@@ -45,6 +45,7 @@ struct BatchCreateData {
 	int width;
 	int height;
 	void* pixels;
+	vector<size_t> free;
 };
 
 struct BatchLiveData {

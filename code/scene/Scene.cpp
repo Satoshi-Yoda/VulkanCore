@@ -46,8 +46,7 @@ void Scene::init() {
 	for (float x = -extent_w; x < extent_w; x += step)
 	for (float y = -extent_h; y < extent_h; y += step)
 	{
-		vec2 pos { x, y };
-		Instance instance { pos };
+		Instance instance { { x, y } };
 		batcher.addInstance("bomb.6", instance);
 		instances.push_back(instance);
 	}

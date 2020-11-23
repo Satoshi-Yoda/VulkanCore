@@ -126,7 +126,7 @@ void Batcher::addSampleInstance(string name) {
 	uniform_int_distribution<int> x { - (1600 - border) / 2, (1600 - border) / 2 };
 	uniform_int_distribution<int> y { -  (900 - border) / 2,  (900 - border) / 2 };
 
-	batches[name].instances.push_back({ { x(random), y(random) } });
+	addInstance(name, { { x(random), y(random) } });
 }
 
 void Batcher::establish(Lava& lava) {
@@ -149,13 +149,35 @@ void Batcher::establish(Lava& lava) {
 }
 
 // TODO implement removeInstance(string name, size_t index)
-// TODO addInstance should find free instance and return its index
 
 void Batcher::addInstance(string name, Instance instance) {
-	// TODO resize 1 -> 2 -> 4 -> 8 -> ...
-	// TODO implement vacuum instance
-	batches[name].instances.push_back(instance);
-	lava->resizeInstanceBuffer(indexes[name], batches[name].instances);
+	if (batches[name].free.size() == 0) {
+		size_t oldSize = batches[name].instances.size();
+		size_t newSize = (oldSize == 0) ? 1 : oldSize * 2;
+
+		batches[name].free.reserve(newSize);
+		batches[name].instances.reserve(newSize);
+		batches[name].instances.push_back(instance);
+
+		// for (size_t i = oldSize + 1; i < newSize; i++) {
+		// 	batches[name].instances.push_back(VACUUM);
+		// 	batches[name].free.push_back(i);
+		// }
+
+		// TODO for now, use return index value from Batcher::addInstance()
+		for (size_t i = newSize - 1; i >= oldSize + 1; i--) {
+			batches[name].instances.push_back(VACUUM);
+			batches[name].free.push_back(i);
+		}
+
+		lava->resizeInstanceBuffer(indexes[name], batches[name].instances);
+		printf("Resized batch '%s' for %lld instances\n", name.data(), batches[name].instances.size());
+
+	} else {
+		size_t free = batches[name].free.back();
+		batches[name].free.pop_back();
+		batches[name].instances[free] = instance;
+	}
 }
 
 void Batcher::updateInstance(string name, size_t index, Instance instance) {
