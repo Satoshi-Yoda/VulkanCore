@@ -66,7 +66,7 @@ int main() {
 				auto runtime = chrono::duration_cast<chrono::duration<double>>(now - finishLoading).count();
 				double fps = frame / runtime;
 				char str[100];
-				sprintf(str, "size %d x %d   frame %lld   fps %.0f   time %.2f", crater.extent.width, crater.extent.height, frame, fps, t);
+				sprintf(str, "size %d x %d   frame %lld   fps %.0f   time %.2f   sprites %lld", crater.extent.width, crater.extent.height, frame, fps, t, scene.sprites());
 				glfwSetWindowTitle(mountain.window, str);
 			}
 		}

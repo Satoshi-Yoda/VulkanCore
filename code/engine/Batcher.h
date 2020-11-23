@@ -22,7 +22,8 @@ public:
 	void loadFolder(string folder);
 	void loadFolderNth(string folder, uint32_t workers = 1);
 	void establish(Lava& lava);
-	void addInstance(string name, Instance instance);
+	size_t addInstance(string name, Instance instance);
+	void removeInstance(string name, size_t index);
 	void updateInstance(string name, size_t index, Instance instance);
 	void update(double t, double dt);
 

@@ -1,7 +1,9 @@
 #ifndef SCENE_H
 #define SCENE_H
 
+#include <random>
 #include <string>
+#include <unordered_map>
 #include <vector>
 
 #define GLM_FORCE_RADIANS
@@ -11,8 +13,11 @@
 #include "../core/Tectonic.h"
 #include "../engine/Batcher.h"
 
-using std::vector;
 using std::string;
+using std::unordered_map;
+using std::vector;
+using std::mt19937_64;
+using std::uniform_real_distribution;
 using glm::vec2;
 
 class Scene {
@@ -22,12 +27,18 @@ public:
 
 	void init();
 	void update(double t, double dt);
+	size_t sprites();
 
 private:
 	Batcher& batcher;
 
-	vector<Instance> instances;
+	unordered_map<size_t, Instance> instances;
 	vector<size_t> updatableIndexes;
+
+	mt19937_64 random {};
+	uniform_real_distribution<double> distribution { 0.0, 1.0 };
+	int N;
+	int extent_w, extent_h;
 };
 
 #endif

@@ -148,9 +148,9 @@ void Batcher::establish(Lava& lava) {
 	printf("Established %lld lava objects (%lld Mb textures) in %.3fs (%.2f Gb/s)\n", batches.size(), texturesBytes / (1 << 20), time, texturesBytes / time / (1 << 30));
 }
 
-// TODO implement removeInstance(string name, size_t index)
+size_t Batcher::addInstance(string name, Instance instance) {
+	namesForUpdate.insert(name);
 
-void Batcher::addInstance(string name, Instance instance) {
 	if (batches[name].free.size() == 0) {
 		size_t oldSize = batches[name].instances.size();
 		size_t newSize = (oldSize == 0) ? 1 : oldSize * 2;
@@ -159,25 +159,30 @@ void Batcher::addInstance(string name, Instance instance) {
 		batches[name].instances.reserve(newSize);
 		batches[name].instances.push_back(instance);
 
-		// for (size_t i = oldSize + 1; i < newSize; i++) {
-		// 	batches[name].instances.push_back(VACUUM);
-		// 	batches[name].free.push_back(i);
-		// }
-
-		// TODO for now, use return index value from Batcher::addInstance()
-		for (size_t i = newSize - 1; i >= oldSize + 1; i--) {
+		for (size_t i = oldSize + 1; i < newSize; i++) {
 			batches[name].instances.push_back(VACUUM);
 			batches[name].free.push_back(i);
 		}
 
 		lava->resizeInstanceBuffer(indexes[name], batches[name].instances);
 		printf("Resized batch '%s' for %lld instances\n", name.data(), batches[name].instances.size());
+		return oldSize;
 
 	} else {
-		size_t free = batches[name].free.back();
+		size_t freeSlot = batches[name].free.back();
 		batches[name].free.pop_back();
-		batches[name].instances[free] = instance;
+		batches[name].instances[freeSlot] = instance;
+		return freeSlot;
 	}
+}
+
+void Batcher::removeInstance(string name, size_t index) {
+	namesForUpdate.insert(name);
+
+	batches[name].instances[index] = VACUUM;
+	batches[name].free.push_back(index);
+
+	// TODO implement shrink, maybe
 }
 
 void Batcher::updateInstance(string name, size_t index, Instance instance) {

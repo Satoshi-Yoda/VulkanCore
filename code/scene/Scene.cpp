@@ -1,5 +1,6 @@
 #include "Scene.h"
 
+#include <algorithm>
 #include <chrono>
 #include <iostream>
 #include <random>
@@ -8,7 +9,6 @@
 
 #include "../core/Lava.h"
 #include "../utils/Loader.h"
-// #include "../utils/utils.h"
 
 using namespace std;
 
@@ -21,8 +21,8 @@ void Scene::init() {
 
 	// printf("Lava: sprite %.0fx%.0f\n", round(width * scale), round(height * scale));
 
-	int extent_h = 800 / 2;
-	int extent_w = 1500 / 2;
+	extent_h = 800 / 2;
+	extent_w = 1500 / 2;
 
 	// full scale
 	// int N = 1840000;   // static
@@ -30,7 +30,7 @@ void Scene::init() {
 	// int N = 1700000; // stream with instances (92% from static) 780 Mb/second
 	// int N = 100000; // dynamic 10% with instances
 	float percent = 0.012;
-	int N = 301;
+	N = 301;
 
 	// 0.5 scale
 	// int N = 5888000;
@@ -47,8 +47,11 @@ void Scene::init() {
 	for (float y = -extent_h; y < extent_h; y += step)
 	{
 		Instance instance { { x, y } };
-		batcher.addInstance("bomb.6", instance);
-		instances.push_back(instance);
+		size_t index = batcher.addInstance("bomb.6", instance);
+		instances[index] = instance;
+		if (distribution(random) < percent) {
+			updatableIndexes.push_back(index);
+		}
 	}
 
 	// printf("Lava: %lld sprites\n", instances.size());
@@ -86,15 +89,11 @@ void Scene::init() {
 	// instances.shrink_to_fit();
 */
 
-	mt19937_64 random {};
-	uniform_int_distribution<size_t> distribution { 0, instances.size() - 1 };
-
-	for (int i = 0; i < N * percent; i++) {
-		size_t index = distribution(random);
-		updatableIndexes.push_back(index);
-	}
+	// for (int i = 0; i < N * percent; i++) {
+	// 	size_t index = distribution(random);
+	// 	updatableIndexes.push_back(index);
+	// }
 }
-
 
 void Scene::update(double t, double dt) {
 	for (auto i : updatableIndexes) {
@@ -104,9 +103,38 @@ void Scene::update(double t, double dt) {
 		batcher.updateInstance("bomb.6", i, instances[i]);
 	}
 
+	uniform_int_distribution<size_t> indexDistribution { 0, static_cast<size_t>(N * 2.5) };
+
+	if (distribution(random) <  500 * dt) {
+		for (int i = 0; i < 100000; i++) {
+			size_t index = indexDistribution(random);
+
+			if (instances.find(index) != instances.end())
+			if (find(updatableIndexes.begin(), updatableIndexes.end(), index) == updatableIndexes.end())
+			{
+				instances.erase(index);
+				batcher.removeInstance("bomb.6", index);
+				break;
+			}
+		}
+	}
+
+	uniform_int_distribution<int> xDistribution { -extent_w, extent_w };
+	uniform_int_distribution<int> yDistribution { -extent_h, extent_h };
+
+	if (distribution(random) <  500 * dt) {
+		Instance instance { { xDistribution(random), yDistribution(random) } };
+		size_t index = batcher.addInstance("bomb.6", instance);
+		instances[index] = instance;
+	}
+
 	// TODO
 	// so, if changed about 1% or less, then updateInstances(), else updateInstanceBuffer()
 	// and updateInstances() loads CPU, but updateInstanceBuffer() loads PCI-E,
 	// lava.updateInstances(lavaObjectId, instances, updatableIndexes);
 	// lava.updateInstanceBuffer(lavaObjectId, instances);
+}
+
+size_t Scene::sprites() {
+	return instances.size();
 }
