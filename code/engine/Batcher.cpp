@@ -20,6 +20,7 @@ Batcher::~Batcher() {}
 void Batcher::loadFolder(string folder) {
 	auto start = chrono::high_resolution_clock::now();
 
+	size_t i = 0;
 	for (const auto& entry : filesystem::directory_iterator(folder)) {
 		string name = entry.path().stem().string();
 
@@ -33,6 +34,8 @@ void Batcher::loadFolder(string folder) {
 		data.height = tempHeight;
 		data.vertices = initQuad(tempWidth, tempHeight);
 		batches[name] = data;
+		indexes[name] = i;
+		i++;
 	}
 
 	printf("Loaded %s/*.png in %.3fs\n", folder.data(), chrono::duration_cast<chrono::duration<double>>(chrono::high_resolution_clock::now() - start).count());
