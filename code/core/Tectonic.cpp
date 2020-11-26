@@ -109,6 +109,7 @@ void Tectonic::updateInFlightUniformBuffer() {
 	memcpy(uniformBuffersAllocationInfos[inFlightIndex].pMappedData, &ubo, sizeof(ubo));
 }
 
+// TODO maybe this won't be needed when there will be only one in-flight frame
 void Tectonic::updateDescriptorSet(size_t frameIndex, size_t textureIndex, VkImageView& imageView) {
 	VkDescriptorImageInfo imageInfo {};
 	imageInfo.sampler = lava.textureSampler;
@@ -219,17 +220,6 @@ void Tectonic::prepareFrame(uint32_t craterIndex) {
 
 			vkCmdSetViewport(commandBuffers[inFlightIndex], 0, 1, &viewport);
 			vkCmdSetScissor (commandBuffers[inFlightIndex], 0, 1, &scissor);
-
-			// resizeDescriptorSets(lava.textureImageViews.size());
-
-			// for (size_t i = 0; i < lava.textureImageViews.size(); i++) {
-			// 	VkDeviceSize offsets[] { 0 };
-			// 	vkCmdBindVertexBuffers(commandBuffers[inFlightIndex], 0, 1, &lava.vertexBuffers[i], offsets);
-			// 	vkCmdBindVertexBuffers(commandBuffers[inFlightIndex], 1, 1, &lava.instanceBuffers[i], offsets);
-			// 	updateDescriptorSet(inFlightIndex, i, lava.textureImageViews[i]);
-			// 	vkCmdBindDescriptorSets(commandBuffers[inFlightIndex], VK_PIPELINE_BIND_POINT_GRAPHICS, lava.pipelineLayout, 0, 1, &descriptorSets[i][inFlightIndex], 0, nullptr);
-			// 	vkCmdDraw(commandBuffers[inFlightIndex], lava.vertexBufferSizes[i], lava.instanceBufferSizes[i], 0, 0);
-			// }
 
 			resizeDescriptorSets(lava.batchData.size());
 

@@ -182,7 +182,7 @@ void Batcher::removeInstance(string name, size_t index) {
 	batches[name].instances[index] = VACUUM;
 	batches[name].free.push_back(index);
 
-	// TODO implement shrink, maybe
+	// TODO implement shrink, maybe (nope)
 }
 
 void Batcher::updateInstance(string name, size_t index, Instance instance) {

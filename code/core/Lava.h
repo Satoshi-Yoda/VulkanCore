@@ -12,25 +12,16 @@
 #define GLM_FORCE_RADIANS
 #include <glm/glm.hpp>
 
+#include "Cave.h"
+#include "Crater.h"
 #include "Mountain.h"
 #include "Rocks.h"
-#include "Crater.h"
 
 using std::array;
 using std::mutex;
 using std::vector;
 using glm::vec2;
 using glm::vec3;
-
-// TODO maybe move Vertex into separate file
-struct Vertex {
-	vec2 pos;
-	vec2 texCoord;
-};
-
-struct Instance {
-	vec2 pos;
-};
 
 // TODO
 // Cave
