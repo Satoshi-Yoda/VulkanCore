@@ -32,17 +32,35 @@ struct Instance {
 	vec2 pos;
 };
 
-enum class CaveAspect {
-	WORKING_VERTICES,
-	WORKING_INSTANCES,
-	WORKING_TEXTURE,
-	STAGING_VERTICES,
-	STAGING_INSTANCES,
-	STAGING_TEXTURE,
-	LIVE_VERTICES,
-	LIVE_INSTANCES,
-	LIVE_TEXTURE,
+enum class CaveAspects : uint16_t {
+	WORKING_VERTICES  = 1 << 0,
+	WORKING_INSTANCES = 1 << 1,
+	WORKING_TEXTURE   = 1 << 2,
+	STAGING_VERTICES  = 1 << 3,
+	STAGING_INSTANCES = 1 << 4,
+	STAGING_TEXTURE   = 1 << 5,
+	LIVE_VERTICES     = 1 << 6,
+	LIVE_INSTANCES    = 1 << 7,
+	LIVE_TEXTURE      = 1 << 8,
 };
+
+inline constexpr CaveAspects operator|(CaveAspects a, CaveAspects b) {
+	return static_cast<CaveAspects>(a | b);
+}
+
+inline constexpr CaveAspects operator&(CaveAspects a, CaveAspects b) {
+	return static_cast<CaveAspects>(a & b);
+}
+
+inline constexpr CaveAspects& operator|=(CaveAspects& a, CaveAspects b) {
+	a = static_cast<CaveAspects>(a | b);
+	return a;
+}
+
+inline constexpr CaveAspects& operator&=(CaveAspects& a, CaveAspects b) {
+	a = static_cast<CaveAspects>(a & b);
+	return a;
+}
 
 // TODO
 // Cave
@@ -58,10 +76,10 @@ enum class CaveAspect {
 
 class Cave {
 public:
-	Cave();
+	Cave(vector<Vertex> vertices, int width, int height, void* pixels);
 	~Cave();
 
-	set<CaveAspect> aspects;
+	CaveAspects aspects;
 
 	string name;
 
@@ -94,6 +112,10 @@ public:
 	VkBuffer stagingTextureBuffer;
 	VmaAllocation stagingTextureAllocation;
 	VmaAllocationInfo stagingTextureInfo;
+
+	void establishAspects(CaveAspects aspects);
+
+	bool canBeDrawn();
 };
 
 #endif
