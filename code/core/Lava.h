@@ -77,6 +77,7 @@ public:
 	VkSampler textureSampler;
 
 	vector<BatchLiveData> batchData;
+	vector<Cave> caves;
 
 	size_t addBatch(BatchCreateData& createData);
 	void addBatches(vector<BatchCreateData> createDataVector);
