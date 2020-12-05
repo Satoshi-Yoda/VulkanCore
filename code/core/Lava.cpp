@@ -537,7 +537,7 @@ void Lava::establishTextureVMA(int width, int height, void* pixels, size_t index
 	VmaAllocation& stagingAllocation = batchData[index].stagingTextureAllocation;
 	VmaAllocationInfo& stagingInfo   = batchData[index].stagingTextureInfo;
 
-	int mipLevels = 1;
+	uint32_t mipLevels = 1;
 	// mipLevels = static_cast<uint32_t>(floor(log2(max(width, height)))) + 1;
 	VkDeviceSize imageSize = width * height * 4;
 

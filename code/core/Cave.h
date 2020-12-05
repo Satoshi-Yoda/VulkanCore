@@ -15,7 +15,7 @@
 
 // #include "Mountain.h"
 #include "Rocks.h"
-// #include "Crater.h"
+#include "Crater.h"
 
 using glm::vec2;
 using glm::vec3;
@@ -76,7 +76,7 @@ inline constexpr CaveAspects& operator&=(CaveAspects& a, CaveAspects b) {
 
 class Cave {
 public:
-	Cave(Rocks& rocks, vector<Vertex> vertices, int width, int height, void* pixels);
+	Cave(Rocks& rocks, Crater& crater, vector<Vertex> vertices, int width, int height, void* pixels);
 	~Cave();
 
 	CaveAspects aspects;
@@ -121,13 +121,14 @@ public:
 
 private:
 	Rocks& rocks;
+	Crater& crater;
 
 	void establishStagingVertices();
 	void establishStagingInstances();
 	void establishStagingTexture();
-	void establishLiveVertices();
-	void establishLiveInstances();
-	void establishLiveTexture();
+	void establishLiveVertices(VkCommandBuffer externalCommandBuffer);
+	void establishLiveInstances(VkCommandBuffer externalCommandBuffer);
+	void establishLiveTexture(VkCommandBuffer externalCommandBuffer);
 };
 
 #endif
