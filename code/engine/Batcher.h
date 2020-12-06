@@ -7,6 +7,7 @@
 #include <unordered_map>
 #include <vector>
 
+#include "../core/Cave.h"
 #include "../core/Lava.h"
 
 using std::map;
@@ -33,6 +34,7 @@ private:
 	const Instance VACUUM { { 1e16f, 1e16f } };
 
 	map<string, BatchCreateData> batches;
+	map<string, Cave> caves;
 	map<string, size_t> indexes;
 	set<string> namesForUpdate;
 

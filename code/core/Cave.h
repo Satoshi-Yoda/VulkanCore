@@ -47,20 +47,20 @@ enum class CaveAspects : uint16_t {
 };
 
 inline constexpr CaveAspects operator|(CaveAspects a, CaveAspects b) {
-	return static_cast<CaveAspects>(a | b);
+	return static_cast<CaveAspects>(static_cast<uint16_t>(a) | static_cast<uint16_t>(b));
 }
 
 inline constexpr CaveAspects operator&(CaveAspects a, CaveAspects b) {
-	return static_cast<CaveAspects>(a & b);
+	return static_cast<CaveAspects>(static_cast<uint16_t>(a) & static_cast<uint16_t>(b));
 }
 
 inline constexpr CaveAspects& operator|=(CaveAspects& a, CaveAspects b) {
-	a = static_cast<CaveAspects>(a | b);
+	a = static_cast<CaveAspects>(static_cast<uint16_t>(a) | static_cast<uint16_t>(b));
 	return a;
 }
 
 inline constexpr CaveAspects& operator&=(CaveAspects& a, CaveAspects b) {
-	a = static_cast<CaveAspects>(a & b);
+	a = static_cast<CaveAspects>(static_cast<uint16_t>(a) & static_cast<uint16_t>(b));
 	return a;
 }
 
@@ -78,9 +78,10 @@ inline constexpr CaveAspects& operator&=(CaveAspects& a, CaveAspects b) {
 
 class Cave {
 public:
-	Cave(vector<Vertex> vertices, int width, int height, void* pixels);
+	Cave();
 	~Cave();
 
+	void setWorkingData(vector<Vertex> vertices, int width, int height, void* pixels);
 	void setVulkanEntities(Rocks& rocks, Crater& crater);
 
 	CaveAspects aspects;

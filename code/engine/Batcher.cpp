@@ -8,7 +8,6 @@
 #include <thread>
 
 #include "../utils/Loader.h"
-#include "../core/Cave.h"
 
 using namespace std;
 
@@ -29,7 +28,8 @@ void Batcher::loadFolder(string folder) {
 
 		vector<Vertex> vertices = initQuad(width, height);
 
-		Cave cave { vertices, width, height, pixels };
+		Cave cave {};
+		cave.setWorkingData(vertices, width, height, pixels);
 
 		BatchCreateData data {};
 		data.pixels = pixels;
@@ -37,6 +37,7 @@ void Batcher::loadFolder(string folder) {
 		data.height = height;
 		data.vertices = vertices;
 		batches[name] = data;
+		caves[name] = cave;
 		indexes[name] = i;
 		i++;
 	}
@@ -78,15 +79,17 @@ void Batcher::loadFolderNth(string folder, uint32_t workers) {
 
 				vector<Vertex> vertices = initQuad(width, height);
 
-				putMutex.lock();
-					Cave cave { vertices, width, height, pixels };
+				Cave cave {};
+				cave.setWorkingData(vertices, width, height, pixels);
 
+				putMutex.lock();
 					BatchCreateData data {};
 					data.pixels = pixels;
 					data.width  = width;
 					data.height = height;
 					data.vertices = vertices;
 					batches[name] = data;
+					caves[name] = cave;
 					indexes[name] = i;
 				putMutex.unlock();
 			}

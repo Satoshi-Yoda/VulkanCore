@@ -8,10 +8,20 @@ using glm::vec3;
 
 using namespace std;
 
-Cave::Cave(vector<Vertex> vertices, int width, int height, void* pixels) : vertices(vertices), width(width), height(height), pixels(pixels) { }
+Cave::Cave() {
+	aspects = CaveAspects::NONE;
+}
 
 Cave::~Cave() {
 	// TODO free all allocated things
+}
+
+void Cave::setWorkingData(vector<Vertex> vertices, int width, int height, void* pixels) {
+	this->vertices = vertices;
+	this->width = width;
+	this->height = height;
+	this->pixels = pixels;
+	aspects |= (CaveAspects::WORKING_VERTICES | CaveAspects::WORKING_INSTANCES | CaveAspects::WORKING_TEXTURE);
 }
 
 void Cave::setVulkanEntities(Rocks& rocks, Crater& crater) {
