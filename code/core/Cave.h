@@ -33,6 +33,7 @@ struct Instance {
 };
 
 enum class CaveAspects : uint16_t {
+	NONE = 0,
 	WORKING_VERTICES  = 1 << 0,
 	WORKING_INSTANCES = 1 << 1,
 	WORKING_TEXTURE   = 1 << 2,
@@ -129,9 +130,9 @@ private:
 	void establishStagingVertices();
 	void establishStagingInstances();
 	void establishStagingTexture();
-	void establishLiveVertices(VkCommandBuffer externalCommandBuffer);
-	void establishLiveInstances(VkCommandBuffer externalCommandBuffer);
-	void establishLiveTexture(VkCommandBuffer externalCommandBuffer);
+	void establishLiveVertices(VkCommandBuffer externalCommandBuffer = nullptr);
+	void establishLiveInstances(VkCommandBuffer externalCommandBuffer = nullptr);
+	void establishLiveTexture(VkCommandBuffer externalCommandBuffer = nullptr);
 };
 
 #endif

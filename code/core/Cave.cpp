@@ -25,7 +25,13 @@ bool Cave::has(CaveAspects aspects) {
 }
 
 void Cave::establish(CaveAspects aspects) {
-	// TODO implement
+	if ((aspects & CaveAspects::STAGING_VERTICES)  != CaveAspects::NONE) establishStagingVertices();
+	if ((aspects & CaveAspects::STAGING_INSTANCES) != CaveAspects::NONE) establishStagingInstances();
+	if ((aspects & CaveAspects::STAGING_TEXTURE)   != CaveAspects::NONE) establishStagingTexture();
+	if ((aspects & CaveAspects::LIVE_VERTICES)     != CaveAspects::NONE) establishLiveVertices();
+	if ((aspects & CaveAspects::LIVE_INSTANCES)    != CaveAspects::NONE) establishLiveInstances();
+	if ((aspects & CaveAspects::LIVE_TEXTURE)      != CaveAspects::NONE) establishLiveTexture();
+
 	this->aspects |= aspects;
 }
 
