@@ -7,9 +7,8 @@
 #include <random>
 #include <thread>
 
-// #include "../core/Lava.h"
-// #include "../core/Tectonic.h"
 #include "../utils/Loader.h"
+#include "../core/Cave.h"
 
 using namespace std;
 
@@ -24,15 +23,19 @@ void Batcher::loadFolder(string folder) {
 	for (const auto& entry : filesystem::directory_iterator(folder)) {
 		string name = entry.path().stem().string();
 
-		void* tempPixels;
-		int tempWidth, tempHeight;
-		loadTexture(entry.path().string(), tempPixels, &tempWidth, &tempHeight);
+		void* pixels;
+		int width, height;
+		loadTexture(entry.path().string(), pixels, &width, &height);
+
+		vector<Vertex> vertices = initQuad(width, height);
+
+		Cave cave { vertices, width, height, pixels };
 
 		BatchCreateData data {};
-		data.pixels = tempPixels;
-		data.width  = tempWidth;
-		data.height = tempHeight;
-		data.vertices = initQuad(tempWidth, tempHeight);
+		data.pixels = pixels;
+		data.width  = width;
+		data.height = height;
+		data.vertices = vertices;
 		batches[name] = data;
 		indexes[name] = i;
 		i++;
@@ -68,17 +71,21 @@ void Batcher::loadFolderNth(string folder, uint32_t workers) {
 			for (uint32_t i = start; i < start + length; i++) {
 				string name = files[i].stem().string();
 				// string name = files[i].string();
-				void* tempPixels;
-				int tempWidth, tempHeight;
+				void* pixels;
+				int width, height;
 
-				loadTexture(files[i].string(), tempPixels, &tempWidth, &tempHeight);
+				loadTexture(files[i].string(), pixels, &width, &height);
+
+				vector<Vertex> vertices = initQuad(width, height);
 
 				putMutex.lock();
+					Cave cave { vertices, width, height, pixels };
+
 					BatchCreateData data {};
-					data.pixels = tempPixels;
-					data.width  = tempWidth;
-					data.height = tempHeight;
-					data.vertices = initQuad(tempWidth, tempHeight);
+					data.pixels = pixels;
+					data.width  = width;
+					data.height = height;
+					data.vertices = vertices;
 					batches[name] = data;
 					indexes[name] = i;
 				putMutex.unlock();

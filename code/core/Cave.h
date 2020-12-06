@@ -42,6 +42,7 @@ enum class CaveAspects : uint16_t {
 	LIVE_VERTICES     = 1 << 6,
 	LIVE_INSTANCES    = 1 << 7,
 	LIVE_TEXTURE      = 1 << 8,
+	VULKAN_ENTITIES   = 1 << 9,
 };
 
 inline constexpr CaveAspects operator|(CaveAspects a, CaveAspects b) {
@@ -76,8 +77,10 @@ inline constexpr CaveAspects& operator&=(CaveAspects& a, CaveAspects b) {
 
 class Cave {
 public:
-	Cave(Rocks& rocks, Crater& crater, vector<Vertex> vertices, int width, int height, void* pixels);
+	Cave(vector<Vertex> vertices, int width, int height, void* pixels);
 	~Cave();
+
+	void setVulkanEntities(Rocks& rocks, Crater& crater);
 
 	CaveAspects aspects;
 
@@ -120,8 +123,8 @@ public:
 	bool canBeDrawn();
 
 private:
-	Rocks& rocks;
-	Crater& crater;
+	Rocks* rocks;
+	Crater* crater;
 
 	void establishStagingVertices();
 	void establishStagingInstances();
