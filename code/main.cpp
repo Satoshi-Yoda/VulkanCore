@@ -23,7 +23,7 @@ int main() {
 		Batcher batcher {};
 
 		thread loadSceneThread([&](){
-			batcher.loadFolderNth("_crops_harvester", 12);
+			batcher.loadFolderNth("_crops_one", 12);
 			// batcher.loadFolder("_crops_harvester");
 		});
 

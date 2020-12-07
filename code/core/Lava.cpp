@@ -33,12 +33,18 @@ Lava::~Lava() {
 		vmaDestroyBuffer(mountain.allocator, batchData[i].stagingTextureBuffer, batchData[i].stagingTextureAllocation);
 	}
 
+	for (auto& cave : caves) {
+		cave.free(cave.aspects);
+	}
+
 	if (descriptorSetLayout  != VK_NULL_HANDLE) vkDestroyDescriptorSetLayout(mountain.device, descriptorSetLayout, nullptr);
 	if (descriptorSetLayout2 != VK_NULL_HANDLE) vkDestroyDescriptorSetLayout(mountain.device, descriptorSetLayout2, nullptr);
  
 	if (pipelineLayout       != VK_NULL_HANDLE) vkDestroyPipelineLayout(mountain.device, pipelineLayout, nullptr);
 	if (pipeline             != VK_NULL_HANDLE) vkDestroyPipeline(mountain.device, pipeline, nullptr);
 	if (renderPass           != VK_NULL_HANDLE) vkDestroyRenderPass(mountain.device, renderPass, nullptr);
+
+	printf("Lava destructor is here\n");
 }
 
 void Lava::createRenderPass() {

@@ -13,7 +13,12 @@ Cave::Cave() {
 }
 
 Cave::~Cave() {
+	// printf("Cave %s destructor is here\n", name.data());
 	// this->free(aspects);
+}
+
+void Cave::setName(string name) {
+	this->name = name;
 }
 
 void Cave::setWorkingData(vector<Vertex> vertices, int width, int height, void* pixels) {
@@ -43,28 +48,31 @@ void Cave::establish(CaveAspects aspects) {
 	if ((aspects & CaveAspects::LIVE_INSTANCES)    != CaveAspects::NONE) establishLiveInstances();
 	if ((aspects & CaveAspects::LIVE_TEXTURE)      != CaveAspects::NONE) establishLiveTexture();
 
-	this->aspects |= aspects;
+	// this->aspects |= aspects;
+
+	bitset<16> b(static_cast<uint16_t>(this->aspects));
+	cout << "Cave '" << name.data() << "' after establish has aspects: " << b << endl;
 }
 
-void Cave::refresh(CaveAspects aspects) {
-	if ((aspects & CaveAspects::STAGING_INSTANCES) != CaveAspects::NONE) freeStagingInstances();
-	if ((aspects & CaveAspects::LIVE_INSTANCES)    != CaveAspects::NONE) freeLiveInstances();
+// void Cave::refresh(CaveAspects aspects) {
+// 	if ((aspects & CaveAspects::STAGING_INSTANCES) != CaveAspects::NONE) freeStagingInstances();
+// 	if ((aspects & CaveAspects::LIVE_INSTANCES)    != CaveAspects::NONE) freeLiveInstances();
 
-	if ((aspects & CaveAspects::STAGING_INSTANCES) != CaveAspects::NONE) establishStagingInstances();
-	if ((aspects & CaveAspects::LIVE_INSTANCES)    != CaveAspects::NONE) establishLiveInstances();
-
-	this->aspects |= aspects;
-}
+// 	if ((aspects & CaveAspects::STAGING_INSTANCES) != CaveAspects::NONE) establishStagingInstances();
+// 	if ((aspects & CaveAspects::LIVE_INSTANCES)    != CaveAspects::NONE) establishLiveInstances();
+// }
 
 void Cave::free(CaveAspects aspects) {
+	bitset<16> b(static_cast<uint16_t>(aspects));
+	cout << "Cave '" << name.data() << "' free " << b << " is here" << endl;
+
+	// TODO check if aspects actually exists here
 	if ((aspects & CaveAspects::STAGING_VERTICES)  != CaveAspects::NONE) freeStagingVertices();
 	if ((aspects & CaveAspects::STAGING_INSTANCES) != CaveAspects::NONE) freeStagingInstances();
 	if ((aspects & CaveAspects::STAGING_TEXTURE)   != CaveAspects::NONE) freeStagingTexture();
 	if ((aspects & CaveAspects::LIVE_VERTICES)     != CaveAspects::NONE) freeLiveVertices();
 	if ((aspects & CaveAspects::LIVE_INSTANCES)    != CaveAspects::NONE) freeLiveInstances();
 	if ((aspects & CaveAspects::LIVE_TEXTURE)      != CaveAspects::NONE) freeLiveTexture();
-
-	this->aspects &= aspects;
 }
 
 bool Cave::canBeDrawn() {
@@ -205,24 +213,36 @@ void Cave::freeStagingVertices() {
 	// TODO can be optimized by calling this later in future frames, without wait, or something
 	vkQueueWaitIdle(mountain->queue);
 	vmaDestroyBuffer(mountain->allocator, stagingVertexBuffer, stagingVertexAllocation);
+	printf("Cave '%s' freeStagingVertices is here\n", name.data());
 }
 
 void Cave::freeStagingInstances() {
-
+	vkQueueWaitIdle(mountain->queue);
+	vmaDestroyBuffer(mountain->allocator, stagingInstanceBuffer, stagingInstanceAllocation);
+	printf("Cave '%s' freeStagingInstances is here\n", name.data());
 }
 
 void Cave::freeStagingTexture() {
-
+	vkQueueWaitIdle(mountain->queue);
+	vmaDestroyBuffer(mountain->allocator, stagingTextureBuffer, stagingTextureAllocation);
+	printf("Cave '%s' freeStagingTexture is here\n", name.data());
 }
 
 void Cave::freeLiveVertices() {
-
+	vkQueueWaitIdle(mountain->queue);
+	vmaDestroyBuffer(mountain->allocator, vertexBuffer, vertexAllocation);
+	printf("Cave '%s' freeLiveVertices is here\n", name.data());
 }
 
 void Cave::freeLiveInstances() {
-
+	vkQueueWaitIdle(mountain->queue);
+	vmaDestroyBuffer(mountain->allocator, instanceBuffer, instanceAllocation);
+	printf("Cave '%s' freeLiveInstances is here\n", name.data());
 }
 
 void Cave::freeLiveTexture() {
-
+	vkQueueWaitIdle(mountain->queue);
+	vkDestroyImageView(mountain->device, textureView, nullptr);
+	vmaDestroyImage(mountain->allocator, textureImage, textureAllocation);
+	printf("Cave '%s' freeLiveTexture is here\n", name.data());
 }

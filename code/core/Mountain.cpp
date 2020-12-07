@@ -60,6 +60,8 @@ Mountain::Mountain(Ash &ash) : ash(ash) {
 }
 
 Mountain::~Mountain() {
+	printf("Mountain destructor is here\n");
+
 	if (device != VK_NULL_HANDLE) {
 		vkDeviceWaitIdle(device);
 	}
@@ -150,7 +152,7 @@ void Mountain::createInstance() {
 	appInfo.pApplicationName = "VulkanCore";
 	appInfo.applicationVersion = VK_MAKE_VERSION(0, 0, 0);
 	appInfo.pEngineName = "Engine";
-	appInfo.engineVersion = VK_MAKE_VERSION(0, 1, 42);
+	appInfo.engineVersion = VK_MAKE_VERSION(0, 1, 43);
 	appInfo.apiVersion = VK_API_VERSION_1_0;
 
 	auto requiredExtensions = getRequiredExtensions();

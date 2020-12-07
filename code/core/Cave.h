@@ -1,6 +1,7 @@
 #ifndef CAVE_H
 #define CAVE_H
 
+#include <bitset>
 #include <set>
 #include <string>
 #include <vector>
@@ -19,6 +20,7 @@
 
 using glm::vec2;
 using glm::vec3;
+using std::bitset;
 using std::set;
 using std::string;
 using std::vector;
@@ -81,6 +83,7 @@ public:
 	Cave();
 	~Cave();
 
+	void setName(string name);
 	void setWorkingData(vector<Vertex> vertices, int width, int height, void* pixels);
 	void setVulkanEntities(Mountain& mountain, Rocks& rocks, Crater& crater);
 
@@ -120,7 +123,7 @@ public:
 
 	bool has(CaveAspects aspects);
 	void establish(CaveAspects aspects);
-	void refresh(CaveAspects aspects);
+	// void refresh(CaveAspects aspects);
 	void free(CaveAspects aspects);
 
 	bool canBeDrawn();

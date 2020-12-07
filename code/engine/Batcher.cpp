@@ -80,6 +80,7 @@ void Batcher::loadFolderNth(string folder, uint32_t workers) {
 				vector<Vertex> vertices = initQuad(width, height);
 
 				Cave cave {};
+				cave.setName(name);
 				cave.setWorkingData(vertices, width, height, pixels);
 
 				putMutex.lock();
