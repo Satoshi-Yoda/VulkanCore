@@ -82,7 +82,7 @@ public:
 	~Cave();
 
 	void setWorkingData(vector<Vertex> vertices, int width, int height, void* pixels);
-	void setVulkanEntities(Rocks& rocks, Crater& crater);
+	void setVulkanEntities(Mountain& mountain, Rocks& rocks, Crater& crater);
 
 	CaveAspects aspects;
 
@@ -120,11 +120,13 @@ public:
 
 	bool has(CaveAspects aspects);
 	void establish(CaveAspects aspects);
+	void refresh(CaveAspects aspects);
 	void free(CaveAspects aspects);
 
 	bool canBeDrawn();
 
 private:
+	Mountain* mountain;
 	Rocks* rocks;
 	Crater* crater;
 
@@ -134,6 +136,12 @@ private:
 	void establishLiveVertices(VkCommandBuffer externalCommandBuffer = nullptr);
 	void establishLiveInstances(VkCommandBuffer externalCommandBuffer = nullptr);
 	void establishLiveTexture(VkCommandBuffer externalCommandBuffer = nullptr);
-};
 
+	void freeStagingVertices();
+	void freeStagingInstances();
+	void freeStagingTexture();
+	void freeLiveVertices();
+	void freeLiveInstances();
+	void freeLiveTexture();
+};
 #endif

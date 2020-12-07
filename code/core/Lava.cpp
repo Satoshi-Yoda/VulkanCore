@@ -436,27 +436,27 @@ void Lava::resizeInstanceBuffer(size_t index, vector<Instance> instances, VkComm
 	}
 }
 
-void Lava::resizeInstanceBuffers(vector<size_t> indexVector, vector<vector<Instance>> instancesVector) {
-	#ifdef use_validation
-	if (indexVector.size() != instancesVector.size()) {
-		throw invalid_argument("Lava::resizeInstanceBuffers() wrong params!");
-	}
-	#endif
+// void Lava::resizeInstanceBuffers(vector<size_t> indexVector, vector<vector<Instance>> instancesVector) {
+// 	#ifdef use_validation
+// 	if (indexVector.size() != instancesVector.size()) {
+// 		throw invalid_argument("Lava::resizeInstanceBuffers() wrong params!");
+// 	}
+// 	#endif
 
-	VkCommandBuffer commandBuffer = rocks.beginSingleTimeCommands();
+// 	VkCommandBuffer commandBuffer = rocks.beginSingleTimeCommands();
 
-	for (size_t i = 0; i < indexVector.size(); i++) {
-		#ifdef use_validation
-		if (instancesVector[i].size() == batchData[indexVector[i]].instanceCount) {
-			throw invalid_argument("Lava::resizeInstanceBuffers() wrong params!");
-		}
-		#endif
+// 	for (size_t i = 0; i < indexVector.size(); i++) {
+// 		#ifdef use_validation
+// 		if (instancesVector[i].size() == batchData[indexVector[i]].instanceCount) {
+// 			throw invalid_argument("Lava::resizeInstanceBuffers() wrong params!");
+// 		}
+// 		#endif
 
-		resizeInstanceBuffer(indexVector[i], instancesVector[i], commandBuffer);
-	}
+// 		resizeInstanceBuffer(indexVector[i], instancesVector[i], commandBuffer);
+// 	}
 
-	rocks.endSingleTimeCommands(commandBuffer);
-}
+// 	rocks.endSingleTimeCommands(commandBuffer);
+// }
 
 void Lava::updateInstanceBuffer(size_t index, vector<Instance> instances) {
 #ifdef use_validation
@@ -476,7 +476,7 @@ void Lava::updateInstanceBuffer(size_t index, vector<Instance> instances) {
 	rocks.copyBufferToBuffer(stagingBuffer, buffer, bufferSize, VK_ACCESS_VERTEX_ATTRIBUTE_READ_BIT);
 }
 
-void Lava::updateInstances(size_t index, vector<Instance> instances, vector<size_t> indexes) {
+// void Lava::updateInstances(size_t index, vector<Instance> instances, vector<size_t> indexes) {
 	/*
 	// Instance* stagingVector = reinterpret_cast<Instance*>(stagingInstanceBufferMappedPointers[index]);
 	Instance* stagingVector = reinterpret_cast<Instance*>(stagingInstanceBufferAllocationInfos[index].pMappedData);
@@ -499,7 +499,7 @@ void Lava::updateInstances(size_t index, vector<Instance> instances, vector<size
 
 	rocks.copyBufferToBuffer(stagingBuffer, buffer, regions, VK_ACCESS_VERTEX_ATTRIBUTE_READ_BIT);
 	*/
-}
+// }
 
 // void Lava::establishTexture(int width, int height, void* pixels, VkImage& textureImage, VkImageView& textureImageView, VkDeviceMemory& textureImageMemory) {
 // 	int mipLevels = 1;
@@ -592,6 +592,10 @@ void Lava::addBatches(vector<BatchCreateData> createDataVector) {
 		index++;
 	}
 	rocks.endSingleTimeCommands(commandBuffer);
+}
+
+void Lava::addCave(Cave& cave) {
+	this->caves.push_back(cave);
 }
 
 void Lava::createTextureSampler() {

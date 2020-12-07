@@ -81,10 +81,11 @@ public:
 
 	size_t addBatch(BatchCreateData& createData);
 	void addBatches(vector<BatchCreateData> createDataVector);
+	void addCave(Cave& cave);
 	void resizeInstanceBuffer(size_t index, vector<Instance> instances, VkCommandBuffer externalCommandBuffer = nullptr);
-	void resizeInstanceBuffers(vector<size_t> indexVector, vector<vector<Instance>> instancesVector);
+	// void resizeInstanceBuffers(vector<size_t> indexVector, vector<vector<Instance>> instancesVector);
 	void updateInstanceBuffer(size_t index, vector<Instance> instances);
-	void updateInstances(size_t index, vector<Instance> instances, vector<size_t> indexes);
+	// void updateInstances(size_t index, vector<Instance> instances, vector<size_t> indexes);
 
 private:
 	Ash& ash;

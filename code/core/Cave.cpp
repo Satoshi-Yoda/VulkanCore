@@ -13,7 +13,7 @@ Cave::Cave() {
 }
 
 Cave::~Cave() {
-	// TODO free all allocated things
+	// this->free(aspects);
 }
 
 void Cave::setWorkingData(vector<Vertex> vertices, int width, int height, void* pixels) {
@@ -24,7 +24,8 @@ void Cave::setWorkingData(vector<Vertex> vertices, int width, int height, void* 
 	aspects |= (CaveAspects::WORKING_VERTICES | CaveAspects::WORKING_INSTANCES | CaveAspects::WORKING_TEXTURE);
 }
 
-void Cave::setVulkanEntities(Rocks& rocks, Crater& crater) {
+void Cave::setVulkanEntities(Mountain& mountain, Rocks& rocks, Crater& crater) {
+	this->mountain = &mountain;
 	this->rocks = &rocks;
 	this->crater = &crater;
 	aspects |= CaveAspects::VULKAN_ENTITIES;
@@ -45,8 +46,24 @@ void Cave::establish(CaveAspects aspects) {
 	this->aspects |= aspects;
 }
 
+void Cave::refresh(CaveAspects aspects) {
+	if ((aspects & CaveAspects::STAGING_INSTANCES) != CaveAspects::NONE) freeStagingInstances();
+	if ((aspects & CaveAspects::LIVE_INSTANCES)    != CaveAspects::NONE) freeLiveInstances();
+
+	if ((aspects & CaveAspects::STAGING_INSTANCES) != CaveAspects::NONE) establishStagingInstances();
+	if ((aspects & CaveAspects::LIVE_INSTANCES)    != CaveAspects::NONE) establishLiveInstances();
+
+	this->aspects |= aspects;
+}
+
 void Cave::free(CaveAspects aspects) {
-	// TODO implement
+	if ((aspects & CaveAspects::STAGING_VERTICES)  != CaveAspects::NONE) freeStagingVertices();
+	if ((aspects & CaveAspects::STAGING_INSTANCES) != CaveAspects::NONE) freeStagingInstances();
+	if ((aspects & CaveAspects::STAGING_TEXTURE)   != CaveAspects::NONE) freeStagingTexture();
+	if ((aspects & CaveAspects::LIVE_VERTICES)     != CaveAspects::NONE) freeLiveVertices();
+	if ((aspects & CaveAspects::LIVE_INSTANCES)    != CaveAspects::NONE) freeLiveInstances();
+	if ((aspects & CaveAspects::LIVE_TEXTURE)      != CaveAspects::NONE) freeLiveTexture();
+
 	this->aspects &= aspects;
 }
 
@@ -182,4 +199,30 @@ void Cave::establishLiveTexture(VkCommandBuffer externalCommandBuffer) {
 	textureView = rocks->createImageView(textureImage, preferred8bitFormat, VK_IMAGE_ASPECT_COLOR_BIT, mipLevels);
 
 	aspects |= CaveAspects::LIVE_TEXTURE;
+}
+
+void Cave::freeStagingVertices() {
+	// TODO can be optimized by calling this later in future frames, without wait, or something
+	vkQueueWaitIdle(mountain->queue);
+	vmaDestroyBuffer(mountain->allocator, stagingVertexBuffer, stagingVertexAllocation);
+}
+
+void Cave::freeStagingInstances() {
+
+}
+
+void Cave::freeStagingTexture() {
+
+}
+
+void Cave::freeLiveVertices() {
+
+}
+
+void Cave::freeLiveInstances() {
+
+}
+
+void Cave::freeLiveTexture() {
+
 }

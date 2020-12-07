@@ -35,7 +35,7 @@ int main() {
 		Tectonic tectonic { ash, mountain, rocks, crater, lava };
 
 		loadSceneThread.join();
-		batcher.establish(lava);
+		batcher.establish(mountain, rocks, crater, lava);
 
 		Scene scene { batcher };
 		scene.init();
@@ -72,7 +72,7 @@ int main() {
 		}
 
 	} catch (const exception& e) {
-		cout << "ERROR" << e.what() << endl;
+		cout << "ERROR " << e.what() << endl;
 		return EXIT_FAILURE;
 	}
 

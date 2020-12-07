@@ -139,14 +139,10 @@ void Batcher::addSampleInstance(string name) {
 	addInstance(name, { { x(random), y(random) } });
 }
 
-void Batcher::establish(Lava& lava) {
+void Batcher::establish(Mountain& mountain, Rocks& rocks, Crater& crater, Lava& lava) {
 	this->lava = &lava;
 
 	auto start = chrono::high_resolution_clock::now();
-
-	// for (auto& it : batches) {
-	// 	lava.addBatch(it.second);
-	// }
 
 	vector<BatchCreateData> dataVector {};
 	for (auto& it : batches) {
@@ -154,8 +150,18 @@ void Batcher::establish(Lava& lava) {
 	}
 	lava.addBatches(dataVector);
 
+	for (auto& it : caves) {
+		auto& cave = it.second;
+		lava.addCave(cave);
+		cave.setVulkanEntities(mountain, rocks, crater);
+		cave.establish(CaveAspects::STAGING_VERTICES | CaveAspects::STAGING_INSTANCES | CaveAspects::STAGING_TEXTURE);
+
+		// TODO use sheduler worker with own commandBuffer as worker for this task
+		cave.establish(CaveAspects::LIVE_VERTICES | CaveAspects::LIVE_INSTANCES | CaveAspects::LIVE_TEXTURE);
+	}
+
 	auto time = chrono::duration_cast<chrono::duration<double>>(chrono::high_resolution_clock::now() - start).count();
-	printf("Established %lld lava objects (%lld Mb textures) in %.3fs (%.2f Gb/s)\n", batches.size(), texturesBytes / (1 << 20), time, texturesBytes / time / (1 << 30));
+	printf("Established %lld caves (%lld Mb textures) in %.3fs (%.2f Gb/s)\n", batches.size(), texturesBytes / (1 << 20), time, texturesBytes / time / (1 << 30));
 }
 
 size_t Batcher::addInstance(string name, Instance instance) {
@@ -207,6 +213,12 @@ void Batcher::update(double t, double dt) {
 	}
 
 	namesForUpdate.clear();
+
+
+
+
+
+
 
 	// auto start = chrono::high_resolution_clock::now();
 	// bool resized = false;
