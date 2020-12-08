@@ -90,7 +90,7 @@ public:
 
 	void setName(string name);
 	void setWorkingData(vector<Vertex> vertices, int width, int height, void* pixels);
-	void setVulkanEntities(Mountain& mountain, Rocks& rocks, Crater& crater);
+	void setVulkanEntities(Ash& ash, Mountain& mountain, Rocks& rocks, Crater& crater);
 
 	CaveAspects aspects;
 
@@ -134,6 +134,7 @@ public:
 	bool canBeDrawn();
 
 private:
+	Ash* ash;
 	Mountain* mountain;
 	Rocks* rocks;
 	Crater* crater;

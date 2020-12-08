@@ -39,8 +39,6 @@ Lava::~Lava() {
 	if (pipelineLayout       != VK_NULL_HANDLE) vkDestroyPipelineLayout(mountain.device, pipelineLayout, nullptr);
 	if (pipeline             != VK_NULL_HANDLE) vkDestroyPipeline(mountain.device, pipeline, nullptr);
 	if (renderPass           != VK_NULL_HANDLE) vkDestroyRenderPass(mountain.device, renderPass, nullptr);
-
-	printf("Lava destructor is here\n");
 }
 
 void Lava::createRenderPass() {

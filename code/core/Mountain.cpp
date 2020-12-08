@@ -60,8 +60,6 @@ Mountain::Mountain(Ash &ash) : ash(ash) {
 }
 
 Mountain::~Mountain() {
-	printf("Mountain destructor is here\n");
-
 	if (device != VK_NULL_HANDLE) {
 		vkDeviceWaitIdle(device);
 	}

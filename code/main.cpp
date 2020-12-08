@@ -23,7 +23,7 @@ int main() {
 		Batcher batcher {};
 
 		thread loadSceneThread([&](){
-			batcher.loadFolderNth("_crops_one", 12);
+			batcher.loadFolderNth("_crops_harvester", 12);
 			// batcher.loadFolder("_crops_harvester");
 		});
 
@@ -35,7 +35,7 @@ int main() {
 		Tectonic tectonic { ash, mountain, rocks, crater, lava };
 
 		loadSceneThread.join();
-		batcher.establish(mountain, rocks, crater, lava);
+		batcher.establish(ash, mountain, rocks, crater, lava);
 
 		Scene scene { batcher };
 		scene.init();

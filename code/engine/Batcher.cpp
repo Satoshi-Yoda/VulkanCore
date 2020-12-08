@@ -148,7 +148,7 @@ void Batcher::addSampleInstance(string name) {
 	addInstance(name, { { x(random), y(random) } });
 }
 
-void Batcher::establish(Mountain& mountain, Rocks& rocks, Crater& crater, Lava& lava) {
+void Batcher::establish(Ash& ash, Mountain& mountain, Rocks& rocks, Crater& crater, Lava& lava) {
 	this->lava = &lava;
 
 	auto start = chrono::high_resolution_clock::now();
@@ -161,13 +161,9 @@ void Batcher::establish(Mountain& mountain, Rocks& rocks, Crater& crater, Lava& 
 
 	for (auto& it : caves) {
 		auto& cave = it.second;
-
-		cave->setVulkanEntities(mountain, rocks, crater);
+		cave->setVulkanEntities(ash, mountain, rocks, crater);
 		cave->establish(CaveAspects::STAGING_VERTICES | CaveAspects::STAGING_INSTANCES | CaveAspects::STAGING_TEXTURE);
-
-		// TODO use sheduler worker with own commandBuffer as worker for this task
-		cave->establish(CaveAspects::LIVE_VERTICES | CaveAspects::LIVE_INSTANCES | CaveAspects::LIVE_TEXTURE);
-
+		cave->establish(CaveAspects::LIVE_VERTICES | CaveAspects::LIVE_INSTANCES | CaveAspects::LIVE_TEXTURE); // TODO use sheduler worker with own commandBuffer as worker for this task
 		lava.addCave(move(cave));
 	}
 

@@ -9,12 +9,12 @@ using glm::vec3;
 using namespace std;
 
 Cave::Cave() {
-	cout << "Cave created" << endl;
+	// cout << "Cave created" << endl;
 	aspects = CaveAspects::NONE;
 }
 
 Cave::~Cave() {
-	printf("Cave '%s' destructor is here\n", name.data());
+	// printf("Cave '%s' destructor is here\n", name.data());
 	this->free(aspects);
 }
 
@@ -30,7 +30,8 @@ void Cave::setWorkingData(vector<Vertex> vertices, int width, int height, void* 
 	aspects |= (CaveAspects::WORKING_VERTICES | CaveAspects::WORKING_INSTANCES | CaveAspects::WORKING_TEXTURE);
 }
 
-void Cave::setVulkanEntities(Mountain& mountain, Rocks& rocks, Crater& crater) {
+void Cave::setVulkanEntities(Ash& ash, Mountain& mountain, Rocks& rocks, Crater& crater) {
+	this->ash = &ash;
 	this->mountain = &mountain;
 	this->rocks = &rocks;
 	this->crater = &crater;
@@ -51,8 +52,8 @@ void Cave::establish(CaveAspects aspects) {
 
 	// this->aspects |= aspects;
 
-	bitset<16> b(static_cast<uint16_t>(this->aspects));
-	cout << "Cave '" << name.data() << "' after establish has aspects: " << b << endl;
+	// bitset<16> b(static_cast<uint16_t>(this->aspects));
+	// cout << "Cave '" << name.data() << "' after establish has aspects: " << b << endl;
 }
 
 // void Cave::refresh(CaveAspects aspects) {
@@ -64,8 +65,8 @@ void Cave::establish(CaveAspects aspects) {
 // }
 
 void Cave::free(CaveAspects aspects) {
-	bitset<16> b(static_cast<uint16_t>(aspects));
-	cout << "Cave '" << name.data() << "' free " << b << " is here" << endl;
+	// bitset<16> b(static_cast<uint16_t>(aspects));
+	// cout << "Cave '" << name.data() << "' free " << b << " is here" << endl;
 
 	// TODO check if aspects actually exists here
 	if ((aspects & CaveAspects::STAGING_VERTICES)  != CaveAspects::NONE) freeStagingVertices();
@@ -82,9 +83,7 @@ bool Cave::canBeDrawn() {
 
 void Cave::establishStagingVertices() {
 	#ifdef use_validation
-	if (!has(CaveAspects::WORKING_VERTICES | CaveAspects::VULKAN_ENTITIES)) {
-		throw logic_error("In this cave there is no WORKING_VERTICES or no VULKAN_ENTITIES");
-	}
+	has(CaveAspects::WORKING_VERTICES | CaveAspects::VULKAN_ENTITIES) >> (*ash)("In this cave there is no WORKING_VERTICES or no VULKAN_ENTITIES");
 	#endif
 
 	vertexCount = static_cast<uint32_t>(vertices.size());
@@ -98,9 +97,7 @@ void Cave::establishStagingVertices() {
 
 void Cave::establishStagingInstances() {
 	#ifdef use_validation
-	if (!has(CaveAspects::WORKING_INSTANCES | CaveAspects::VULKAN_ENTITIES)) {
-		throw logic_error("In this cave there is no WORKING_INSTANCES or no VULKAN_ENTITIES");
-	}
+	has(CaveAspects::WORKING_INSTANCES | CaveAspects::VULKAN_ENTITIES) >> (*ash)("In this cave there is no WORKING_INSTANCES or no VULKAN_ENTITIES");
 	#endif
 
 	instanceCount = static_cast<uint32_t>(instances.size());
@@ -115,9 +112,7 @@ void Cave::establishStagingInstances() {
 
 void Cave::establishStagingTexture() {
 	#ifdef use_validation
-	if (!has(CaveAspects::WORKING_TEXTURE | CaveAspects::VULKAN_ENTITIES)) {
-		throw logic_error("In this cave there is no WORKING_TEXTURE or no VULKAN_ENTITIES");
-	}
+	has(CaveAspects::WORKING_TEXTURE | CaveAspects::VULKAN_ENTITIES) >> (*ash)("In this cave there is no WORKING_TEXTURE or no VULKAN_ENTITIES");
 	#endif
 
 	VkDeviceSize imageSize = width * height * 4;
@@ -130,9 +125,7 @@ void Cave::establishStagingTexture() {
 
 void Cave::establishLiveVertices(VkCommandBuffer externalCommandBuffer) {
 	#ifdef use_validation
-	if (!has(CaveAspects::STAGING_VERTICES | CaveAspects::VULKAN_ENTITIES)) {
-		throw logic_error("In this cave there is no STAGING_VERTICES or no VULKAN_ENTITIES");
-	}
+	has(CaveAspects::STAGING_VERTICES | CaveAspects::VULKAN_ENTITIES) >> (*ash)("In this cave there is no STAGING_VERTICES or no VULKAN_ENTITIES");
 	#endif
 
 	VkDeviceSize bufferSize = sizeof(Vertex) * vertexCount;
@@ -152,13 +145,12 @@ void Cave::establishLiveVertices(VkCommandBuffer externalCommandBuffer) {
 }
 
 void Cave::establishLiveInstances(VkCommandBuffer externalCommandBuffer) {
+	if (instanceCount == 0) return;
+
 	#ifdef use_validation
-	if (!has(CaveAspects::STAGING_INSTANCES | CaveAspects::VULKAN_ENTITIES)) {
-		throw logic_error("In this cave there is no STAGING_INSTANCES or no VULKAN_ENTITIES");
-	}
+	has(CaveAspects::STAGING_INSTANCES | CaveAspects::VULKAN_ENTITIES) >> (*ash)("In this cave there is no STAGING_INSTANCES or no VULKAN_ENTITIES");
 	#endif
 
-	if (instanceCount == 0) return;
 	VkDeviceSize bufferSize = sizeof(Instance) * instanceCount;
 
 	rocks->createBufferVMA(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VMA_MEMORY_USAGE_GPU_ONLY, instanceBuffer, instanceAllocation, instanceInfo);
@@ -177,9 +169,7 @@ void Cave::establishLiveInstances(VkCommandBuffer externalCommandBuffer) {
 
 void Cave::establishLiveTexture(VkCommandBuffer externalCommandBuffer) {
 	#ifdef use_validation
-	if (!has(CaveAspects::STAGING_TEXTURE | CaveAspects::VULKAN_ENTITIES)) {
-		throw logic_error("In this cave there is no STAGING_TEXTURE or no VULKAN_ENTITIES");
-	}
+	has(CaveAspects::STAGING_TEXTURE | CaveAspects::VULKAN_ENTITIES) >> (*ash)("In this cave there is no STAGING_TEXTURE or no VULKAN_ENTITIES");
 	#endif
 
 	auto preferred8bitFormat = crater->USE_GAMMA_CORRECT ? VK_FORMAT_R8G8B8A8_SRGB : VK_FORMAT_R8G8B8A8_UNORM;
@@ -211,36 +201,30 @@ void Cave::freeStagingVertices() {
 	// TODO can be optimized by calling this later in future frames, without wait, or something
 	vkQueueWaitIdle(mountain->queue);
 	vmaDestroyBuffer(mountain->allocator, stagingVertexBuffer, stagingVertexAllocation);
-	printf("Cave '%s' freeStagingVertices is here\n", name.data());
 }
 
 void Cave::freeStagingInstances() {
 	vkQueueWaitIdle(mountain->queue);
 	vmaDestroyBuffer(mountain->allocator, stagingInstanceBuffer, stagingInstanceAllocation);
-	printf("Cave '%s' freeStagingInstances is here\n", name.data());
 }
 
 void Cave::freeStagingTexture() {
 	vkQueueWaitIdle(mountain->queue);
 	vmaDestroyBuffer(mountain->allocator, stagingTextureBuffer, stagingTextureAllocation);
-	printf("Cave '%s' freeStagingTexture is here\n", name.data());
 }
 
 void Cave::freeLiveVertices() {
 	vkQueueWaitIdle(mountain->queue);
 	vmaDestroyBuffer(mountain->allocator, vertexBuffer, vertexAllocation);
-	printf("Cave '%s' freeLiveVertices is here\n", name.data());
 }
 
 void Cave::freeLiveInstances() {
 	vkQueueWaitIdle(mountain->queue);
 	vmaDestroyBuffer(mountain->allocator, instanceBuffer, instanceAllocation);
-	printf("Cave '%s' freeLiveInstances is here\n", name.data());
 }
 
 void Cave::freeLiveTexture() {
 	vkQueueWaitIdle(mountain->queue);
 	vkDestroyImageView(mountain->device, textureView, nullptr);
 	vmaDestroyImage(mountain->allocator, textureImage, textureAllocation);
-	printf("Cave '%s' freeLiveTexture is here\n", name.data());
 }

@@ -24,7 +24,7 @@ public:
 
 	void loadFolder(string folder);
 	void loadFolderNth(string folder, uint32_t workers = 1);
-	void establish(Mountain& mountain, Rocks& rocks, Crater& crater, Lava& lava);
+	void establish(Ash& ash, Mountain& mountain, Rocks& rocks, Crater& crater, Lava& lava);
 	size_t addInstance(string name, Instance instance);
 	void removeInstance(string name, size_t index);
 	void updateInstance(string name, size_t index, Instance instance);
