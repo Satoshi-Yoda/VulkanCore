@@ -2,6 +2,7 @@
 #define BATCHER_H
 
 #include <map>
+#include <memory>
 #include <set>
 #include <string>
 #include <unordered_map>
@@ -13,6 +14,7 @@
 using std::map;
 using std::set;
 using std::string;
+using std::unique_ptr;
 using std::unordered_map;
 
 class Batcher {
@@ -34,7 +36,7 @@ private:
 	const Instance VACUUM { { 1e16f, 1e16f } };
 
 	map<string, BatchCreateData> batches;
-	map<string, Cave> caves;
+	map<string, unique_ptr<Cave>> caves;
 	map<string, size_t> indexes;
 	set<string> namesForUpdate;
 

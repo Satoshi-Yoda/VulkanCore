@@ -83,6 +83,11 @@ public:
 	Cave();
 	~Cave();
 
+	Cave(const Cave&)            = delete;
+	Cave(Cave&&)                 = delete;
+	Cave& operator=(const Cave&) = delete;
+	Cave& operator=(Cave&&)      = delete;
+
 	void setName(string name);
 	void setWorkingData(vector<Vertex> vertices, int width, int height, void* pixels);
 	void setVulkanEntities(Mountain& mountain, Rocks& rocks, Crater& crater);

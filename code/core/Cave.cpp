@@ -9,12 +9,13 @@ using glm::vec3;
 using namespace std;
 
 Cave::Cave() {
+	cout << "Cave created" << endl;
 	aspects = CaveAspects::NONE;
 }
 
 Cave::~Cave() {
-	// printf("Cave %s destructor is here\n", name.data());
-	// this->free(aspects);
+	printf("Cave '%s' destructor is here\n", name.data());
+	this->free(aspects);
 }
 
 void Cave::setName(string name) {
@@ -135,9 +136,6 @@ void Cave::establishLiveVertices(VkCommandBuffer externalCommandBuffer) {
 	#endif
 
 	VkDeviceSize bufferSize = sizeof(Vertex) * vertexCount;
-
-	rocks->createBufferVMA(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VMA_MEMORY_USAGE_CPU_ONLY, stagingVertexBuffer, stagingVertexAllocation, stagingVertexInfo);
-	memcpy(stagingVertexInfo.pMappedData, vertices.data(), static_cast<size_t>(bufferSize));
 
 	rocks->createBufferVMA(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VMA_MEMORY_USAGE_GPU_ONLY, vertexBuffer, vertexAllocation, vertexInfo);
 

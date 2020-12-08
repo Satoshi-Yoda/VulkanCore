@@ -28,8 +28,12 @@ void Batcher::loadFolder(string folder) {
 
 		vector<Vertex> vertices = initQuad(width, height);
 
-		Cave cave {};
-		cave.setWorkingData(vertices, width, height, pixels);
+		// Cave cave {};
+		// cave.setWorkingData(vertices, width, height, pixels);
+
+		unique_ptr<Cave> cave = make_unique<Cave>();
+		cave->setName(name);
+		cave->setWorkingData(vertices, width, height, pixels);
 
 		BatchCreateData data {};
 		data.pixels = pixels;
@@ -37,7 +41,7 @@ void Batcher::loadFolder(string folder) {
 		data.height = height;
 		data.vertices = vertices;
 		batches[name] = data;
-		caves[name] = cave;
+		caves[name] = move(cave);
 		indexes[name] = i;
 		i++;
 	}
@@ -79,9 +83,13 @@ void Batcher::loadFolderNth(string folder, uint32_t workers) {
 
 				vector<Vertex> vertices = initQuad(width, height);
 
-				Cave cave {};
-				cave.setName(name);
-				cave.setWorkingData(vertices, width, height, pixels);
+				unique_ptr<Cave> cave = make_unique<Cave>();
+				cave->setName(name);
+				cave->setWorkingData(vertices, width, height, pixels);
+
+				// Cave cave {};
+				// cave.setName(name);
+				// cave.setWorkingData(vertices, width, height, pixels);
 
 				putMutex.lock();
 					BatchCreateData data {};
@@ -90,7 +98,7 @@ void Batcher::loadFolderNth(string folder, uint32_t workers) {
 					data.height = height;
 					data.vertices = vertices;
 					batches[name] = data;
-					caves[name] = cave;
+					caves[name] = move(cave);
 					indexes[name] = i;
 				putMutex.unlock();
 			}
@@ -153,12 +161,14 @@ void Batcher::establish(Mountain& mountain, Rocks& rocks, Crater& crater, Lava& 
 
 	for (auto& it : caves) {
 		auto& cave = it.second;
-		lava.addCave(cave);
-		cave.setVulkanEntities(mountain, rocks, crater);
-		cave.establish(CaveAspects::STAGING_VERTICES | CaveAspects::STAGING_INSTANCES | CaveAspects::STAGING_TEXTURE);
+
+		cave->setVulkanEntities(mountain, rocks, crater);
+		cave->establish(CaveAspects::STAGING_VERTICES | CaveAspects::STAGING_INSTANCES | CaveAspects::STAGING_TEXTURE);
 
 		// TODO use sheduler worker with own commandBuffer as worker for this task
-		cave.establish(CaveAspects::LIVE_VERTICES | CaveAspects::LIVE_INSTANCES | CaveAspects::LIVE_TEXTURE);
+		cave->establish(CaveAspects::LIVE_VERTICES | CaveAspects::LIVE_INSTANCES | CaveAspects::LIVE_TEXTURE);
+
+		lava.addCave(move(cave));
 	}
 
 	auto time = chrono::duration_cast<chrono::duration<double>>(chrono::high_resolution_clock::now() - start).count();

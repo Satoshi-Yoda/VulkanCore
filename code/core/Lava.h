@@ -1,6 +1,7 @@
 #ifndef LAVA_H
 #define LAVA_H
 
+#include <memory>
 #include <mutex>
 #include <vector>
 
@@ -19,6 +20,7 @@
 
 using std::array;
 using std::mutex;
+using std::unique_ptr;
 using std::vector;
 using glm::vec2;
 using glm::vec3;
@@ -77,11 +79,11 @@ public:
 	VkSampler textureSampler;
 
 	vector<BatchLiveData> batchData;
-	vector<Cave> caves;
+	vector<unique_ptr<Cave>> caves;
 
 	size_t addBatch(BatchCreateData& createData);
 	void addBatches(vector<BatchCreateData> createDataVector);
-	void addCave(Cave& cave);
+	void addCave(unique_ptr<Cave> cave);
 	void resizeInstanceBuffer(size_t index, vector<Instance> instances, VkCommandBuffer externalCommandBuffer = nullptr);
 	// void resizeInstanceBuffers(vector<size_t> indexVector, vector<vector<Instance>> instancesVector);
 	void updateInstanceBuffer(size_t index, vector<Instance> instances);
