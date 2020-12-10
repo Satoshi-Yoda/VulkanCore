@@ -101,7 +101,7 @@ public:
 	int width;
 	int height;
 	void* pixels;
-	vector<size_t> unused;
+	vector<size_t> vacuum;
 
 	VkBuffer vertexBuffer;
 	VmaAllocation vertexAllocation;
@@ -128,7 +128,7 @@ public:
 
 	bool has(CaveAspects aspects);
 	void establish(CaveAspects aspects);
-	// void refresh(CaveAspects aspects);
+	void refresh(CaveAspects aspects);
 	void free(CaveAspects aspects);
 
 	bool canBeDrawn();

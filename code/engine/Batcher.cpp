@@ -164,6 +164,7 @@ void Batcher::establish(Ash& ash, Mountain& mountain, Rocks& rocks, Crater& crat
 		cave->setVulkanEntities(ash, mountain, rocks, crater);
 		cave->establish(CaveAspects::STAGING_VERTICES | CaveAspects::STAGING_INSTANCES | CaveAspects::STAGING_TEXTURE);
 		cave->establish(CaveAspects::LIVE_VERTICES | CaveAspects::LIVE_INSTANCES | CaveAspects::LIVE_TEXTURE); // TODO use sheduler worker with own commandBuffer as worker for this task
+		cavesPtr[it.first] = it.second.get();
 		lava.addCave(move(cave));
 	}
 
@@ -173,6 +174,8 @@ void Batcher::establish(Ash& ash, Mountain& mountain, Rocks& rocks, Crater& crat
 
 size_t Batcher::addInstance(string name, Instance instance) {
 	namesForUpdate.insert(name);
+
+	size_t result = 0;
 
 	if (batches[name].free.size() == 0) {
 		size_t oldSize = batches[name].instances.size();
@@ -189,14 +192,43 @@ size_t Batcher::addInstance(string name, Instance instance) {
 
 		lava->resizeInstanceBuffer(indexes[name], batches[name].instances);
 		printf("Resized batch '%s' for %lld instances\n", name.data(), batches[name].instances.size());
-		return oldSize;
+		result = oldSize;
 
 	} else {
 		size_t freeSlot = batches[name].free.back();
 		batches[name].free.pop_back();
 		batches[name].instances[freeSlot] = instance;
-		return freeSlot;
+		result = freeSlot;
 	}
+
+	if (cavesPtr[name]->vacuum.size() == 0) {
+		size_t oldSize = cavesPtr[name]->instances.size();
+		size_t newSize = (oldSize == 0) ? 1 : oldSize * 2;
+
+		cavesPtr[name]->vacuum.reserve(newSize);
+		cavesPtr[name]->instances.reserve(newSize);
+		cavesPtr[name]->instances.push_back(instance);
+
+		for (size_t i = oldSize + 1; i < newSize; i++) {
+			cavesPtr[name]->instances.push_back(VACUUM);
+			cavesPtr[name]->vacuum.push_back(i);
+		}
+
+		printf("Cave '%s' marked for resize for %lld instances\n", name.data(), cavesPtr[name]->instances.size());
+
+		assert(result == oldSize);
+		// result = oldSize;
+
+	} else {
+		size_t freeSlot = cavesPtr[name]->vacuum.back();
+		cavesPtr[name]->vacuum.pop_back();
+		cavesPtr[name]->instances[freeSlot] = instance;
+		// printf("result %d == freeSlot %d\n", result, freeSlot);
+		assert(result == freeSlot);
+		// result = freeSlot;
+	}
+
+	return result;
 }
 
 void Batcher::removeInstance(string name, size_t index) {
@@ -205,11 +237,17 @@ void Batcher::removeInstance(string name, size_t index) {
 	batches[name].instances[index] = VACUUM;
 	batches[name].free.push_back(index);
 
+	cavesPtr[name]->instances[index] = VACUUM;
+	cavesPtr[name]->vacuum.push_back(index);
+
 	// TODO implement shrink, maybe (nope)
 }
 
 void Batcher::updateInstance(string name, size_t index, Instance instance) {
 	batches[name].instances[index] = instance;
+
+	cavesPtr[name]->instances[index] = instance;
+
 	namesForUpdate.insert(name);
 }
 
@@ -217,6 +255,7 @@ void Batcher::update(double t, double dt) {
 	for (auto& name : namesForUpdate) {
 		// TODO make Lava::updateInstanceBuffers()
 		lava->updateInstanceBuffer(indexes[name], batches[name].instances);
+		cavesPtr[name]->refresh(CaveAspects::STAGING_INSTANCES | CaveAspects::LIVE_INSTANCES);
 	}
 
 	namesForUpdate.clear();

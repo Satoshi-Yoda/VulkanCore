@@ -56,13 +56,19 @@ void Cave::establish(CaveAspects aspects) {
 	// cout << "Cave '" << name.data() << "' after establish has aspects: " << b << endl;
 }
 
-// void Cave::refresh(CaveAspects aspects) {
-// 	if ((aspects & CaveAspects::STAGING_INSTANCES) != CaveAspects::NONE) freeStagingInstances();
-// 	if ((aspects & CaveAspects::LIVE_INSTANCES)    != CaveAspects::NONE) freeLiveInstances();
+void Cave::refresh(CaveAspects aspects) {
+	// TODO check if aspects actually exists here
 
-// 	if ((aspects & CaveAspects::STAGING_INSTANCES) != CaveAspects::NONE) establishStagingInstances();
-// 	if ((aspects & CaveAspects::LIVE_INSTANCES)    != CaveAspects::NONE) establishLiveInstances();
-// }
+	if ((aspects & CaveAspects::STAGING_INSTANCES) != CaveAspects::NONE) {
+		freeStagingInstances();
+		establishStagingInstances();
+	}
+
+	if ((aspects & CaveAspects::LIVE_INSTANCES)    != CaveAspects::NONE) {
+		freeLiveInstances();
+		establishLiveInstances();
+	}
+}
 
 void Cave::free(CaveAspects aspects) {
 	// bitset<16> b(static_cast<uint16_t>(aspects));

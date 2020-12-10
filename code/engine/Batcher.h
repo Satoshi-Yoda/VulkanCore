@@ -37,6 +37,7 @@ private:
 
 	map<string, BatchCreateData> batches;
 	map<string, unique_ptr<Cave>> caves;
+	map<string, Cave*> cavesPtr;
 	map<string, size_t> indexes;
 	set<string> namesForUpdate;
 
