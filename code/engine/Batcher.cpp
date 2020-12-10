@@ -35,12 +35,12 @@ void Batcher::loadFolder(string folder) {
 		cave->setName(name);
 		cave->setWorkingData(vertices, width, height, pixels);
 
-		BatchCreateData data {};
-		data.pixels = pixels;
-		data.width  = width;
-		data.height = height;
-		data.vertices = vertices;
-		batches[name] = data;
+		// BatchCreateData data {};
+		// data.pixels = pixels;
+		// data.width  = width;
+		// data.height = height;
+		// data.vertices = vertices;
+		// batches[name] = data;
 		caves[name] = move(cave);
 		indexes[name] = i;
 		i++;
@@ -92,12 +92,12 @@ void Batcher::loadFolderNth(string folder, uint32_t workers) {
 				// cave.setWorkingData(vertices, width, height, pixels);
 
 				putMutex.lock();
-					BatchCreateData data {};
-					data.pixels = pixels;
-					data.width  = width;
-					data.height = height;
-					data.vertices = vertices;
-					batches[name] = data;
+					// BatchCreateData data {};
+					// data.pixels = pixels;
+					// data.width  = width;
+					// data.height = height;
+					// data.vertices = vertices;
+					// batches[name] = data;
 					caves[name] = move(cave);
 					indexes[name] = i;
 				putMutex.unlock();
@@ -111,7 +111,7 @@ void Batcher::loadFolderNth(string folder, uint32_t workers) {
 	for (const auto& file : files) {
 		string name = file.stem().string();
 		// string name = file.string();
-		texturesBytes += batches[name].width * batches[name].height * 4;
+		texturesBytes += caves[name]->width * caves[name]->height * 4;
 	}
 
 	printf("Loaded %lld .png files (%.2f Mb files) from %s in %.3fs\n", files.size(), 1.0 * fileSizes / (1 << 20), folder.data(), chrono::duration_cast<chrono::duration<double>>(chrono::high_resolution_clock::now() - start).count());
@@ -153,11 +153,11 @@ void Batcher::establish(Ash& ash, Mountain& mountain, Rocks& rocks, Crater& crat
 
 	auto start = chrono::high_resolution_clock::now();
 
-	vector<BatchCreateData> dataVector {};
-	for (auto& it : batches) {
-		dataVector.push_back(it.second);
-	}
-	lava.addBatches(dataVector);
+	// vector<BatchCreateData> dataVector {};
+	// for (auto& it : batches) {
+	// 	dataVector.push_back(it.second);
+	// }
+	// lava.addBatches(dataVector);
 
 	for (auto& it : caves) {
 		auto& cave = it.second;
@@ -169,7 +169,7 @@ void Batcher::establish(Ash& ash, Mountain& mountain, Rocks& rocks, Crater& crat
 	}
 
 	auto time = chrono::duration_cast<chrono::duration<double>>(chrono::high_resolution_clock::now() - start).count();
-	printf("Established %lld caves (%lld Mb textures) in %.3fs (%.2f Gb/s)\n", batches.size(), texturesBytes / (1 << 20), time, texturesBytes / time / (1 << 30));
+	printf("Established %lld caves (%lld Mb textures) in %.3fs (%.2f Gb/s)\n", caves.size(), texturesBytes / (1 << 20), time, texturesBytes / time / (1 << 30));
 }
 
 size_t Batcher::addInstance(string name, Instance instance) {
@@ -177,29 +177,29 @@ size_t Batcher::addInstance(string name, Instance instance) {
 
 	size_t result = 0;
 
-	if (batches[name].free.size() == 0) {
-		size_t oldSize = batches[name].instances.size();
-		size_t newSize = (oldSize == 0) ? 1 : oldSize * 2;
+	// if (batches[name].free.size() == 0) {
+	// 	size_t oldSize = batches[name].instances.size();
+	// 	size_t newSize = (oldSize == 0) ? 1 : oldSize * 2;
 
-		batches[name].free.reserve(newSize);
-		batches[name].instances.reserve(newSize);
-		batches[name].instances.push_back(instance);
+	// 	batches[name].free.reserve(newSize);
+	// 	batches[name].instances.reserve(newSize);
+	// 	batches[name].instances.push_back(instance);
 
-		for (size_t i = oldSize + 1; i < newSize; i++) {
-			batches[name].instances.push_back(VACUUM);
-			batches[name].free.push_back(i);
-		}
+	// 	for (size_t i = oldSize + 1; i < newSize; i++) {
+	// 		batches[name].instances.push_back(VACUUM);
+	// 		batches[name].free.push_back(i);
+	// 	}
 
-		lava->resizeInstanceBuffer(indexes[name], batches[name].instances);
-		printf("Resized batch '%s' for %lld instances\n", name.data(), batches[name].instances.size());
-		result = oldSize;
+	// 	lava->resizeInstanceBuffer(indexes[name], batches[name].instances);
+	// 	printf("Resized batch '%s' for %lld instances\n", name.data(), batches[name].instances.size());
+	// 	result = oldSize;
 
-	} else {
-		size_t freeSlot = batches[name].free.back();
-		batches[name].free.pop_back();
-		batches[name].instances[freeSlot] = instance;
-		result = freeSlot;
-	}
+	// } else {
+	// 	size_t freeSlot = batches[name].free.back();
+	// 	batches[name].free.pop_back();
+	// 	batches[name].instances[freeSlot] = instance;
+	// 	result = freeSlot;
+	// }
 
 	if (cavesPtr[name]->vacuum.size() == 0) {
 		size_t oldSize = cavesPtr[name]->instances.size();
@@ -216,16 +216,16 @@ size_t Batcher::addInstance(string name, Instance instance) {
 
 		printf("Cave '%s' marked for resize for %lld instances\n", name.data(), cavesPtr[name]->instances.size());
 
-		assert(result == oldSize);
-		// result = oldSize;
+		// assert(result == oldSize);
+		result = oldSize;
 
 	} else {
 		size_t freeSlot = cavesPtr[name]->vacuum.back();
 		cavesPtr[name]->vacuum.pop_back();
 		cavesPtr[name]->instances[freeSlot] = instance;
 		// printf("result %d == freeSlot %d\n", result, freeSlot);
-		assert(result == freeSlot);
-		// result = freeSlot;
+		// assert(result == freeSlot);
+		result = freeSlot;
 	}
 
 	return result;
@@ -234,8 +234,8 @@ size_t Batcher::addInstance(string name, Instance instance) {
 void Batcher::removeInstance(string name, size_t index) {
 	namesForUpdate.insert(name);
 
-	batches[name].instances[index] = VACUUM;
-	batches[name].free.push_back(index);
+	// batches[name].instances[index] = VACUUM;
+	// batches[name].free.push_back(index);
 
 	cavesPtr[name]->instances[index] = VACUUM;
 	cavesPtr[name]->vacuum.push_back(index);
@@ -244,7 +244,7 @@ void Batcher::removeInstance(string name, size_t index) {
 }
 
 void Batcher::updateInstance(string name, size_t index, Instance instance) {
-	batches[name].instances[index] = instance;
+	// batches[name].instances[index] = instance;
 
 	cavesPtr[name]->instances[index] = instance;
 
@@ -254,7 +254,7 @@ void Batcher::updateInstance(string name, size_t index, Instance instance) {
 void Batcher::update(double t, double dt) {
 	for (auto& name : namesForUpdate) {
 		// TODO make Lava::updateInstanceBuffers()
-		lava->updateInstanceBuffer(indexes[name], batches[name].instances);
+		// lava->updateInstanceBuffer(indexes[name], batches[name].instances);
 		cavesPtr[name]->refresh(CaveAspects::STAGING_INSTANCES | CaveAspects::LIVE_INSTANCES);
 	}
 

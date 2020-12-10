@@ -221,17 +221,30 @@ void Tectonic::prepareFrame(uint32_t craterIndex) {
 			vkCmdSetViewport(commandBuffers[inFlightIndex], 0, 1, &viewport);
 			vkCmdSetScissor (commandBuffers[inFlightIndex], 0, 1, &scissor);
 
-			resizeDescriptorSets(lava.batchData.size());
+			// resizeDescriptorSets(lava.batchData.size());
 
-			for (size_t i = 0; i < lava.batchData.size(); i++) {
-				if (lava.batchData[i].instanceCount == 0) continue;
+			// for (size_t i = 0; i < lava.batchData.size(); i++) {
+			// 	if (lava.batchData[i].instanceCount == 0) continue;
+
+			// 	VkDeviceSize offsets[] { 0 };
+			// 	vkCmdBindVertexBuffers(commandBuffers[inFlightIndex], 0, 1, &lava.batchData[i].vertexBuffer, offsets);
+			// 	vkCmdBindVertexBuffers(commandBuffers[inFlightIndex], 1, 1, &lava.batchData[i].instanceBuffer, offsets);
+			// 	updateDescriptorSet(inFlightIndex, i, lava.batchData[i].textureView);
+			// 	vkCmdBindDescriptorSets(commandBuffers[inFlightIndex], VK_PIPELINE_BIND_POINT_GRAPHICS, lava.pipelineLayout, 0, 1, &descriptorSets[i][inFlightIndex], 0, nullptr);
+			// 	vkCmdDraw(commandBuffers[inFlightIndex], lava.batchData[i].vertexCount, lava.batchData[i].instanceCount, 0, 0);
+			// }
+
+			resizeDescriptorSets(lava.caves.size());
+
+			for (size_t i = 0; i < lava.caves.size(); i++) {
+				if (lava.caves[i]->instanceCount == 0) continue;
 
 				VkDeviceSize offsets[] { 0 };
-				vkCmdBindVertexBuffers(commandBuffers[inFlightIndex], 0, 1, &lava.batchData[i].vertexBuffer, offsets);
-				vkCmdBindVertexBuffers(commandBuffers[inFlightIndex], 1, 1, &lava.batchData[i].instanceBuffer, offsets);
-				updateDescriptorSet(inFlightIndex, i, lava.batchData[i].textureView);
+				vkCmdBindVertexBuffers(commandBuffers[inFlightIndex], 0, 1, &lava.caves[i]->vertexBuffer, offsets);
+				vkCmdBindVertexBuffers(commandBuffers[inFlightIndex], 1, 1, &lava.caves[i]->instanceBuffer, offsets);
+				updateDescriptorSet(inFlightIndex, i, lava.caves[i]->textureView);
 				vkCmdBindDescriptorSets(commandBuffers[inFlightIndex], VK_PIPELINE_BIND_POINT_GRAPHICS, lava.pipelineLayout, 0, 1, &descriptorSets[i][inFlightIndex], 0, nullptr);
-				vkCmdDraw(commandBuffers[inFlightIndex], lava.batchData[i].vertexCount, lava.batchData[i].instanceCount, 0, 0);
+				vkCmdDraw(commandBuffers[inFlightIndex], lava.caves[i]->vertexCount, lava.caves[i]->instanceCount, 0, 0);
 			}
 
 		vkCmdEndRenderPass(commandBuffers[inFlightIndex]);
