@@ -45,7 +45,7 @@ private:
 	size_t texturesBytes;
 
 	vector<Vertex> initQuad(uint32_t w, uint32_t h);
-	void addSampleInstance(string name);
+	// void addSampleInstance(string name);
 };
 
 #endif

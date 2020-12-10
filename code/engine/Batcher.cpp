@@ -139,14 +139,14 @@ vector<Vertex> Batcher::initQuad(uint32_t w, uint32_t h) {
 	return result;
 }
 
-void Batcher::addSampleInstance(string name) {
-	random_device random {};
-	int border = 200;
-	uniform_int_distribution<int> x { - (1600 - border) / 2, (1600 - border) / 2 };
-	uniform_int_distribution<int> y { -  (900 - border) / 2,  (900 - border) / 2 };
+// void Batcher::addSampleInstance(string name) {
+// 	random_device random {};
+// 	int border = 200;
+// 	uniform_int_distribution<int> x { - (1600 - border) / 2, (1600 - border) / 2 };
+// 	uniform_int_distribution<int> y { -  (900 - border) / 2,  (900 - border) / 2 };
 
-	addInstance(name, { { x(random), y(random) } });
-}
+// 	addInstance(name, { { x(random), y(random) } });
+// }
 
 void Batcher::establish(Ash& ash, Mountain& mountain, Rocks& rocks, Crater& crater, Lava& lava) {
 	this->ash = &ash;
