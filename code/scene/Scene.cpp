@@ -103,9 +103,12 @@ void Scene::update(double t, double dt) {
 		batcher.updateInstance("bomb.6", i, instances[i]);
 	}
 
-	uniform_int_distribution<size_t> indexDistribution { 0, static_cast<size_t>(N * 2.5) };
+	
 
-	if (distribution(random) <  50 * dt) {
+	// if (distribution(random) <  500 * dt) {
+	if (t >= nextChange) {
+		uniform_int_distribution<size_t> indexDistribution { 0, static_cast<size_t>(N * 2.5) };
+
 		for (int i = 0; i < 100000; i++) {
 			size_t index = indexDistribution(random);
 
@@ -119,13 +122,16 @@ void Scene::update(double t, double dt) {
 		}
 	}
 
-	uniform_int_distribution<int> xDistribution { -extent_w, extent_w };
-	uniform_int_distribution<int> yDistribution { -extent_h, extent_h };
+	if (t >= nextChange) {
+	// if (distribution(random) <  500 * dt) {
+		uniform_int_distribution<int> xDistribution { -extent_w, extent_w };
+		uniform_int_distribution<int> yDistribution { -extent_h, extent_h };
 
-	if (distribution(random) <  50 * dt) {
 		Instance instance { { xDistribution(random), yDistribution(random) } };
 		size_t index = batcher.addInstance("bomb.6", instance);
 		instances[index] = instance;
+
+		nextChange = nextChange + 0.01;
 	}
 
 	// TODO

@@ -39,6 +39,7 @@ private:
 	uniform_real_distribution<double> distribution { 0.0, 1.0 };
 	int N;
 	int extent_w, extent_h;
+	double nextChange = 0.0f;
 };
 
 #endif
