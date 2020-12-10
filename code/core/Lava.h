@@ -81,12 +81,12 @@ public:
 	vector<BatchLiveData> batchData;
 	vector<unique_ptr<Cave>> caves;
 
-	size_t addBatch(BatchCreateData& createData);
-	void addBatches(vector<BatchCreateData> createDataVector);
+	// size_t addBatch(BatchCreateData& createData);
+	// void addBatches(vector<BatchCreateData> createDataVector);
 	void addCave(unique_ptr<Cave> cave);
-	void resizeInstanceBuffer(size_t index, vector<Instance> instances, VkCommandBuffer externalCommandBuffer = nullptr);
+	// void resizeInstanceBuffer(size_t index, vector<Instance> instances, VkCommandBuffer externalCommandBuffer = nullptr);
 	// void resizeInstanceBuffers(vector<size_t> indexVector, vector<vector<Instance>> instancesVector);
-	void updateInstanceBuffer(size_t index, vector<Instance> instances);
+	// void updateInstanceBuffer(size_t index, vector<Instance> instances);
 	// void updateInstances(size_t index, vector<Instance> instances, vector<size_t> indexes);
 
 private:

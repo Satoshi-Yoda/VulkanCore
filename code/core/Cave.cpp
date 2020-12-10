@@ -59,6 +59,10 @@ void Cave::establish(CaveAspects aspects) {
 void Cave::refresh(CaveAspects aspects) {
 	// TODO check if aspects actually exists here
 
+	// TODO if instances size does not changed then do not do allocations, just copy
+
+	// TODO implement copying of separate instances (regions)
+
 	if ((aspects & CaveAspects::STAGING_INSTANCES) != CaveAspects::NONE) {
 		freeStagingInstances();
 		establishStagingInstances();
