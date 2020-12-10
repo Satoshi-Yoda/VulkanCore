@@ -149,6 +149,7 @@ void Batcher::addSampleInstance(string name) {
 }
 
 void Batcher::establish(Ash& ash, Mountain& mountain, Rocks& rocks, Crater& crater, Lava& lava) {
+	this->ash = &ash;
 	this->lava = &lava;
 
 	auto start = chrono::high_resolution_clock::now();
@@ -232,6 +233,12 @@ size_t Batcher::addInstance(string name, Instance instance) {
 }
 
 void Batcher::removeInstance(string name, size_t index) {
+	#ifdef use_validation
+	char msg[100];
+	sprintf(msg, "Batcher::removeInstance(%s, %lld) => No such index!\n", name.data(), index);
+	(index < cavesPtr[name]->instances.size()) >> (*ash)(msg);
+	#endif
+
 	namesForUpdate.insert(name);
 
 	// batches[name].instances[index] = VACUUM;
@@ -244,6 +251,12 @@ void Batcher::removeInstance(string name, size_t index) {
 }
 
 void Batcher::updateInstance(string name, size_t index, Instance instance) {
+	#ifdef use_validation
+	char msg[100];
+	sprintf(msg, "Batcher::updateInstance(%s, %lld) => No such index!\n", name.data(), index);
+	(index < cavesPtr[name]->instances.size()) >> (*ash)(msg);
+	#endif
+
 	// batches[name].instances[index] = instance;
 
 	cavesPtr[name]->instances[index] = instance;

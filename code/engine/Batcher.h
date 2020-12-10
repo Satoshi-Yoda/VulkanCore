@@ -31,6 +31,7 @@ public:
 	void update(double t, double dt);
 
 private:
+	Ash* ash;
 	Lava* lava;
 
 	const Instance VACUUM { { 1e16f, 1e16f } };
