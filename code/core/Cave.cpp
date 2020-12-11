@@ -57,19 +57,21 @@ void Cave::establish(CaveAspects aspects) {
 }
 
 void Cave::refresh(CaveAspects aspects) {
-	// TODO check if aspects actually exists here
-
 	// TODO if instances size does not changed then do not do allocations, just copy
 
 	// TODO implement copying of separate instances (regions)
 
 	if ((aspects & CaveAspects::STAGING_INSTANCES) != CaveAspects::NONE) {
-		freeStagingInstances();
+		if ((this->aspects & CaveAspects::STAGING_INSTANCES) != CaveAspects::NONE) {
+			freeStagingInstances();
+		}
 		establishStagingInstances();
 	}
 
-	if ((aspects & CaveAspects::LIVE_INSTANCES)    != CaveAspects::NONE) {
-		freeLiveInstances();
+	if ((aspects & CaveAspects::LIVE_INSTANCES) != CaveAspects::NONE) {
+		if ((this->aspects & CaveAspects::LIVE_INSTANCES) != CaveAspects::NONE) {
+			freeLiveInstances();
+		}
 		establishLiveInstances();
 	}
 }
@@ -78,13 +80,12 @@ void Cave::free(CaveAspects aspects) {
 	// bitset<16> b(static_cast<uint16_t>(aspects));
 	// cout << "Cave '" << name.data() << "' free " << b << " is here" << endl;
 
-	// TODO check if aspects actually exists here
-	if ((aspects & CaveAspects::STAGING_VERTICES)  != CaveAspects::NONE) freeStagingVertices();
-	if ((aspects & CaveAspects::STAGING_INSTANCES) != CaveAspects::NONE) freeStagingInstances();
-	if ((aspects & CaveAspects::STAGING_TEXTURE)   != CaveAspects::NONE) freeStagingTexture();
-	if ((aspects & CaveAspects::LIVE_VERTICES)     != CaveAspects::NONE) freeLiveVertices();
-	if ((aspects & CaveAspects::LIVE_INSTANCES)    != CaveAspects::NONE) freeLiveInstances();
-	if ((aspects & CaveAspects::LIVE_TEXTURE)      != CaveAspects::NONE) freeLiveTexture();
+	if ((aspects & CaveAspects::STAGING_VERTICES)  != CaveAspects::NONE && (this->aspects & CaveAspects::STAGING_VERTICES)  != CaveAspects::NONE) freeStagingVertices();
+	if ((aspects & CaveAspects::STAGING_INSTANCES) != CaveAspects::NONE && (this->aspects & CaveAspects::STAGING_INSTANCES) != CaveAspects::NONE) freeStagingInstances();
+	if ((aspects & CaveAspects::STAGING_TEXTURE)   != CaveAspects::NONE && (this->aspects & CaveAspects::STAGING_TEXTURE)   != CaveAspects::NONE) freeStagingTexture();
+	if ((aspects & CaveAspects::LIVE_VERTICES)     != CaveAspects::NONE && (this->aspects & CaveAspects::LIVE_VERTICES)     != CaveAspects::NONE) freeLiveVertices();
+	if ((aspects & CaveAspects::LIVE_INSTANCES)    != CaveAspects::NONE && (this->aspects & CaveAspects::LIVE_INSTANCES)    != CaveAspects::NONE) freeLiveInstances();
+	if ((aspects & CaveAspects::LIVE_TEXTURE)      != CaveAspects::NONE && (this->aspects & CaveAspects::LIVE_TEXTURE)      != CaveAspects::NONE) freeLiveTexture();
 }
 
 bool Cave::canBeDrawn() {
