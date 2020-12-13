@@ -26,11 +26,11 @@ void Scene::init() {
 
 	// full scale
 	// int N = 1840000;   // static
-	// int N = 419560; // stream with vertices
-	// int N = 1700000; // stream with instances (92% from static) 780 Mb/second
+	// int N = 1700000; // old stream with instances (92% from static) 780 Mb/second
+	int N = 200000; // new stream with instances
 	// int N = 100000; // dynamic 10% with instances
-	float percent = 0.012;
-	N = 301;
+	float percent = 0.01;
+	// N = 301;
 
 	// 0.5 scale
 	// int N = 5888000;
