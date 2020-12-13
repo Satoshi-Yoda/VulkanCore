@@ -39,8 +39,8 @@ private:
 	map<string, unique_ptr<Cave>> caves;
 	map<string, Cave*> cavesPtr;
 	map<string, size_t> indexes;
-	set<string> namesForUpdate;
-	map<string, vector<size_t>> indexesForUpdate;
+	set<string> resizedNames;
+	map<string, vector<size_t>> touchedIndexes;
 
 	size_t texturesBytes;
 

@@ -149,8 +149,6 @@ void Batcher::establish(Ash& ash, Mountain& mountain, Rocks& rocks, Crater& crat
 }
 
 size_t Batcher::addInstance(string name, Instance instance) {
-	namesForUpdate.insert(name);
-
 	size_t result = 0;
 
 	if (cavesPtr[name]->vacuum.size() == 0) {
@@ -166,6 +164,7 @@ size_t Batcher::addInstance(string name, Instance instance) {
 			cavesPtr[name]->vacuum.push_back(i);
 		}
 
+		resizedNames.insert(name);
 		printf("Cave '%s' marked for resize for %lld instances\n", name.data(), cavesPtr[name]->instances.size());
 		result = oldSize;
 
@@ -175,6 +174,8 @@ size_t Batcher::addInstance(string name, Instance instance) {
 		cavesPtr[name]->instances[freeSlot] = instance;
 		result = freeSlot;
 	}
+
+	touchedIndexes[name].push_back(result);
 
 	return result;
 }
@@ -186,10 +187,9 @@ void Batcher::removeInstance(string name, size_t index) {
 	(index < cavesPtr[name]->instances.size()) >> (*ash)(msg);
 	#endif
 
-	namesForUpdate.insert(name);
-
 	cavesPtr[name]->instances[index] = VACUUM;
 	cavesPtr[name]->vacuum.push_back(index);
+	touchedIndexes[name].push_back(index);
 }
 
 void Batcher::updateInstance(string name, size_t index, Instance instance) {
@@ -200,17 +200,20 @@ void Batcher::updateInstance(string name, size_t index, Instance instance) {
 	#endif
 
 	cavesPtr[name]->instances[index] = instance;
-
-	namesForUpdate.insert(name);
+	touchedIndexes[name].push_back(index);
 }
 
 void Batcher::update(double t, double dt) {
-	for (auto& name : namesForUpdate) {
-		cavesPtr[name]->refresh(CaveAspects::STAGING_INSTANCES | CaveAspects::LIVE_INSTANCES);
+	for (auto& [name, value] : touchedIndexes) {
+		if (resizedNames.find(name) != resizedNames.end() || value.size() * 100 > cavesPtr[name]->instanceCount) {
+			cavesPtr[name]->refresh(CaveAspects::STAGING_INSTANCES | CaveAspects::LIVE_INSTANCES);
+		} else {
+			cavesPtr[name]->updateInstances(value);
+		}
+		value.clear();
 	}
 
-	namesForUpdate.clear();
-
+	resizedNames.clear();
 
 
 
