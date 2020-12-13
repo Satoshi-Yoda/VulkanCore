@@ -84,6 +84,28 @@ void Cave::refresh(CaveAspects aspects) {
 	}
 }
 
+void Cave::refreshInstances(vector<size_t> indexes) {
+	Instance* stagingVector = reinterpret_cast<Instance*>(stagingInstanceInfo.pMappedData);
+	for (auto& index : indexes) {
+		stagingVector[index] = instances[index];
+	}
+
+	vector<VkBufferCopy> regions;
+	regions.resize(indexes.size());
+
+	for (size_t i = 0; i < indexes.size(); i++) {
+		VkDeviceSize offset = indexes[i] * sizeof(Instance);
+		regions[i].srcOffset = offset;
+		regions[i].dstOffset = offset;
+		regions[i].size = sizeof(Instance);
+	}
+
+	VkBuffer& buffer = instanceBuffer;
+	VkBuffer& stagingBuffer = stagingInstanceBuffer;
+
+	rocks->copyBufferToBuffer(stagingBuffer, buffer, regions, VK_ACCESS_VERTEX_ATTRIBUTE_READ_BIT);
+}
+
 void Cave::free(CaveAspects aspects) {
 	// bitset<16> b(static_cast<uint16_t>(aspects));
 	// cout << "Cave '" << name.data() << "' free " << b << " is here" << endl;

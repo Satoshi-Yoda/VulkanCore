@@ -129,6 +129,7 @@ public:
 	bool has(CaveAspects aspects);
 	void establish(CaveAspects aspects);
 	void refresh(CaveAspects aspects);
+	void refreshInstances(vector<size_t> indexes);
 	void free(CaveAspects aspects);
 
 	bool canBeDrawn();

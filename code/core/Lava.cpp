@@ -477,28 +477,25 @@ void Lava::createPipeline() {
 // }
 
 // void Lava::updateInstances(size_t index, vector<Instance> instances, vector<size_t> indexes) {
-	/*
-	// Instance* stagingVector = reinterpret_cast<Instance*>(stagingInstanceBufferMappedPointers[index]);
-	Instance* stagingVector = reinterpret_cast<Instance*>(stagingInstanceBufferAllocationInfos[index].pMappedData);
-	for (auto& index : indexes) {
-		stagingVector[index] = instances[index];
-	}
+// 	Instance* stagingVector = reinterpret_cast<Instance*>(stagingInstanceBufferAllocationInfos[index].pMappedData);
+// 	for (auto& index : indexes) {
+// 		stagingVector[index] = instances[index];
+// 	}
 
-	vector<VkBufferCopy> regions;
+// 	vector<VkBufferCopy> regions;
 
-	regions.resize(indexes.size());
-	for (size_t i = 0; i < indexes.size(); i++) {
-		VkDeviceSize offset = indexes[i] * sizeof(Instance);
-		regions[i].srcOffset = offset;
-		regions[i].dstOffset = offset;
-		regions[i].size = sizeof(Instance);
-	}
+// 	regions.resize(indexes.size());
+// 	for (size_t i = 0; i < indexes.size(); i++) {
+// 		VkDeviceSize offset = indexes[i] * sizeof(Instance);
+// 		regions[i].srcOffset = offset;
+// 		regions[i].dstOffset = offset;
+// 		regions[i].size = sizeof(Instance);
+// 	}
 
-	VkBuffer& buffer = instanceBuffers[index];
-	VkBuffer& stagingBuffer = stagingInstanceBuffers[index];
+// 	VkBuffer& buffer = instanceBuffers[index];
+// 	VkBuffer& stagingBuffer = stagingInstanceBuffers[index];
 
-	rocks.copyBufferToBuffer(stagingBuffer, buffer, regions, VK_ACCESS_VERTEX_ATTRIBUTE_READ_BIT);
-	*/
+// 	rocks.copyBufferToBuffer(stagingBuffer, buffer, regions, VK_ACCESS_VERTEX_ATTRIBUTE_READ_BIT);
 // }
 
 // void Lava::establishTexture(int width, int height, void* pixels, VkImage& textureImage, VkImageView& textureImageView, VkDeviceMemory& textureImageMemory) {

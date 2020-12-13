@@ -36,11 +36,11 @@ private:
 
 	const Instance VACUUM { { 1e16f, 1e16f } };
 
-	// map<string, BatchCreateData> batches;
 	map<string, unique_ptr<Cave>> caves;
 	map<string, Cave*> cavesPtr;
 	map<string, size_t> indexes;
 	set<string> namesForUpdate;
+	map<string, vector<size_t>> indexesForUpdate;
 
 	size_t texturesBytes;
 
