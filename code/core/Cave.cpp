@@ -57,22 +57,30 @@ void Cave::establish(CaveAspects aspects) {
 }
 
 void Cave::refresh(CaveAspects aspects) {
-	// TODO if instances size does not changed then do not do allocations, just copy
-
 	// TODO implement copying of separate instances (regions)
 
+	bool canRefresh = (instances.size() != instanceCount);
+
 	if ((aspects & CaveAspects::STAGING_INSTANCES) != CaveAspects::NONE) {
-		if ((this->aspects & CaveAspects::STAGING_INSTANCES) != CaveAspects::NONE) {
-			freeStagingInstances();
+		if (canRefresh) {
+			if ((this->aspects & CaveAspects::STAGING_INSTANCES) != CaveAspects::NONE) {
+				freeStagingInstances();
+			}
+			establishStagingInstances();
+		} else {
+			refreshStagingInstances();
 		}
-		establishStagingInstances();
 	}
 
 	if ((aspects & CaveAspects::LIVE_INSTANCES) != CaveAspects::NONE) {
-		if ((this->aspects & CaveAspects::LIVE_INSTANCES) != CaveAspects::NONE) {
-			freeLiveInstances();
+		if (canRefresh) {
+			if ((this->aspects & CaveAspects::LIVE_INSTANCES) != CaveAspects::NONE) {
+				freeLiveInstances();
+			}
+			establishLiveInstances();
+		} else {
+			refreshLiveInstances();
 		}
-		establishLiveInstances();
 	}
 }
 
@@ -119,6 +127,18 @@ void Cave::establishStagingInstances() {
 	memcpy(stagingInstanceInfo.pMappedData, instances.data(), static_cast<size_t>(bufferSize));
 
 	aspects |= CaveAspects::STAGING_INSTANCES;
+}
+
+void Cave::refreshStagingInstances() {
+	#ifdef use_validation
+	has(CaveAspects::WORKING_INSTANCES | CaveAspects::VULKAN_ENTITIES) >> (*ash)("In this cave there is no WORKING_INSTANCES or no VULKAN_ENTITIES");
+	(instanceCount == static_cast<uint32_t>(instances.size()))         >> (*ash)("copyStagingInstances() called when instanceCount != instances.size()");
+	#endif
+
+	if (instanceCount == 0 || instances.size() == 0) return;
+	VkDeviceSize bufferSize = sizeof(Instance) * min(static_cast<size_t>(instanceCount), instances.size());
+
+	memcpy(stagingInstanceInfo.pMappedData, instances.data(), static_cast<size_t>(bufferSize));
 }
 
 void Cave::establishStagingTexture() {
@@ -176,6 +196,25 @@ void Cave::establishLiveInstances(VkCommandBuffer externalCommandBuffer) {
 	}
 
 	aspects |= CaveAspects::LIVE_INSTANCES;
+}
+
+void Cave::refreshLiveInstances(VkCommandBuffer externalCommandBuffer) {
+	if (instanceCount == 0) return;
+
+	#ifdef use_validation
+	has(CaveAspects::STAGING_INSTANCES | CaveAspects::VULKAN_ENTITIES) >> (*ash)("In this cave there is no STAGING_INSTANCES or no VULKAN_ENTITIES");
+	#endif
+
+	VkDeviceSize bufferSize = sizeof(Instance) * instanceCount;
+
+	bool useExternalCommandBuffer = (externalCommandBuffer != nullptr);
+	VkCommandBuffer commandBuffer = useExternalCommandBuffer ? externalCommandBuffer : rocks->beginSingleTimeCommands();
+
+	rocks->copyBufferToBuffer(stagingInstanceBuffer, instanceBuffer, bufferSize, VK_ACCESS_VERTEX_ATTRIBUTE_READ_BIT, commandBuffer);
+
+	if (useExternalCommandBuffer == false) {
+		rocks->endSingleTimeCommands(commandBuffer);
+	}
 }
 
 void Cave::establishLiveTexture(VkCommandBuffer externalCommandBuffer) {

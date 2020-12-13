@@ -141,9 +141,11 @@ private:
 
 	void establishStagingVertices();
 	void establishStagingInstances();
+	void refreshStagingInstances();
 	void establishStagingTexture();
 	void establishLiveVertices(VkCommandBuffer externalCommandBuffer = nullptr);
 	void establishLiveInstances(VkCommandBuffer externalCommandBuffer = nullptr);
+	void refreshLiveInstances(VkCommandBuffer externalCommandBuffer = nullptr);
 	void establishLiveTexture(VkCommandBuffer externalCommandBuffer = nullptr);
 
 	void freeStagingVertices();
