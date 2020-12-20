@@ -47,6 +47,10 @@ enum class CaveAspects : uint16_t {
 	VULKAN_ENTITIES   = 1 << 9,
 };
 
+inline constexpr CaveAspects operator~(CaveAspects a) {
+	return static_cast<CaveAspects>(~static_cast<uint16_t>(a));
+}
+
 inline constexpr CaveAspects operator|(CaveAspects a, CaveAspects b) {
 	return static_cast<CaveAspects>(static_cast<uint16_t>(a) | static_cast<uint16_t>(b));
 }

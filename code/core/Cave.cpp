@@ -261,30 +261,36 @@ void Cave::freeStagingVertices() {
 	// TODO can be optimized by calling this later in future frames, without wait, or something
 	vkQueueWaitIdle(mountain->queue);
 	vmaDestroyBuffer(mountain->allocator, stagingVertexBuffer, stagingVertexAllocation);
+	aspects &= ~CaveAspects::STAGING_VERTICES;
 }
 
 void Cave::freeStagingInstances() {
 	vkQueueWaitIdle(mountain->queue);
 	vmaDestroyBuffer(mountain->allocator, stagingInstanceBuffer, stagingInstanceAllocation);
+	aspects &= ~CaveAspects::STAGING_INSTANCES;
 }
 
 void Cave::freeStagingTexture() {
 	vkQueueWaitIdle(mountain->queue);
 	vmaDestroyBuffer(mountain->allocator, stagingTextureBuffer, stagingTextureAllocation);
+	aspects &= ~CaveAspects::STAGING_TEXTURE;
 }
 
 void Cave::freeLiveVertices() {
 	vkQueueWaitIdle(mountain->queue);
 	vmaDestroyBuffer(mountain->allocator, vertexBuffer, vertexAllocation);
+	aspects &= ~CaveAspects::LIVE_VERTICES;
 }
 
 void Cave::freeLiveInstances() {
 	vkQueueWaitIdle(mountain->queue);
 	vmaDestroyBuffer(mountain->allocator, instanceBuffer, instanceAllocation);
+	aspects &= ~CaveAspects::LIVE_INSTANCES;
 }
 
 void Cave::freeLiveTexture() {
 	vkQueueWaitIdle(mountain->queue);
 	vkDestroyImageView(mountain->device, textureView, nullptr);
 	vmaDestroyImage(mountain->allocator, textureImage, textureAllocation);
+	aspects &= ~CaveAspects::LIVE_TEXTURE;
 }

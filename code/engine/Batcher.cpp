@@ -96,7 +96,6 @@ void Batcher::loadFolderNth(string folder, uint32_t workers) {
 	}
 
 	printf("Loaded %lld .png files (%.2f Mb files) from %s in %.3fs\n", files.size(), 1.0 * fileSizes / (1 << 20), folder.data(), chrono::duration_cast<chrono::duration<double>>(chrono::high_resolution_clock::now() - start).count());
-	printf("(%lld Mb textures)\n", texturesBytes / (1 << 20));
 }
 
 vector<Vertex> Batcher::initQuad(uint32_t w, uint32_t h) {
@@ -140,6 +139,7 @@ void Batcher::establish(Ash& ash, Mountain& mountain, Rocks& rocks, Crater& crat
 		cave->setVulkanEntities(ash, mountain, rocks, crater);
 		cave->establish(CaveAspects::STAGING_VERTICES | CaveAspects::STAGING_INSTANCES | CaveAspects::STAGING_TEXTURE);
 		cave->establish(CaveAspects::LIVE_VERTICES | CaveAspects::LIVE_INSTANCES | CaveAspects::LIVE_TEXTURE); // TODO use sheduler worker with own commandBuffer as worker for this task
+		cave->free(CaveAspects::STAGING_VERTICES | CaveAspects::STAGING_TEXTURE); // TODO free working versices & texture also
 		cavesPtr[it.first] = it.second.get();
 		lava.addCave(move(cave));
 	}
