@@ -16,9 +16,6 @@ using glm::mat4;
 using glm::radians;
 
 struct UniformBufferObject {
-    // mat4 model;
-    // mat4 view;
-    // mat4 proj;
     vec2 scale;
     vec2 shift;
 };
@@ -77,7 +74,7 @@ void Tectonic::resizeDescriptorSets(size_t size) {
 	descriptorSets.resize(size);
 
 	for (auto& inFlightDescriptorSetsArray : descriptorSets) {
-		vector<VkDescriptorSetLayout> layouts(IN_FLIGHT_FRAMES, lava.descriptorSetLayout2);
+		vector<VkDescriptorSetLayout> layouts(IN_FLIGHT_FRAMES, lava.descriptorSetLayout);
 		VkDescriptorSetAllocateInfo allocInfo { VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO };
 		allocInfo.descriptorPool = mountain.descriptorPool;
 		allocInfo.descriptorSetCount = IN_FLIGHT_FRAMES;
@@ -95,13 +92,6 @@ void Tectonic::resizeDescriptorSets(size_t size) {
 }
 
 void Tectonic::updateInFlightUniformBuffer() {
-	// static auto startTime = chrono::high_resolution_clock::now();
-	// static auto  lastTime = chrono::high_resolution_clock::now();
-	// auto      currentTime = chrono::high_resolution_clock::now();
-	// float time = chrono::duration<float, chrono::seconds::period>(currentTime - startTime).count();
-	// float dt = chrono::duration<float, chrono::seconds::period>(currentTime - lastTime).count();
-	// lastTime = currentTime;
-
 	UniformBufferObject ubo {};
 	ubo.shift = { 0.0f, 0.0f };
 	ubo.scale = { 2.0f / (crater.extent.width + 1), 2.0f / (crater.extent.height + 1) };
@@ -220,19 +210,6 @@ void Tectonic::prepareFrame(uint32_t craterIndex) {
 
 			vkCmdSetViewport(commandBuffers[inFlightIndex], 0, 1, &viewport);
 			vkCmdSetScissor (commandBuffers[inFlightIndex], 0, 1, &scissor);
-
-			// resizeDescriptorSets(lava.batchData.size());
-
-			// for (size_t i = 0; i < lava.batchData.size(); i++) {
-			// 	if (lava.batchData[i].instanceCount == 0) continue;
-
-			// 	VkDeviceSize offsets[] { 0 };
-			// 	vkCmdBindVertexBuffers(commandBuffers[inFlightIndex], 0, 1, &lava.batchData[i].vertexBuffer, offsets);
-			// 	vkCmdBindVertexBuffers(commandBuffers[inFlightIndex], 1, 1, &lava.batchData[i].instanceBuffer, offsets);
-			// 	updateDescriptorSet(inFlightIndex, i, lava.batchData[i].textureView);
-			// 	vkCmdBindDescriptorSets(commandBuffers[inFlightIndex], VK_PIPELINE_BIND_POINT_GRAPHICS, lava.pipelineLayout, 0, 1, &descriptorSets[i][inFlightIndex], 0, nullptr);
-			// 	vkCmdDraw(commandBuffers[inFlightIndex], lava.batchData[i].vertexCount, lava.batchData[i].instanceCount, 0, 0);
-			// }
 
 			resizeDescriptorSets(lava.caves.size());
 

@@ -9,12 +9,10 @@ using glm::vec3;
 using namespace std;
 
 Cave::Cave() {
-	// cout << "Cave created" << endl;
 	aspects = CaveAspects::NONE;
 }
 
 Cave::~Cave() {
-	// printf("Cave '%s' destructor is here\n", name.data());
 	this->free(aspects);
 }
 
@@ -49,16 +47,9 @@ void Cave::establish(CaveAspects aspects) {
 	if ((aspects & CaveAspects::LIVE_VERTICES)     != CaveAspects::NONE) establishLiveVertices();
 	if ((aspects & CaveAspects::LIVE_INSTANCES)    != CaveAspects::NONE) establishLiveInstances();
 	if ((aspects & CaveAspects::LIVE_TEXTURE)      != CaveAspects::NONE) establishLiveTexture();
-
-	// this->aspects |= aspects;
-
-	// bitset<16> b(static_cast<uint16_t>(this->aspects));
-	// cout << "Cave '" << name.data() << "' after establish has aspects: " << b << endl;
 }
 
 void Cave::refresh(CaveAspects aspects) {
-	// TODO implement copying of separate instances (regions)
-
 	bool canRefresh = (instances.size() != instanceCount);
 
 	if ((aspects & CaveAspects::STAGING_INSTANCES) != CaveAspects::NONE) {
@@ -107,9 +98,6 @@ void Cave::updateInstances(vector<size_t> indexes) {
 }
 
 void Cave::free(CaveAspects aspects) {
-	// bitset<16> b(static_cast<uint16_t>(aspects));
-	// cout << "Cave '" << name.data() << "' free " << b << " is here" << endl;
-
 	if ((aspects & CaveAspects::STAGING_VERTICES)  != CaveAspects::NONE && (this->aspects & CaveAspects::STAGING_VERTICES)  != CaveAspects::NONE) freeStagingVertices();
 	if ((aspects & CaveAspects::STAGING_INSTANCES) != CaveAspects::NONE && (this->aspects & CaveAspects::STAGING_INSTANCES) != CaveAspects::NONE) freeStagingInstances();
 	if ((aspects & CaveAspects::STAGING_TEXTURE)   != CaveAspects::NONE && (this->aspects & CaveAspects::STAGING_TEXTURE)   != CaveAspects::NONE) freeStagingTexture();

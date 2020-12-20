@@ -165,7 +165,7 @@ size_t Batcher::addInstance(string name, Instance instance) {
 		}
 
 		resizedNames.insert(name);
-		printf("Cave '%s' marked for resize for %lld instances\n", name.data(), cavesPtr[name]->instances.size());
+		// printf("Cave '%s' marked for resize for %lld instances\n", name.data(), cavesPtr[name]->instances.size());
 		result = oldSize;
 
 	} else {
@@ -214,32 +214,4 @@ void Batcher::update(double t, double dt) {
 	}
 
 	resizedNames.clear();
-
-
-
-
-
-
-	// auto start = chrono::high_resolution_clock::now();
-	// bool resized = false;
-
-	// vector<size_t> indexVector;
-	// vector<vector<Instance>> instancesVector;
-
-	// for (auto& it : batches) {
-	// 	string name = it.first;
-	// 	if (t > batches[name].size()) {
-	// 		addSampleInstance(name);
-	// 		// lava.resizeInstanceBuffer(indexes[name], batches[name].instances);
-	// 		indexVector.push_back(indexes[name]);
-	// 		instancesVector.push_back(batches[name].instances);
-	// 		resized = true;
-	// 	}
-	// }
-
-	// if (resized) {
-	// 	lava->resizeInstanceBuffers(indexVector, instancesVector);
-	// 	auto time = chrono::duration_cast<chrono::duration<double>>(chrono::high_resolution_clock::now() - start).count();
-	// 	printf("resized %.2f, sprites %.0f in %.5f ms\n", t, round(batches.size() * t), 1000 * time);
-	// }
 }

@@ -14,7 +14,6 @@
 #define GLM_FORCE_RADIANS
 #include <glm/glm.hpp>
 
-// #include "Mountain.h"
 #include "Rocks.h"
 #include "Crater.h"
 
@@ -65,18 +64,6 @@ inline constexpr CaveAspects& operator&=(CaveAspects& a, CaveAspects b) {
 	a = static_cast<CaveAspects>(static_cast<uint16_t>(a) & static_cast<uint16_t>(b));
 	return a;
 }
-
-// TODO
-// Cave
-// store batch all data in 1 class with state
-// make establish(), freeCPU(), freeGPU(), etc methods
-// store lavaObjectId (just index), stats in that class
-// aspects: working, staging, live
-
-// TODO
-// Batcher does not store anything,
-// after Batcher::load() working-caves appears in lava
-// after Batcher::establish() staging & live caves aspects established & freed
 
 class Cave {
 public:

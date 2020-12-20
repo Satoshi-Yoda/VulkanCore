@@ -74,20 +74,12 @@ public:
 	VkRenderPass renderPass;
 	VkPipelineLayout pipelineLayout;
 	VkPipeline pipeline;
-	VkDescriptorSetLayout descriptorSetLayout;
-	VkDescriptorSetLayout descriptorSetLayout2;
 	VkSampler textureSampler;
+	VkDescriptorSetLayout descriptorSetLayout;
 
-	vector<BatchLiveData> batchData;
 	vector<unique_ptr<Cave>> caves;
 
-	// size_t addBatch(BatchCreateData& createData);
-	// void addBatches(vector<BatchCreateData> createDataVector);
 	void addCave(unique_ptr<Cave> cave);
-	// void resizeInstanceBuffer(size_t index, vector<Instance> instances, VkCommandBuffer externalCommandBuffer = nullptr);
-	// void resizeInstanceBuffers(vector<size_t> indexVector, vector<vector<Instance>> instancesVector);
-	// void updateInstanceBuffer(size_t index, vector<Instance> instances);
-	// void updateInstances(size_t index, vector<Instance> instances, vector<size_t> indexes);
 
 private:
 	Ash& ash;
@@ -99,16 +91,8 @@ private:
 
 	void createRenderPass();
 	void createPipeline();
-
 	void createTextureSampler();
-
 	void createDescriptorSetLayout();
-	void createDescriptorSetLayout2();
-
-	// TODO make index first parameter
-	void establishVertexBuffer2(vector<Vertex> vertices, size_t index, VkCommandBuffer externalCommandBuffer = nullptr);
-	void establishInstanceBuffer2(vector<Instance> instances, size_t index, VkCommandBuffer externalCommandBuffer = nullptr);
-	void establishTextureVMA(int width, int height, void* pixels, size_t index, VkCommandBuffer externalCommandBuffer = nullptr);
 };
 
 #endif

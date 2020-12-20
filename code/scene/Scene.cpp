@@ -18,7 +18,6 @@ Scene::~Scene() {}
 
 void Scene::init() {
 	// "asteroid-s1.1"
-
 	// printf("Lava: sprite %.0fx%.0f\n", round(width * scale), round(height * scale));
 
 	extent_h = 800 / 2;
@@ -58,41 +57,6 @@ void Scene::init() {
 	// printf("Lava: stream: %.2f Mb/frame\n", static_cast<float>(instances.size() * sizeof(Instance)) / (1 << 20));
 	// printf("Lava: stream: %.2f Mb/second (for 60 fps)\n", 60 * static_cast<float>(instances.size() * sizeof(Instance)) / (1 << 20));
 	// printf("Lava: fillrate: %.0f Mpixels/frame\n", (instances.size()) * width * height * scale * scale / 1000000);
-
-	// vector<Vertex> vertices2;
-	// vertices2.resize(vertices.size());
-	// size_t size = sizeof(Vertex) * vertices.size();
-
-	// auto start = chrono::high_resolution_clock::now();
-	// memcpy(vertices2.data(), vertices.data(), size);
-	// auto finish = chrono::high_resolution_clock::now();
-	// auto delay = chrono::duration_cast<chrono::duration<double>>(finish - start).count();
-	// float speed = static_cast<float>(size) / (1 << 30) / delay;
-	// printf("Copied v2v %d MB in %.3fs at %.2f GB/s\n", size / (1 << 20), delay, speed);
-
-/*
-	BatchCreateData data {};
-	data.pixels = pixels;
-	data.width  = width;
-	data.height = height;
-	data.vertices = vertices;
-	data.instances = instances;
-	// lavaObjectId = lava.addObject(vertices, instances, width, height, pixels);
-	lavaObjectId = lava.addBatch(data);
-
-	printf("Lava: %lld draw calls\n", lava.batchData.size());
-
-	freeTexture(pixels); // TODO move somewhere, maybe
-	vertices.clear();
-	vertices.shrink_to_fit();
-	// instances.clear();
-	// instances.shrink_to_fit();
-*/
-
-	// for (int i = 0; i < N * percent; i++) {
-	// 	size_t index = distribution(random);
-	// 	updatableIndexes.push_back(index);
-	// }
 }
 
 void Scene::update(double t, double dt) {
@@ -103,9 +67,6 @@ void Scene::update(double t, double dt) {
 		batcher.updateInstance("bomb.6", i, instances[i]);
 	}
 
-	
-
-	// if (distribution(random) <  500 * dt) {
 	if (t >= nextChange) {
 		uniform_int_distribution<size_t> indexDistribution { 0, static_cast<size_t>(N * 2.5) };
 
@@ -123,7 +84,6 @@ void Scene::update(double t, double dt) {
 	}
 
 	if (t >= nextChange) {
-	// if (distribution(random) <  500 * dt) {
 		uniform_int_distribution<int> xDistribution { -extent_w, extent_w };
 		uniform_int_distribution<int> yDistribution { -extent_h, extent_h };
 
