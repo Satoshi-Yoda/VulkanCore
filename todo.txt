@@ -8,6 +8,7 @@ Qualities:
 
 Path:
  ? Look at cpu ram vertex buffer at vulkan tutorial, without staging buffer for dynamic & stream mode
+ ? maybe use vkCmdUpdateBuffer() for small data buffers
 
 Omitted:
  - indexed drawing
