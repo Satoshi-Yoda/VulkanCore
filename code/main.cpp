@@ -1,3 +1,5 @@
+#ifndef tests_here
+
 #include "core/Ash.h"
 #include "core/Crater.h"
 #include "core/Lava.h"
@@ -78,3 +80,4 @@ int main() {
 
 	return 0;
 }
+#endif
