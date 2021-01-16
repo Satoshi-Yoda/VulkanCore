@@ -29,8 +29,8 @@ public:
 	Specialist& operator=(Specialist&&)      = delete;
 
 	atomic_bool done = false;
-	size_t id = 0;
 	Speciality speciality;
+	size_t id = 0;
 	thread* thr;
 
 private:

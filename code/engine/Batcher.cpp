@@ -61,7 +61,7 @@ void Batcher::loadFolderNth(string folder, uint32_t workers) {
 	mutex putMutex;
 
 	for (uint32_t w = 0; w < workers; w++) {
-		threads.push_back(thread([=, &putMutex](){
+		threads.push_back(thread([=, &putMutex, this](){
 			uint32_t start = chunk * w;
 			uint32_t length = (w == workers - 1) ? (chunk + rest) : chunk;
 			for (uint32_t i = start; i < start + length; i++) {
