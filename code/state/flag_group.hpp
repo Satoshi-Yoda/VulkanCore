@@ -17,7 +17,7 @@ public:
 	}
 	template <typename... Args>
 	void raise(T value, Args... args) {
-		data.set(static_cast<size_t>(value));
+		raise(value);
 		raise(args...);
 	}
 
@@ -26,7 +26,7 @@ public:
 	}
 	template <typename... Args>
 	void drop(T value, Args... args) {
-		data.reset(static_cast<size_t>(value));
+		drop(value);
 		drop(args...);
 	}
 
@@ -35,7 +35,7 @@ public:
 	}
 	template <typename... Args>
 	bool has(T value, Args... args) {
-		return data.test(static_cast<size_t>(value)) && has(args...);
+		return has(value) && has(args...);
 	}
 
 	void clear() {

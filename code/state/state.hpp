@@ -16,7 +16,7 @@ public:
 	}
 	template <typename... Args>
 	bool is(T value, Args... args) {
-		return (value == this->value) || is(args...);
+		return is(value) || is(args...);
 	}
 
 private:
