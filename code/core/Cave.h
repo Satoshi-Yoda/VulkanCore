@@ -34,6 +34,7 @@ struct Instance {
 	vec2 pos;
 };
 
+// TODO rename to CaveAspect
 enum class CaveAspects {
 	WORKING_VERTICES,
 	WORKING_INSTANCES,
@@ -108,18 +109,20 @@ public:
 	void* pixels;
 	vector<size_t> vacuum;
 
+	uint32_t vertexCount = 0;
 	VkBuffer vertexBuffer;
 	VmaAllocation vertexAllocation;
 	VmaAllocationInfo vertexInfo;
-	uint32_t vertexCount;
+	uint32_t stagingVertexCount = 0;
 	VkBuffer stagingVertexBuffer;
 	VmaAllocation stagingVertexAllocation;
 	VmaAllocationInfo stagingVertexInfo;
 
+	uint32_t instanceCount = 0;
 	VkBuffer instanceBuffer;
 	VmaAllocation instanceAllocation;
 	VmaAllocationInfo instanceInfo;
-	uint32_t instanceCount;
+	uint32_t stagingInstanceCount = 0;
 	VkBuffer stagingInstanceBuffer;
 	VmaAllocation stagingInstanceAllocation;
 	VmaAllocationInfo stagingInstanceInfo;
@@ -131,12 +134,17 @@ public:
 	VmaAllocation stagingTextureAllocation;
 	VmaAllocationInfo stagingTextureInfo;
 
-	// bool has(flag_group<CaveAspects> aspects);
 	void establish(flag_group<CaveAspects> aspects);
-	void refresh(flag_group<CaveAspects> aspects);
+
+	void refresh(CaveAspects aspect);
+	template <typename... Args>
+	void refresh(CaveAspects aspect, Args... args) {
+		refresh(aspect);
+		refresh(args...);
+	}
+
 	void updateInstances(vector<size_t> indexes);
 	void free(flag_group<CaveAspects> aspects);
-	// bool canBeDrawn();
 
 private:
 	Ash* ash;

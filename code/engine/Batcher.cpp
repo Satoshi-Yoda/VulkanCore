@@ -219,10 +219,7 @@ void Batcher::updateInstance(string name, size_t index, Instance instance) {
 void Batcher::update(double t, double dt) {
 	for (auto& [name, value] : touchedIndexes) {
 		if (resizedNames.find(name) != resizedNames.end() || value.size() * 100 > cavesPtr[name]->instanceCount) {
-			flag_group<CaveAspects> refr1 {};
-			refr1.raise(CaveAspects::STAGING_INSTANCES, CaveAspects::LIVE_INSTANCES);
-			cavesPtr[name]->refresh(refr1);
-			// cavesPtr[name]->refresh(CaveAspects::STAGING_INSTANCES | CaveAspects::LIVE_INSTANCES);
+			cavesPtr[name]->refresh(CaveAspects::STAGING_INSTANCES, CaveAspects::LIVE_INSTANCES);
 		} else {
 			cavesPtr[name]->updateInstances(value);
 		}
