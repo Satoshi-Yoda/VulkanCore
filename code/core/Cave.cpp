@@ -105,7 +105,7 @@ void Cave::free(CaveAspect aspect) {
 
 void Cave::establishStagingVertices() {
 	#ifdef use_validation
-	(aspects.has(CaveAspect::WORKING_VERTICES, CaveAspect::VULKAN_ENTITIES)) >> (*ash)("In this cave there is no WORKING_VERTICES or no VULKAN_ENTITIES");
+	aspects.has(CaveAspect::WORKING_VERTICES, CaveAspect::VULKAN_ENTITIES) >> (*ash)("In this cave there is no WORKING_VERTICES or no VULKAN_ENTITIES");
 	#endif
 
 	stagingVertexCount = static_cast<uint32_t>(vertices.size());
@@ -119,7 +119,7 @@ void Cave::establishStagingVertices() {
 
 void Cave::establishStagingInstances() {
 	#ifdef use_validation
-	(aspects.has(CaveAspect::WORKING_INSTANCES, CaveAspect::VULKAN_ENTITIES)) >> (*ash)("In this cave there is no WORKING_INSTANCES or no VULKAN_ENTITIES");
+	aspects.has(CaveAspect::WORKING_INSTANCES, CaveAspect::VULKAN_ENTITIES) >> (*ash)("In this cave there is no WORKING_INSTANCES or no VULKAN_ENTITIES");
 	#endif
 
 	stagingInstanceCount = static_cast<uint32_t>(instances.size());
@@ -146,7 +146,7 @@ void Cave::refreshStagingInstances() {
 
 void Cave::establishStagingTexture() {
 	#ifdef use_validation
-	(aspects.has(CaveAspect::WORKING_TEXTURE, CaveAspect::VULKAN_ENTITIES)) >> (*ash)("In this cave there is no WORKING_TEXTURE or no VULKAN_ENTITIES");
+	aspects.has(CaveAspect::WORKING_TEXTURE, CaveAspect::VULKAN_ENTITIES) >> (*ash)("In this cave there is no WORKING_TEXTURE or no VULKAN_ENTITIES");
 	#endif
 
 	VkDeviceSize imageSize = width * height * 4;
@@ -159,7 +159,7 @@ void Cave::establishStagingTexture() {
 
 void Cave::establishLiveVertices(VkCommandBuffer externalCommandBuffer) {
 	#ifdef use_validation
-	(aspects.has(CaveAspect::STAGING_VERTICES, CaveAspect::VULKAN_ENTITIES)) >> (*ash)("In this cave there is no STAGING_VERTICES or no VULKAN_ENTITIES");
+	aspects.has(CaveAspect::STAGING_VERTICES, CaveAspect::VULKAN_ENTITIES) >> (*ash)("In this cave there is no STAGING_VERTICES or no VULKAN_ENTITIES");
 	#endif
 
 	VkDeviceSize bufferSize = sizeof(Vertex) * stagingVertexCount;
@@ -183,7 +183,7 @@ void Cave::establishLiveInstances(VkCommandBuffer externalCommandBuffer) {
 	if (stagingInstanceCount == 0) return;
 
 	#ifdef use_validation
-	(aspects.has(CaveAspect::STAGING_INSTANCES, CaveAspect::VULKAN_ENTITIES)) >> (*ash)("In this cave there is no STAGING_INSTANCES or no VULKAN_ENTITIES");
+	aspects.has(CaveAspect::STAGING_INSTANCES, CaveAspect::VULKAN_ENTITIES) >> (*ash)("In this cave there is no STAGING_INSTANCES or no VULKAN_ENTITIES");
 	#endif
 
 	VkDeviceSize bufferSize = sizeof(Instance) * stagingInstanceCount;
@@ -207,7 +207,7 @@ void Cave::refreshLiveInstances(VkCommandBuffer externalCommandBuffer) {
 	if (instanceCount == 0) return;
 
 	#ifdef use_validation
-	(aspects.has(CaveAspect::STAGING_INSTANCES, CaveAspect::VULKAN_ENTITIES)) >> (*ash)("In this cave there is no STAGING_INSTANCES or no VULKAN_ENTITIES");
+	aspects.has(CaveAspect::STAGING_INSTANCES, CaveAspect::VULKAN_ENTITIES) >> (*ash)("In this cave there is no STAGING_INSTANCES or no VULKAN_ENTITIES");
 	#endif
 
 	VkDeviceSize bufferSize = sizeof(Instance) * instanceCount;
@@ -224,7 +224,7 @@ void Cave::refreshLiveInstances(VkCommandBuffer externalCommandBuffer) {
 
 void Cave::establishLiveTexture(VkCommandBuffer externalCommandBuffer) {
 	#ifdef use_validation
-	(aspects.has(CaveAspect::STAGING_TEXTURE, CaveAspect::VULKAN_ENTITIES)) >> (*ash)("In this cave there is no STAGING_TEXTURE or no VULKAN_ENTITIES");
+	aspects.has(CaveAspect::STAGING_TEXTURE, CaveAspect::VULKAN_ENTITIES) >> (*ash)("In this cave there is no STAGING_TEXTURE or no VULKAN_ENTITIES");
 	#endif
 
 	auto preferred8bitFormat = crater->USE_GAMMA_CORRECT ? VK_FORMAT_R8G8B8A8_SRGB : VK_FORMAT_R8G8B8A8_UNORM;
