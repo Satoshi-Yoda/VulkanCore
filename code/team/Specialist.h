@@ -1,5 +1,4 @@
-#ifndef SPECIALIST_H
-#define SPECIALIST_H
+#pragma once
 
 #include <array>
 #include <atomic>
@@ -37,5 +36,3 @@ private:
 	Team& team;
 
 };
-
-#endif

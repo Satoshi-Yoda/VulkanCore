@@ -1,5 +1,4 @@
-#ifndef CAVE_H
-#define CAVE_H
+#pragma once
 
 #include <bitset>
 #include <set>
@@ -142,4 +141,3 @@ private:
 	void freeLiveInstances();
 	void freeLiveTexture();
 };
-#endif

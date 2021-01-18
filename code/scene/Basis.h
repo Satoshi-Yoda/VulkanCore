@@ -1,5 +1,4 @@
-#ifndef BASIS_H
-#define BASIS_H
+#pragma once
 
 #include <string>
 #include <vector>
@@ -24,5 +23,3 @@ private:
 	void load();
 	void establish(Lava &lava, Tectonic &tectonic);
 };
-
-#endif

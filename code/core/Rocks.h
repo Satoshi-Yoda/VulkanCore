@@ -1,5 +1,4 @@
-#ifndef ROCKS_H
-#define ROCKS_H
+#pragma once
 
 #include <vector>
 
@@ -47,5 +46,3 @@ private:
 	Ash& ash;
 	Mountain& mountain;
 };
-
-#endif

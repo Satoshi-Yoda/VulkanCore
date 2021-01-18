@@ -1,5 +1,4 @@
-#ifndef LAVA_H
-#define LAVA_H
+#pragma once
 
 #include <memory>
 #include <mutex>
@@ -49,5 +48,3 @@ private:
 	void createTextureSampler();
 	void createDescriptorSetLayout();
 };
-
-#endif

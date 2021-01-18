@@ -1,5 +1,4 @@
-#ifndef UTILS_H
-#define UTILS_H
+#pragma once
 
 #include <thread>
 
@@ -28,5 +27,3 @@ void memcpy_parallel(void* dst, const void* src, size_t size, uint32_t workers) 
 		t.join();
 	}
 }
-
-#endif

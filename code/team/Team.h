@@ -1,5 +1,4 @@
-#ifndef BOARD_H
-#define BOARD_H
+#pragma once
 
 #include <array>
 #include <chrono>
@@ -50,5 +49,3 @@ private:
 	std::chrono::time_point<std::chrono::steady_clock> ready;
 
 };
-
-#endif

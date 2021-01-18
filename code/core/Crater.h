@@ -1,5 +1,4 @@
-#ifndef CRATER_H
-#define CRATER_H
+#pragma once
 
 #include <vector>
 
@@ -67,5 +66,3 @@ private:
 	void queryImages();
 	void createImageViews();
 };
-
-#endif

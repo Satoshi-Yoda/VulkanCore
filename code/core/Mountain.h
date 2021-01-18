@@ -1,5 +1,4 @@
-#ifndef MOUNTAIN_H
-#define MOUNTAIN_H
+#pragma once
 
 #include <iostream>
 #include <tuple>
@@ -87,5 +86,3 @@ private:
 	void checkValidationLayerSupport();
 	bool checkDeviceExtensionSupport(VkPhysicalDevice physicalDevice);
 };
-
-#endif

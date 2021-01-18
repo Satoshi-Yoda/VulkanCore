@@ -1,5 +1,4 @@
-#ifndef SPRITE_H
-#define SPRITE_H
+#pragma once
 
 #include <string>
 #include <vector>
@@ -18,5 +17,3 @@ private:
 	void load();
 	void establish(Lava &lava, Tectonic &tectonic);
 };
-
-#endif

@@ -1,5 +1,4 @@
-#ifndef FLAG_GROUP_HPP
-#define FLAG_GROUP_HPP
+#pragma once
 
 #include <bitset>
 
@@ -45,5 +44,3 @@ public:
 private:
 	bitset<magic_enum::enum_count<T>()> data;
 };
-
-#endif

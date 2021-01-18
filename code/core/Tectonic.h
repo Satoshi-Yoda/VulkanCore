@@ -1,5 +1,4 @@
-#ifndef TECTONIC_H
-#define TECTONIC_H
+#pragma once
 
 #include <vector>
 #include <array>
@@ -50,5 +49,3 @@ private:
 	void updateDescriptorSet(size_t frameIndex, size_t textureIndex, VkImageView& imageView);
 	void prepareFrame(uint32_t craterIndex);
 };
-
-#endif

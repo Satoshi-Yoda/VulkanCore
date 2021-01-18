@@ -1,5 +1,4 @@
-#ifndef ASH_H
-#define ASH_H
+#pragma once
 
 #include <vector>
 #include <string>
@@ -23,5 +22,3 @@ public:
 
 void operator>>(bool status, Ash& ash);
 void operator>>(VkResult status, Ash& ash);
-
-#endif

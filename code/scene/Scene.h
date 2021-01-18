@@ -1,5 +1,4 @@
-#ifndef SCENE_H
-#define SCENE_H
+#pragma once
 
 #include <random>
 #include <string>
@@ -41,5 +40,3 @@ private:
 	int extent_w, extent_h;
 	double nextChange = 0.0f;
 };
-
-#endif

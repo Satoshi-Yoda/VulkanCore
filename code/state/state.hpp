@@ -1,5 +1,4 @@
-#ifndef STATE_HPP
-#define STATE_HPP
+#pragma once
 
 template <typename T>
 class state {
@@ -22,5 +21,3 @@ public:
 private:
 	T value;
 };
-
-#endif

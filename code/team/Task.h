@@ -1,5 +1,4 @@
-#ifndef TASK_H
-#define TASK_H
+#pragma once
 
 #include <functional>
 #include <memory>
@@ -28,5 +27,3 @@ struct Task {
 	set<shared_ptr<Task>> dependants;
 	bool done = false;
 };
-
-#endif

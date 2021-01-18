@@ -1,5 +1,4 @@
-#ifndef BATCHER_H
-#define BATCHER_H
+#pragma once
 
 #include <map>
 #include <memory>
@@ -47,5 +46,3 @@ private:
 	vector<Vertex> initQuad(uint32_t w, uint32_t h);
 	// void addSampleInstance(string name);
 };
-
-#endif
