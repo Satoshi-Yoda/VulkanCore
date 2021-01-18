@@ -7,15 +7,15 @@ public:
 	state() {};
 	state(T value) : value(value) {};
 
-	T& operator= (T& value) {
+	inline T& operator= (T& value) noexcept {
 		return this->value = value;
 	}
 
-	bool is(T value) {
+	inline bool is(T value) noexcept {
 		return value == this->value;
 	}
 	template <typename... Args>
-	bool is(T value, Args... args) {
+	inline bool is(T value, Args... args) noexcept {
 		return is(value) || is(args...);
 	}
 

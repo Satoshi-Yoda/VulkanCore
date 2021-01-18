@@ -12,33 +12,33 @@ class flag_group {
 public:
 	flag_group() {};
 
-	void raise(T value) {
+	inline void raise(T value) noexcept {
 		data.set(static_cast<size_t>(value));
 	}
 	template <typename... Args>
-	void raise(T value, Args... args) {
+	inline void raise(T value, Args... args) noexcept {
 		raise(value);
 		raise(args...);
 	}
 
-	void drop(T value) {
+	inline void drop(T value) noexcept {
 		data.reset(static_cast<size_t>(value));
 	}
 	template <typename... Args>
-	void drop(T value, Args... args) {
+	inline void drop(T value, Args... args) noexcept {
 		drop(value);
 		drop(args...);
 	}
 
-	bool has(T value) {
+	inline bool has(T value) noexcept {
 		return data.test(static_cast<size_t>(value));
 	}
 	template <typename... Args>
-	bool has(T value, Args... args) {
+	inline bool has(T value, Args... args) noexcept {
 		return has(value) && has(args...);
 	}
 
-	void clear() {
+	inline void clear() noexcept {
 		data.reset();
 	}
 
