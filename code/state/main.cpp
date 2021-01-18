@@ -84,19 +84,19 @@ TEST_CASE() {
 
 TEST_CASE() {
 	flag_group<MyEnum> fg {};
-	fg.raise(B);
-	fg.raise(A);
-	REQUIRE(fg.has(A, B) == true);
-	fg.drop(B);
-	REQUIRE(fg.has(A) == true);
+	fg.raise(B, A);
+	fg.raise(C);
+	REQUIRE(fg.has(A, B, C) == true);
+	fg.drop(B, A);
+	REQUIRE(fg.has(A) == false);
 	REQUIRE(fg.has(A, B) == false);
 	REQUIRE(fg.has(B) == false);
+	REQUIRE(fg.has(C) == true);
 }
 
 TEST_CASE() {
 	flag_group<MyEnum> fg {};
-	fg.raise(B);
-	fg.raise(A);
+	fg.raise(B, A);
 	fg.drop(B);
 	flag_group<MyEnum> fg2 { fg };
 	REQUIRE(fg2.has(A) == true);
@@ -135,8 +135,7 @@ TEST_CASE() {
 
 TEST_CASE() {
 	flag_group<MyEnum> fg {};
-	fg.raise(B);
-	fg.raise(A);
+	fg.raise(B, A);
 	fg.drop(B);
 	fg.clear();
 	REQUIRE(fg.has(A) == false);
@@ -145,8 +144,7 @@ TEST_CASE() {
 
 TEST_CASE() {
 	flag_group<MyEnumClass> fg {};
-	fg.raise(MyEnumClass::B);
-	fg.raise(MyEnumClass::A);
+	fg.raise(MyEnumClass::B, MyEnumClass::A);
 	REQUIRE(fg.has(MyEnumClass::A, MyEnumClass::B) == true);
 	fg.drop(MyEnumClass::B);
 	REQUIRE(fg.has(MyEnumClass::A) == true);
@@ -156,8 +154,7 @@ TEST_CASE() {
 
 TEST_CASE() {
 	flag_group<MyEnumClass> fg {};
-	fg.raise(MyEnumClass::B);
-	fg.raise(MyEnumClass::A);
+	fg.raise(MyEnumClass::B, MyEnumClass::A);
 	fg.drop(MyEnumClass::B);
 	flag_group<MyEnumClass> fg2 { fg };
 	REQUIRE(fg2.has(MyEnumClass::A) == true);
@@ -167,8 +164,7 @@ TEST_CASE() {
 
 TEST_CASE() {
 	flag_group<MyEnumClass> fg {};
-	fg.raise(MyEnumClass::B);
-	fg.raise(MyEnumClass::A);
+	fg.raise(MyEnumClass::B, MyEnumClass::A);
 	fg.drop(MyEnumClass::B);
 	flag_group<MyEnumClass> fg2 {};
 	fg2 = fg;
@@ -196,8 +192,7 @@ TEST_CASE() {
 
 TEST_CASE() {
 	flag_group<MyEnumClass> fg {};
-	fg.raise(MyEnumClass::B);
-	fg.raise(MyEnumClass::A);
+	fg.raise(MyEnumClass::B, MyEnumClass::A);
 	fg.drop(MyEnumClass::B);
 	fg.clear();
 	REQUIRE(fg.has(MyEnumClass::A) == false);

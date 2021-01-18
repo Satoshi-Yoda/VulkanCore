@@ -14,8 +14,9 @@
 #define GLM_FORCE_RADIANS
 #include <glm/glm.hpp>
 
-#include "Rocks.h"
 #include "Crater.h"
+#include "Rocks.h"
+#include "../state/flag_group.hpp"
 
 using glm::vec2;
 using glm::vec3;
@@ -33,41 +34,18 @@ struct Instance {
 	vec2 pos;
 };
 
-enum class CaveAspects : uint16_t {
-	NONE = 0,
-	WORKING_VERTICES  = 1 << 0,
-	WORKING_INSTANCES = 1 << 1,
-	WORKING_TEXTURE   = 1 << 2,
-	STAGING_VERTICES  = 1 << 3,
-	STAGING_INSTANCES = 1 << 4,
-	STAGING_TEXTURE   = 1 << 5,
-	LIVE_VERTICES     = 1 << 6,
-	LIVE_INSTANCES    = 1 << 7,
-	LIVE_TEXTURE      = 1 << 8,
-	VULKAN_ENTITIES   = 1 << 9,
+enum class CaveAspect {
+	WORKING_VERTICES,
+	WORKING_INSTANCES,
+	WORKING_TEXTURE,
+	STAGING_VERTICES,
+	STAGING_INSTANCES,
+	STAGING_TEXTURE,
+	LIVE_VERTICES,
+	LIVE_INSTANCES,
+	LIVE_TEXTURE,
+	VULKAN_ENTITIES,
 };
-
-inline constexpr CaveAspects operator~(CaveAspects a) {
-	return static_cast<CaveAspects>(~static_cast<uint16_t>(a));
-}
-
-inline constexpr CaveAspects operator|(CaveAspects a, CaveAspects b) {
-	return static_cast<CaveAspects>(static_cast<uint16_t>(a) | static_cast<uint16_t>(b));
-}
-
-inline constexpr CaveAspects operator&(CaveAspects a, CaveAspects b) {
-	return static_cast<CaveAspects>(static_cast<uint16_t>(a) & static_cast<uint16_t>(b));
-}
-
-inline constexpr CaveAspects& operator|=(CaveAspects& a, CaveAspects b) {
-	a = static_cast<CaveAspects>(static_cast<uint16_t>(a) | static_cast<uint16_t>(b));
-	return a;
-}
-
-inline constexpr CaveAspects& operator&=(CaveAspects& a, CaveAspects b) {
-	a = static_cast<CaveAspects>(static_cast<uint16_t>(a) & static_cast<uint16_t>(b));
-	return a;
-}
 
 class Cave {
 public:
@@ -83,7 +61,7 @@ public:
 	void setWorkingData(vector<Vertex> vertices, int width, int height, void* pixels);
 	void setVulkanEntities(Ash& ash, Mountain& mountain, Rocks& rocks, Crater& crater);
 
-	CaveAspects aspects;
+	flag_group<CaveAspect> aspects;
 
 	string name;
 
@@ -94,18 +72,20 @@ public:
 	void* pixels;
 	vector<size_t> vacuum;
 
+	uint32_t vertexCount = 0;
 	VkBuffer vertexBuffer;
 	VmaAllocation vertexAllocation;
 	VmaAllocationInfo vertexInfo;
-	uint32_t vertexCount;
+	uint32_t stagingVertexCount = 0;
 	VkBuffer stagingVertexBuffer;
 	VmaAllocation stagingVertexAllocation;
 	VmaAllocationInfo stagingVertexInfo;
 
+	uint32_t instanceCount = 0;
 	VkBuffer instanceBuffer;
 	VmaAllocation instanceAllocation;
 	VmaAllocationInfo instanceInfo;
-	uint32_t instanceCount;
+	uint32_t stagingInstanceCount = 0;
 	VkBuffer stagingInstanceBuffer;
 	VmaAllocation stagingInstanceAllocation;
 	VmaAllocationInfo stagingInstanceInfo;
@@ -117,13 +97,28 @@ public:
 	VmaAllocation stagingTextureAllocation;
 	VmaAllocationInfo stagingTextureInfo;
 
-	bool has(CaveAspects aspects);
-	void establish(CaveAspects aspects);
-	void refresh(CaveAspects aspects);
-	void updateInstances(vector<size_t> indexes);
-	void free(CaveAspects aspects);
+	void establish(CaveAspect aspect);
+	template <typename... Args>
+	void establish(CaveAspect aspect, Args... args) {
+		establish(aspect);
+		establish(args...);
+	}
 
-	bool canBeDrawn();
+	void refresh(CaveAspect aspect);
+	template <typename... Args>
+	void refresh(CaveAspect aspect, Args... args) {
+		refresh(aspect);
+		refresh(args...);
+	}
+
+	void updateInstances(vector<size_t> indexes);
+
+	void free(CaveAspect aspect);
+	template <typename... Args>
+	void free(CaveAspect aspect, Args... args) {
+		free(aspect);
+		free(args...);
+	}
 
 private:
 	Ash* ash;
