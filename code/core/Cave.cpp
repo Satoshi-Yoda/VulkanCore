@@ -39,13 +39,13 @@ void Cave::setVulkanEntities(Ash& ash, Mountain& mountain, Rocks& rocks, Crater&
 	aspects.raise(CaveAspects::VULKAN_ENTITIES);
 }
 
-void Cave::establish(flag_group<CaveAspects> aspects) {
-	if (aspects.has(CaveAspects::STAGING_VERTICES))  establishStagingVertices();
-	if (aspects.has(CaveAspects::STAGING_INSTANCES)) establishStagingInstances();
-	if (aspects.has(CaveAspects::STAGING_TEXTURE))   establishStagingTexture();
-	if (aspects.has(CaveAspects::LIVE_VERTICES))     establishLiveVertices();
-	if (aspects.has(CaveAspects::LIVE_INSTANCES))    establishLiveInstances();
-	if (aspects.has(CaveAspects::LIVE_TEXTURE))      establishLiveTexture();
+void Cave::establish(CaveAspects aspect) {
+	if (aspect == CaveAspects::STAGING_VERTICES)  establishStagingVertices();
+	if (aspect == CaveAspects::STAGING_INSTANCES) establishStagingInstances();
+	if (aspect == CaveAspects::STAGING_TEXTURE)   establishStagingTexture();
+	if (aspect == CaveAspects::LIVE_VERTICES)     establishLiveVertices();
+	if (aspect == CaveAspects::LIVE_INSTANCES)    establishLiveInstances();
+	if (aspect == CaveAspects::LIVE_TEXTURE)      establishLiveTexture();
 }
 
 void Cave::refresh(CaveAspects aspect) {

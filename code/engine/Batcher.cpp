@@ -138,17 +138,8 @@ void Batcher::establish(Ash& ash, Mountain& mountain, Rocks& rocks, Crater& crat
 	for (auto& it : caves) {
 		auto& cave = it.second;
 		cave->setVulkanEntities(ash, mountain, rocks, crater);
-
-		flag_group<CaveAspects> est1 {};
-		est1.raise(CaveAspects::STAGING_VERTICES, CaveAspects::STAGING_INSTANCES, CaveAspects::STAGING_TEXTURE);
-		cave->establish(est1);
-		// cave->establish(CaveAspects::STAGING_VERTICES | CaveAspects::STAGING_INSTANCES | CaveAspects::STAGING_TEXTURE);
-
-		flag_group<CaveAspects> est2 {};
-		est2.raise(CaveAspects::LIVE_VERTICES, CaveAspects::LIVE_INSTANCES, CaveAspects::LIVE_TEXTURE);
-		cave->establish(est2);
-		// cave->establish(CaveAspects::LIVE_VERTICES | CaveAspects::LIVE_INSTANCES | CaveAspects::LIVE_TEXTURE); // TODO use sheduler worker with own commandBuffer as worker for this task
-
+		cave->establish(CaveAspects::STAGING_VERTICES, CaveAspects::STAGING_INSTANCES, CaveAspects::STAGING_TEXTURE);
+		cave->establish(CaveAspects::LIVE_VERTICES, CaveAspects::LIVE_INSTANCES, CaveAspects::LIVE_TEXTURE); // TODO use sheduler worker with own commandBuffer as worker for this task
 		cave->free(CaveAspects::STAGING_VERTICES, CaveAspects::STAGING_TEXTURE); // TODO free working versices & texture also
 		cavesPtr[it.first] = it.second.get();
 		lava.addCave(move(cave));

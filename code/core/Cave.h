@@ -48,42 +48,6 @@ enum class CaveAspects {
 	VULKAN_ENTITIES,
 };
 
-// enum class CaveAspects : uint16_t {
-// 	NONE = 0,
-// 	WORKING_VERTICES  = 1 << 0,
-// 	WORKING_INSTANCES = 1 << 1,
-// 	WORKING_TEXTURE   = 1 << 2,
-// 	STAGING_VERTICES  = 1 << 3,
-// 	STAGING_INSTANCES = 1 << 4,
-// 	STAGING_TEXTURE   = 1 << 5,
-// 	LIVE_VERTICES     = 1 << 6,
-// 	LIVE_INSTANCES    = 1 << 7,
-// 	LIVE_TEXTURE      = 1 << 8,
-// 	VULKAN_ENTITIES   = 1 << 9,
-// };
-
-// inline constexpr CaveAspects operator~(CaveAspects a) {
-// 	return static_cast<CaveAspects>(~static_cast<uint16_t>(a));
-// }
-
-// inline constexpr CaveAspects operator|(CaveAspects a, CaveAspects b) {
-// 	return static_cast<CaveAspects>(static_cast<uint16_t>(a) | static_cast<uint16_t>(b));
-// }
-
-// inline constexpr CaveAspects operator&(CaveAspects a, CaveAspects b) {
-// 	return static_cast<CaveAspects>(static_cast<uint16_t>(a) & static_cast<uint16_t>(b));
-// }
-
-// inline constexpr CaveAspects& operator|=(CaveAspects& a, CaveAspects b) {
-// 	a = static_cast<CaveAspects>(static_cast<uint16_t>(a) | static_cast<uint16_t>(b));
-// 	return a;
-// }
-
-// inline constexpr CaveAspects& operator&=(CaveAspects& a, CaveAspects b) {
-// 	a = static_cast<CaveAspects>(static_cast<uint16_t>(a) & static_cast<uint16_t>(b));
-// 	return a;
-// }
-
 class Cave {
 public:
 	Cave();
@@ -134,7 +98,12 @@ public:
 	VmaAllocation stagingTextureAllocation;
 	VmaAllocationInfo stagingTextureInfo;
 
-	void establish(flag_group<CaveAspects> aspects);
+	void establish(CaveAspects aspect);
+	template <typename... Args>
+	void establish(CaveAspects aspect, Args... args) {
+		establish(aspect);
+		establish(args...);
+	}
 
 	void refresh(CaveAspects aspect);
 	template <typename... Args>
