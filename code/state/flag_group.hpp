@@ -15,22 +15,31 @@ public:
 	void raise(T value) {
 		data.set(static_cast<size_t>(value));
 	}
+	template <typename... Args>
+	void raise(T value, Args... args) {
+		data.set(static_cast<size_t>(value));
+		raise(args...);
+	}
 
 	void drop(T value) {
 		data.reset(static_cast<size_t>(value));
 	}
-
-	void clear() {
-		data.reset();
+	template <typename... Args>
+	void drop(T value, Args... args) {
+		data.reset(static_cast<size_t>(value));
+		drop(args...);
 	}
 
 	bool has(T value) {
 		return data.test(static_cast<size_t>(value));
 	}
-
 	template <typename... Args>
 	bool has(T value, Args... args) {
 		return data.test(static_cast<size_t>(value)) && has(args...);
+	}
+
+	void clear() {
+		data.reset();
 	}
 
 private:

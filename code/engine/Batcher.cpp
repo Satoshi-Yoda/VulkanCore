@@ -140,22 +140,17 @@ void Batcher::establish(Ash& ash, Mountain& mountain, Rocks& rocks, Crater& crat
 		cave->setVulkanEntities(ash, mountain, rocks, crater);
 
 		flag_group<CaveAspects> est1 {};
-		est1.raise(CaveAspects::STAGING_VERTICES);
-		est1.raise(CaveAspects::STAGING_INSTANCES);
-		est1.raise(CaveAspects::STAGING_TEXTURE);
+		est1.raise(CaveAspects::STAGING_VERTICES, CaveAspects::STAGING_INSTANCES, CaveAspects::STAGING_TEXTURE);
 		cave->establish(est1);
 		// cave->establish(CaveAspects::STAGING_VERTICES | CaveAspects::STAGING_INSTANCES | CaveAspects::STAGING_TEXTURE);
 
 		flag_group<CaveAspects> est2 {};
-		est2.raise(CaveAspects::LIVE_VERTICES);
-		est2.raise(CaveAspects::LIVE_INSTANCES);
-		est2.raise(CaveAspects::LIVE_TEXTURE);
+		est2.raise(CaveAspects::LIVE_VERTICES, CaveAspects::LIVE_INSTANCES, CaveAspects::LIVE_TEXTURE);
 		cave->establish(est2);
 		// cave->establish(CaveAspects::LIVE_VERTICES | CaveAspects::LIVE_INSTANCES | CaveAspects::LIVE_TEXTURE); // TODO use sheduler worker with own commandBuffer as worker for this task
 
 		flag_group<CaveAspects> free1 {};
-		free1.raise(CaveAspects::STAGING_VERTICES);
-		free1.raise(CaveAspects::STAGING_TEXTURE);
+		free1.raise(CaveAspects::STAGING_VERTICES, CaveAspects::STAGING_TEXTURE);
 		cave->free(free1);
 		// cave->free(CaveAspects::STAGING_VERTICES | CaveAspects::STAGING_TEXTURE); // TODO free working versices & texture also
 		cavesPtr[it.first] = it.second.get();
@@ -225,8 +220,7 @@ void Batcher::update(double t, double dt) {
 	for (auto& [name, value] : touchedIndexes) {
 		if (resizedNames.find(name) != resizedNames.end() || value.size() * 100 > cavesPtr[name]->instanceCount) {
 			flag_group<CaveAspects> refr1 {};
-			refr1.raise(CaveAspects::STAGING_INSTANCES);
-			refr1.raise(CaveAspects::LIVE_INSTANCES);
+			refr1.raise(CaveAspects::STAGING_INSTANCES, CaveAspects::LIVE_INSTANCES);
 			cavesPtr[name]->refresh(refr1);
 			// cavesPtr[name]->refresh(CaveAspects::STAGING_INSTANCES | CaveAspects::LIVE_INSTANCES);
 		} else {

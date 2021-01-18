@@ -23,9 +23,7 @@ void Cave::setWorkingData(vector<Vertex> vertices, int width, int height, void* 
 	this->width = width;
 	this->height = height;
 	this->pixels = pixels;
-	aspects.raise(CaveAspects::WORKING_VERTICES);
-	aspects.raise(CaveAspects::WORKING_INSTANCES);
-	aspects.raise(CaveAspects::WORKING_TEXTURE);
+	aspects.raise(CaveAspects::WORKING_VERTICES, CaveAspects::WORKING_INSTANCES, CaveAspects::WORKING_TEXTURE);
 	// aspects |= (CaveAspects::WORKING_VERTICES | CaveAspects::WORKING_INSTANCES | CaveAspects::WORKING_TEXTURE);
 }
 
