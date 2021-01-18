@@ -34,8 +34,7 @@ struct Instance {
 	vec2 pos;
 };
 
-// TODO rename to CaveAspect
-enum class CaveAspects {
+enum class CaveAspect {
 	WORKING_VERTICES,
 	WORKING_INSTANCES,
 	WORKING_TEXTURE,
@@ -62,7 +61,7 @@ public:
 	void setWorkingData(vector<Vertex> vertices, int width, int height, void* pixels);
 	void setVulkanEntities(Ash& ash, Mountain& mountain, Rocks& rocks, Crater& crater);
 
-	flag_group<CaveAspects> aspects;
+	flag_group<CaveAspect> aspects;
 
 	string name;
 
@@ -98,25 +97,25 @@ public:
 	VmaAllocation stagingTextureAllocation;
 	VmaAllocationInfo stagingTextureInfo;
 
-	void establish(CaveAspects aspect);
+	void establish(CaveAspect aspect);
 	template <typename... Args>
-	void establish(CaveAspects aspect, Args... args) {
+	void establish(CaveAspect aspect, Args... args) {
 		establish(aspect);
 		establish(args...);
 	}
 
-	void refresh(CaveAspects aspect);
+	void refresh(CaveAspect aspect);
 	template <typename... Args>
-	void refresh(CaveAspects aspect, Args... args) {
+	void refresh(CaveAspect aspect, Args... args) {
 		refresh(aspect);
 		refresh(args...);
 	}
 
 	void updateInstances(vector<size_t> indexes);
 
-	void free(CaveAspects aspect);
+	void free(CaveAspect aspect);
 	template <typename... Args>
-	void free(CaveAspects aspect, Args... args) {
+	void free(CaveAspect aspect, Args... args) {
 		free(aspect);
 		free(args...);
 	}

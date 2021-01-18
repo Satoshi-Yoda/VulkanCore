@@ -138,9 +138,9 @@ void Batcher::establish(Ash& ash, Mountain& mountain, Rocks& rocks, Crater& crat
 	for (auto& it : caves) {
 		auto& cave = it.second;
 		cave->setVulkanEntities(ash, mountain, rocks, crater);
-		cave->establish(CaveAspects::STAGING_VERTICES, CaveAspects::STAGING_INSTANCES, CaveAspects::STAGING_TEXTURE);
-		cave->establish(CaveAspects::LIVE_VERTICES, CaveAspects::LIVE_INSTANCES, CaveAspects::LIVE_TEXTURE); // TODO use sheduler worker with own commandBuffer as worker for this task
-		cave->free(CaveAspects::STAGING_VERTICES, CaveAspects::STAGING_TEXTURE); // TODO free working versices & texture also
+		cave->establish(CaveAspect::STAGING_VERTICES, CaveAspect::STAGING_INSTANCES, CaveAspect::STAGING_TEXTURE);
+		cave->establish(CaveAspect::LIVE_VERTICES, CaveAspect::LIVE_INSTANCES, CaveAspect::LIVE_TEXTURE); // TODO use sheduler worker with own commandBuffer as worker for this task
+		cave->free(CaveAspect::STAGING_VERTICES, CaveAspect::STAGING_TEXTURE); // TODO free working versices & texture also
 		cavesPtr[it.first] = it.second.get();
 		lava.addCave(move(cave));
 	}
@@ -207,7 +207,7 @@ void Batcher::updateInstance(string name, size_t index, Instance instance) {
 void Batcher::update(double t, double dt) {
 	for (auto& [name, value] : touchedIndexes) {
 		if (resizedNames.find(name) != resizedNames.end() || value.size() * 100 > cavesPtr[name]->instanceCount) {
-			cavesPtr[name]->refresh(CaveAspects::STAGING_INSTANCES, CaveAspects::LIVE_INSTANCES);
+			cavesPtr[name]->refresh(CaveAspect::STAGING_INSTANCES, CaveAspect::LIVE_INSTANCES);
 		} else {
 			cavesPtr[name]->updateInstances(value);
 		}
