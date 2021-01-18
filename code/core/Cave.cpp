@@ -11,7 +11,12 @@ using namespace std;
 Cave::Cave() { }
 
 Cave::~Cave() {
-	this->free(aspects);
+	if (this->aspects.has(CaveAspects::STAGING_VERTICES))  freeStagingVertices();
+	if (this->aspects.has(CaveAspects::STAGING_INSTANCES)) freeStagingInstances();
+	if (this->aspects.has(CaveAspects::STAGING_TEXTURE))   freeStagingTexture();
+	if (this->aspects.has(CaveAspects::LIVE_VERTICES))     freeLiveVertices();
+	if (this->aspects.has(CaveAspects::LIVE_INSTANCES))    freeLiveInstances();
+	if (this->aspects.has(CaveAspects::LIVE_TEXTURE))      freeLiveTexture();
 }
 
 void Cave::setName(string name) {
@@ -89,13 +94,13 @@ void Cave::updateInstances(vector<size_t> indexes) {
 	rocks->copyBufferToBuffer(stagingBuffer, buffer, regions, VK_ACCESS_VERTEX_ATTRIBUTE_READ_BIT);
 }
 
-void Cave::free(flag_group<CaveAspects> aspects) {
-	if (aspects.has(CaveAspects::STAGING_VERTICES)  && this->aspects.has(CaveAspects::STAGING_VERTICES))  freeStagingVertices();
-	if (aspects.has(CaveAspects::STAGING_INSTANCES) && this->aspects.has(CaveAspects::STAGING_INSTANCES)) freeStagingInstances();
-	if (aspects.has(CaveAspects::STAGING_TEXTURE)   && this->aspects.has(CaveAspects::STAGING_TEXTURE))   freeStagingTexture();
-	if (aspects.has(CaveAspects::LIVE_VERTICES)     && this->aspects.has(CaveAspects::LIVE_VERTICES))     freeLiveVertices();
-	if (aspects.has(CaveAspects::LIVE_INSTANCES)    && this->aspects.has(CaveAspects::LIVE_INSTANCES))    freeLiveInstances();
-	if (aspects.has(CaveAspects::LIVE_TEXTURE)      && this->aspects.has(CaveAspects::LIVE_TEXTURE))      freeLiveTexture();
+void Cave::free(CaveAspects aspect) {
+	if (aspect == CaveAspects::STAGING_VERTICES  && this->aspects.has(aspect)) freeStagingVertices();
+	if (aspect == CaveAspects::STAGING_INSTANCES && this->aspects.has(aspect)) freeStagingInstances();
+	if (aspect == CaveAspects::STAGING_TEXTURE   && this->aspects.has(aspect)) freeStagingTexture();
+	if (aspect == CaveAspects::LIVE_VERTICES     && this->aspects.has(aspect)) freeLiveVertices();
+	if (aspect == CaveAspects::LIVE_INSTANCES    && this->aspects.has(aspect)) freeLiveInstances();
+	if (aspect == CaveAspects::LIVE_TEXTURE      && this->aspects.has(aspect)) freeLiveTexture();
 }
 
 void Cave::establishStagingVertices() {

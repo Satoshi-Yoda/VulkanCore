@@ -149,10 +149,7 @@ void Batcher::establish(Ash& ash, Mountain& mountain, Rocks& rocks, Crater& crat
 		cave->establish(est2);
 		// cave->establish(CaveAspects::LIVE_VERTICES | CaveAspects::LIVE_INSTANCES | CaveAspects::LIVE_TEXTURE); // TODO use sheduler worker with own commandBuffer as worker for this task
 
-		flag_group<CaveAspects> free1 {};
-		free1.raise(CaveAspects::STAGING_VERTICES, CaveAspects::STAGING_TEXTURE);
-		cave->free(free1);
-		// cave->free(CaveAspects::STAGING_VERTICES | CaveAspects::STAGING_TEXTURE); // TODO free working versices & texture also
+		cave->free(CaveAspects::STAGING_VERTICES, CaveAspects::STAGING_TEXTURE); // TODO free working versices & texture also
 		cavesPtr[it.first] = it.second.get();
 		lava.addCave(move(cave));
 	}

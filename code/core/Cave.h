@@ -144,7 +144,13 @@ public:
 	}
 
 	void updateInstances(vector<size_t> indexes);
-	void free(flag_group<CaveAspects> aspects);
+
+	void free(CaveAspects aspect);
+	template <typename... Args>
+	void free(CaveAspects aspect, Args... args) {
+		free(aspect);
+		free(args...);
+	}
 
 private:
 	Ash* ash;
