@@ -17,7 +17,7 @@ using namespace std;
 
 int main() {
 	std::setvbuf(stdout, nullptr, _IONBF, 0);
-	printf("\n");
+	printf("===============================================================================\n");
 
 	try {
 		auto startLoading = chrono::high_resolution_clock::now();

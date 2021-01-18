@@ -14,8 +14,9 @@
 #define GLM_FORCE_RADIANS
 #include <glm/glm.hpp>
 
-#include "Rocks.h"
 #include "Crater.h"
+#include "Rocks.h"
+#include "../state/flag_group.hpp"
 
 using glm::vec2;
 using glm::vec3;
@@ -33,41 +34,54 @@ struct Instance {
 	vec2 pos;
 };
 
-enum class CaveAspects : uint16_t {
-	NONE = 0,
-	WORKING_VERTICES  = 1 << 0,
-	WORKING_INSTANCES = 1 << 1,
-	WORKING_TEXTURE   = 1 << 2,
-	STAGING_VERTICES  = 1 << 3,
-	STAGING_INSTANCES = 1 << 4,
-	STAGING_TEXTURE   = 1 << 5,
-	LIVE_VERTICES     = 1 << 6,
-	LIVE_INSTANCES    = 1 << 7,
-	LIVE_TEXTURE      = 1 << 8,
-	VULKAN_ENTITIES   = 1 << 9,
+enum class CaveAspects {
+	WORKING_VERTICES,
+	WORKING_INSTANCES,
+	WORKING_TEXTURE,
+	STAGING_VERTICES,
+	STAGING_INSTANCES,
+	STAGING_TEXTURE,
+	LIVE_VERTICES,
+	LIVE_INSTANCES,
+	LIVE_TEXTURE,
+	VULKAN_ENTITIES,
 };
 
-inline constexpr CaveAspects operator~(CaveAspects a) {
-	return static_cast<CaveAspects>(~static_cast<uint16_t>(a));
-}
+// enum class CaveAspects : uint16_t {
+// 	NONE = 0,
+// 	WORKING_VERTICES  = 1 << 0,
+// 	WORKING_INSTANCES = 1 << 1,
+// 	WORKING_TEXTURE   = 1 << 2,
+// 	STAGING_VERTICES  = 1 << 3,
+// 	STAGING_INSTANCES = 1 << 4,
+// 	STAGING_TEXTURE   = 1 << 5,
+// 	LIVE_VERTICES     = 1 << 6,
+// 	LIVE_INSTANCES    = 1 << 7,
+// 	LIVE_TEXTURE      = 1 << 8,
+// 	VULKAN_ENTITIES   = 1 << 9,
+// };
 
-inline constexpr CaveAspects operator|(CaveAspects a, CaveAspects b) {
-	return static_cast<CaveAspects>(static_cast<uint16_t>(a) | static_cast<uint16_t>(b));
-}
+// inline constexpr CaveAspects operator~(CaveAspects a) {
+// 	return static_cast<CaveAspects>(~static_cast<uint16_t>(a));
+// }
 
-inline constexpr CaveAspects operator&(CaveAspects a, CaveAspects b) {
-	return static_cast<CaveAspects>(static_cast<uint16_t>(a) & static_cast<uint16_t>(b));
-}
+// inline constexpr CaveAspects operator|(CaveAspects a, CaveAspects b) {
+// 	return static_cast<CaveAspects>(static_cast<uint16_t>(a) | static_cast<uint16_t>(b));
+// }
 
-inline constexpr CaveAspects& operator|=(CaveAspects& a, CaveAspects b) {
-	a = static_cast<CaveAspects>(static_cast<uint16_t>(a) | static_cast<uint16_t>(b));
-	return a;
-}
+// inline constexpr CaveAspects operator&(CaveAspects a, CaveAspects b) {
+// 	return static_cast<CaveAspects>(static_cast<uint16_t>(a) & static_cast<uint16_t>(b));
+// }
 
-inline constexpr CaveAspects& operator&=(CaveAspects& a, CaveAspects b) {
-	a = static_cast<CaveAspects>(static_cast<uint16_t>(a) & static_cast<uint16_t>(b));
-	return a;
-}
+// inline constexpr CaveAspects& operator|=(CaveAspects& a, CaveAspects b) {
+// 	a = static_cast<CaveAspects>(static_cast<uint16_t>(a) | static_cast<uint16_t>(b));
+// 	return a;
+// }
+
+// inline constexpr CaveAspects& operator&=(CaveAspects& a, CaveAspects b) {
+// 	a = static_cast<CaveAspects>(static_cast<uint16_t>(a) & static_cast<uint16_t>(b));
+// 	return a;
+// }
 
 class Cave {
 public:
@@ -83,7 +97,7 @@ public:
 	void setWorkingData(vector<Vertex> vertices, int width, int height, void* pixels);
 	void setVulkanEntities(Ash& ash, Mountain& mountain, Rocks& rocks, Crater& crater);
 
-	CaveAspects aspects;
+	flag_group<CaveAspects> aspects;
 
 	string name;
 
@@ -117,13 +131,12 @@ public:
 	VmaAllocation stagingTextureAllocation;
 	VmaAllocationInfo stagingTextureInfo;
 
-	bool has(CaveAspects aspects);
-	void establish(CaveAspects aspects);
-	void refresh(CaveAspects aspects);
+	// bool has(flag_group<CaveAspects> aspects);
+	void establish(flag_group<CaveAspects> aspects);
+	void refresh(flag_group<CaveAspects> aspects);
 	void updateInstances(vector<size_t> indexes);
-	void free(CaveAspects aspects);
-
-	bool canBeDrawn();
+	void free(flag_group<CaveAspects> aspects);
+	// bool canBeDrawn();
 
 private:
 	Ash* ash;

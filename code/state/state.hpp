@@ -1,3 +1,6 @@
+#ifndef STATE_HPP
+#define STATE_HPP
+
 template <typename T>
 class state {
 public:
@@ -20,3 +23,5 @@ public:
 private:
 	T value;
 };
+
+#endif
