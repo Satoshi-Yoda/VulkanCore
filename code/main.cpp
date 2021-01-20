@@ -8,6 +8,7 @@
 #include "core/Tectonic.h"
 #include "engine/Batcher.h"
 #include "scene/Scene.h"
+#include "team/Team.h"
 
 #include <chrono>
 #include <iostream>
@@ -22,7 +23,8 @@ int main() {
 	try {
 		auto startLoading = chrono::high_resolution_clock::now();
 
-		Batcher batcher {};
+		Team team {};
+		Batcher batcher { team };
 
 		thread loadSceneThread([&](){
 			batcher.loadFolderNth("_crops_harvester", 12);

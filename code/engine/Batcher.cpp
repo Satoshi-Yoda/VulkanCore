@@ -12,7 +12,7 @@
 
 using namespace std;
 
-Batcher::Batcher() {}
+Batcher::Batcher(Team& team): team(team) {}
 
 Batcher::~Batcher() {}
 

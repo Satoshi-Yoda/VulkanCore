@@ -9,6 +9,7 @@
 
 #include "../core/Cave.h"
 #include "../core/Lava.h"
+#include "../team/Team.h"
 
 using std::map;
 using std::set;
@@ -18,7 +19,7 @@ using std::unordered_map;
 
 class Batcher {
 public:
-	Batcher();
+	Batcher(Team& team);
 	~Batcher();
 
 	void loadFolder(string folder);
@@ -30,6 +31,7 @@ public:
 	void update(double t, double dt);
 
 private:
+	Team& team;
 	Ash* ash;
 	Lava* lava;
 
