@@ -1,6 +1,6 @@
 VULKAN_HOME     = C:/_soft/VulkanSDK_1.2.148.1
 GLFW_HOME       = O:/_libs/glfw-3.3.2.bin.WIN64
-GLM_HOME        = O:/_libs/glm-edited
+GLM_HOME        = O:/_libs/glm
 # STB_HOME        = O:/_libs/stb-master
 STB_HOME        = O:/_repo/stb
 VMA_HOME        = O:/_libs/VulkanMemoryAllocator-master/src
