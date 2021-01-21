@@ -26,6 +26,13 @@ Team::Team() {
 
 Team::~Team() {
 	join();
+
+	mutex.lock();
+		quitFlag = true;
+	mutex.unlock();
+	for (auto& cv : cvs) cv.notify_all();
+
+	for (auto& specialist : specialists) specialist.thr->join();
 }
 
 shared_ptr<Task> Team::task(const Speciality speciality, const function<void()> func, const set<shared_ptr<Task>> dependencies) {
@@ -56,108 +63,69 @@ shared_ptr<Task> Team::task(const Speciality speciality, const function<void()> 
 }
 
 void Team::join() {
-	if (joined) return;
-
-	// while (true) {
-	// 	bool done = true;
-	// 	mutex.lock();
-	// 		done = done && blockedTasks.empty();
-	// 		for (size_t i = 0; i < SpecialityCount; i++) {
-	// 			done = done && availableTasks[i].empty();
-	// 		}
-	// 	mutex.unlock();
-
-	// 	std::this_thread::sleep_for(std::chrono::milliseconds(10));
-
-	// 	if (done) break;
-	// }
-
-	// mutex.lock();
-	// 	quit = true;
-	// mutex.unlock();
-	// for (auto& cv : cvs) cv.notify_all();
-
-	// while (true) {
-	// 	bool done = true;
-	// 	for (auto& specialist : specialists) {
-	// 		done = done && specialist.done;
-	// 	}
-
-	// 	std::this_thread::sleep_for(std::chrono::milliseconds(10));
-
-	// 	if (done) break;
-	// }
-
-	// cout << "Team.join() here" << endl;
-
-	{
-		unique_lock<std::mutex> lock { mutex };
-		ready_cv.wait(lock, [&]{
-			bool done = true;
-			done = done && blockedTasks.empty();
-			for (size_t i = 0; i < SpecialityCount; i++) {
-				done = done && availableTasks[i].empty();
-			}
-			// cout << "catch done = " << (done ? "true" : "false") << endl;
-			return done;
-		});
-	}
-
-	mutex.lock();
-		quit = true;
-	mutex.unlock();
-	for (auto& cv : cvs) cv.notify_all();
-
-	for (auto& specialist : specialists) specialist.thr->join();
-
-	joined = true;
-}
-
-bool Team::wait(std::chrono::milliseconds time) {
-	auto start = std::chrono::steady_clock::now();
-
-	bool noBlocked = false;
-
-	while (std::chrono::steady_clock::now() < start + time) {
+	unique_lock<std::mutex> lock { this->mutex };
+	ready_cv.wait(lock, [&]{
 		bool done = true;
-		mutex.lock();
-			done = done && blockedTasks.empty();
-			for (size_t i = 0; i < SpecialityCount; i++) {
-				done = done && availableTasks[i].empty();
-			}
-		mutex.unlock();
+		done = done && blockedTasks.empty();
 
-		std::this_thread::sleep_for(std::chrono::milliseconds(10));
-
-		if (done) {
-			noBlocked = true;
-			break;
+		for (size_t i = 0; i < SpecialityCount; i++) {
+			done = done && availableTasks[i].empty();
 		}
-	}
 
-	mutex.lock();
-		quit = true;
-	mutex.unlock();
-	for (auto& cv : cvs) cv.notify_all();
-
-	bool noInProgress = false;
-
-	while (std::chrono::steady_clock::now() < start + time * 2) {
-		bool done = true;
 		for (auto& specialist : specialists) {
-			done = done && specialist.done;
+			done = done && !specialist.task.has_value();
 		}
 
-		std::this_thread::sleep_for(std::chrono::milliseconds(10));
-
-		if (done) {
-			noInProgress = true;
-			break;
-		}
-	}
-
-	return noBlocked && noInProgress;
+		// cout << "catch done = " << (done ? "true" : "false") << endl;
+		return done;
+	});
 }
+
+// bool Team::wait(std::chrono::milliseconds time) {
+// 	auto start = std::chrono::steady_clock::now();
+
+// 	bool noBlocked = false;
+
+// 	while (std::chrono::steady_clock::now() < start + time) {
+// 		bool done = true;
+// 		mutex.lock();
+// 			done = done && blockedTasks.empty();
+// 			for (size_t i = 0; i < SpecialityCount; i++) {
+// 				done = done && availableTasks[i].empty();
+// 			}
+// 		mutex.unlock();
+
+// 		std::this_thread::sleep_for(std::chrono::milliseconds(10));
+
+// 		if (done) {
+// 			noBlocked = true;
+// 			break;
+// 		}
+// 	}
+
+// 	mutex.lock();
+// 		quitFlag = true;
+// 	mutex.unlock();
+// 	for (auto& cv : cvs) cv.notify_all();
+
+// 	bool noInProgress = false;
+
+// 	while (std::chrono::steady_clock::now() < start + time * 2) {
+// 		bool done = true;
+// 		for (auto& specialist : specialists) {
+// 			done = done && specialist.done;
+// 		}
+
+// 		std::this_thread::sleep_for(std::chrono::milliseconds(10));
+
+// 		if (done) {
+// 			noInProgress = true;
+// 			break;
+// 		}
+// 	}
+
+// 	return noBlocked && noInProgress;
+// }
 
 Specialist* Team::findCurrentSpecialist() {
 	auto id = std::this_thread::get_id();

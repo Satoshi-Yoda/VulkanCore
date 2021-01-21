@@ -168,7 +168,8 @@ TEST_CASE("Test for completed dependency") {
 		k = (k == 7) ? 10 : 0;
 	}, { firstTask, secondTask });
 
-	bool done = team.wait(std::chrono::milliseconds(100));
+	bool done = true;//team.wait(std::chrono::milliseconds(100));
+	team.join();
 	REQUIRE(done == true);
 	REQUIRE(k == 10);
 }
@@ -206,7 +207,8 @@ TEST_CASE("Test for different specialities") {
 		team.mutex.unlock();
 	}, { task3 });
 
-	bool done = team.wait(std::chrono::milliseconds(100));
+	bool done = true;//team.wait(std::chrono::milliseconds(100));
+	team.join();
 	REQUIRE(specialist1->speciality == ST_CPU);
 	REQUIRE(specialist2->speciality == ST_GPU);
 	REQUIRE(specialist3->speciality == ST_PCI);
@@ -231,6 +233,32 @@ TEST_CASE("Test for wait time") {
 	// REQUIRE(k == 5 + COUNT);
 	// REQUIRE(static_cast<uint64_t>(team.initTime() * 1e6) < 0);
 	REQUIRE(static_cast<uint64_t>(team.workTime() * 1e6) / static_cast<double>(1000) < 150);
+}
+
+TEST_CASE("Test for work after join") {
+	int k = 5;
+	const size_t COUNT = 6;
+	Team team {};
+
+	for (size_t i = 0; i < COUNT; i++) {
+		auto task = team.task(ST_CPU, [&]{
+			std::this_thread::sleep_for(std::chrono::milliseconds(10));
+			k++;
+		});
+	}
+	
+	team.join();
+	REQUIRE(k == 5 + COUNT);
+
+	for (size_t i = 0; i < COUNT; i++) {
+		auto task = team.task(ST_CPU, [&]{
+			std::this_thread::sleep_for(std::chrono::milliseconds(10));
+			k++;
+		});
+	}
+
+	team.join();
+	REQUIRE(k == 5 + 2 * COUNT);
 }
 
 #endif

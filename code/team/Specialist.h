@@ -1,17 +1,13 @@
 #pragma once
 
-#include <array>
-#include <atomic>
 #include <memory>
-#include <mutex>
+#include <optional>
 #include <thread>
 
 #include "Task.h"
 #include "Team.h"
 
-using std::array;
-using std::atomic_bool;
-using std::mutex;
+using std::optional;
 using std::shared_ptr;
 using std::thread;
 
@@ -27,10 +23,10 @@ public:
 	Specialist& operator=(const Specialist&) = delete;
 	Specialist& operator=(Specialist&&)      = delete;
 
-	atomic_bool done = false;
 	Speciality speciality;
 	size_t id = 0;
 	thread* thr;
+	optional<shared_ptr<Task>> task {};
 
 private:
 	Team& team;

@@ -29,7 +29,7 @@ public:
 
 	shared_ptr<Task> task(const Speciality speciality, const function<void()> func, const set<shared_ptr<Task>> dependencies = set<shared_ptr<Task>>());
 	void join();
-	bool wait(std::chrono::milliseconds time);
+	// bool wait(std::chrono::milliseconds time);
 	Specialist* findCurrentSpecialist();
 	double initTime();
 	double workTime();
@@ -40,8 +40,7 @@ public:
 
 	array<queue<shared_ptr<Task>>, SpecialityCount> availableTasks;
 	set<shared_ptr<Task>> blockedTasks;
-	bool quit = false;
-	bool joined = false;
+	bool quitFlag = false;
 
 private:
 	list<Specialist> specialists;
