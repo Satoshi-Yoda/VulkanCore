@@ -27,7 +27,7 @@ public:
 	Team();
 	~Team();
 
-	shared_ptr<Task> task(const Speciality speciality, const function<void()> func, const set<shared_ptr<Task>> dependencies = set<shared_ptr<Task>>());
+	shared_ptr<Task> task(const Speciality speciality, const function<void()> func, const set<shared_ptr<Task>> dependencies = set<shared_ptr<Task>>()); // TODO make cpu_task(...), etc
 	void join();
 	// bool wait(std::chrono::milliseconds time);
 	Specialist* findCurrentSpecialist();
