@@ -99,6 +99,39 @@ void Batcher::loadFolderNth(string folder, uint32_t workers) {
 	printf("Loaded %lld .png files (%.2f Mb files) from %s in %.3fs\n", files.size(), 1.0 * fileSizes / (1 << 20), folder.data(), chrono::duration_cast<chrono::duration<double>>(chrono::high_resolution_clock::now() - start).count());
 }
 
+void Batcher::loadFolderTeam(string folder) {
+	auto start = chrono::high_resolution_clock::now();
+
+	mutex putMutex;
+
+	size_t i = 0;
+	for (const auto& entry : filesystem::directory_iterator(folder)) {
+		size_t index = i++;
+		team.task(ST_CPU, [entry, index, &putMutex, this]{
+			string name = entry.path().stem().string();
+
+			void* pixels;
+			int width, height;
+			loadTexture(entry.path().string(), pixels, &width, &height);
+
+			vector<Vertex> vertices = initQuad(width, height);
+
+			unique_ptr<Cave> cave = make_unique<Cave>();
+			cave->setName(name);
+			cave->setWorkingData(vertices, width, height, pixels);
+
+			putMutex.lock();
+				caves[name] = move(cave);
+				indexes[name] = index;
+			putMutex.unlock();
+		});
+	}
+
+	team.join();
+
+	printf("Loaded %lld files: %s/*.png in %.3fs\n", i, folder.data(), chrono::duration_cast<chrono::duration<double>>(chrono::high_resolution_clock::now() - start).count());
+}
+
 vector<Vertex> Batcher::initQuad(uint32_t w, uint32_t h) {
 	float scale = 1.0f;
 
