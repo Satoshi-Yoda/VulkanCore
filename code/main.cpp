@@ -30,8 +30,9 @@ int main() {
 			// batcher.loadFolderNth("_crops_harvester", 12);
 			// batcher.loadFolder("_crops_harvester");
 
-			// batcher.loadFolderNth("_crops_harvester", 12);
-			batcher.loadFolderTeam("_crops_harvester");
+			// batcher.loadFolderTeam("_crops_harvester"); // ok
+			batcher.loadFolderTeam("_crops_megafactory"); // fails
+			// batcher.loadFolderTeam("_crops_mess"); // ok
 		});
 
 		Ash ash {};

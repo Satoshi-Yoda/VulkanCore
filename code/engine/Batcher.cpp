@@ -105,26 +105,29 @@ void Batcher::loadFolderTeam(string folder) {
 	mutex putMutex;
 
 	size_t i = 0;
-	for (const auto& entry : filesystem::directory_iterator(folder)) {
-		size_t index = i++;
-		team.task(ST_CPU, [entry, index, &putMutex, this]{
-			string name = entry.path().stem().string();
+	for (const auto& entry : filesystem::recursive_directory_iterator(folder)) {
+		auto path = entry.path();
+		if (path.extension().string() == ".png") {
+			size_t index = i++;
+			team.task(ST_CPU, [path, index, &putMutex, this]{
+				string name = path.stem().string();
 
-			void* pixels;
-			int width, height;
-			loadTexture(entry.path().string(), pixels, &width, &height);
+				void* pixels;
+				int width, height;
+				loadTexture(path.string(), pixels, &width, &height);
 
-			vector<Vertex> vertices = initQuad(width, height);
+				vector<Vertex> vertices = initQuad(width, height);
 
-			unique_ptr<Cave> cave = make_unique<Cave>();
-			cave->setName(name);
-			cave->setWorkingData(vertices, width, height, pixels);
+				unique_ptr<Cave> cave = make_unique<Cave>();
+				cave->setName(name);
+				cave->setWorkingData(vertices, width, height, pixels);
 
-			putMutex.lock();
-				caves[name] = move(cave);
-				indexes[name] = index;
-			putMutex.unlock();
-		});
+				putMutex.lock();
+					caves[name] = move(cave);
+					indexes[name] = index;
+				putMutex.unlock();
+			});
+		}
 	}
 
 	team.join();
