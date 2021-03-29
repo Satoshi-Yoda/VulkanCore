@@ -191,17 +191,18 @@ void Batcher::establish(Ash& ash, Mountain& mountain, Rocks& rocks, Crater& crat
 
 	// team.join();
 
-	for (auto& it : caves) {
+	for (auto& it : caves) {\
+		auto& key = it.first;
 		auto& cave = it.second;
-		auto id1 = team.task(ST_CPU, [&it, &cave, &ash, &mountain, &rocks, &crater, &lava, this]{
+		auto id1 = team.task(ST_CPU, [&cave, &ash, &mountain, &rocks, &crater, &lava, this]{
 			cave->setVulkanEntities(ash, mountain, rocks, crater);
 			cave->establish(CaveAspect::STAGING_VERTICES, CaveAspect::STAGING_INSTANCES, CaveAspect::STAGING_TEXTURE);
 		});
 
-		team.task(ST_GPU, [&it, &cave, &ash, &mountain, &rocks, &crater, &lava, this]{
+		team.task(ST_GPU, [&key, &cave, &ash, &mountain, &rocks, &crater, &lava, this]{
 			cave->establish(CaveAspect::LIVE_VERTICES, CaveAspect::LIVE_INSTANCES, CaveAspect::LIVE_TEXTURE); // TODO use sheduler worker with own commandBuffer as worker for this task
 			cave->free(CaveAspect::STAGING_VERTICES, CaveAspect::STAGING_TEXTURE); // TODO free working versices & texture also
-			cavesPtr[it.first] = it.second.get();
+			cavesPtr[key] = cave.get();
 			lava.addCave(move(cave));
 		}, { id1 });
 	}
