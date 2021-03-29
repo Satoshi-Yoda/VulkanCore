@@ -103,6 +103,13 @@ public:
 		establish(args...);
 	}
 
+	void mount(VkCommandBuffer commandBuffer, CaveAspect aspect);
+	template <typename... Args>
+	void mount(VkCommandBuffer commandBuffer, CaveAspect aspect, Args... args) {
+		mount(commandBuffer, aspect);
+		mount(commandBuffer, args...);
+	}
+
 	void refresh(CaveAspect aspect);
 	template <typename... Args>
 	void refresh(CaveAspect aspect, Args... args) {

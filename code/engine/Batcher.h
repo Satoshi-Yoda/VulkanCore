@@ -44,6 +44,8 @@ private:
 	set<string> resizedNames;
 	map<string, vector<size_t>> touchedIndexes;
 
+	mutex putMutex;
+
 	size_t texturesBytes;
 
 	vector<Vertex> initQuad(uint32_t w, uint32_t h);

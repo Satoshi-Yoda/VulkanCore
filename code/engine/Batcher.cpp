@@ -102,14 +102,12 @@ void Batcher::loadFolderNth(string folder, uint32_t workers) {
 void Batcher::loadFolderTeam(string folder) {
 	auto start = chrono::high_resolution_clock::now();
 
-	mutex putMutex;
-
 	size_t i = 0;
 	for (const auto& entry : filesystem::recursive_directory_iterator(folder)) {
 		auto path = entry.path();
 		if (path.extension().string() == ".png") {
 			size_t index = i++;
-			team.task(ST_CPU, [path, index, &putMutex, this]{
+			team.task(ST_CPU, [path, index, this]{
 				string name = path.stem().string();
 
 				void* pixels;
@@ -130,7 +128,7 @@ void Batcher::loadFolderTeam(string folder) {
 		}
 	}
 
-	team.join();
+	// team.join();
 
 	printf("Loaded %lld files: %s/*.png in %.3fs\n", i, folder.data(), chrono::duration_cast<chrono::duration<double>>(chrono::high_resolution_clock::now() - start).count());
 }
@@ -165,21 +163,50 @@ vector<Vertex> Batcher::initQuad(uint32_t w, uint32_t h) {
 // 	addInstance(name, { { x(random), y(random) } });
 // }
 
+// void Batcher::establish(Ash& ash, Mountain& mountain, Rocks& rocks, Crater& crater, Lava& lava) {
+// 	this->ash = &ash;
+// 	this->lava = &lava;
+
+// 	auto start = chrono::high_resolution_clock::now();
+
+// 	for (auto& it : caves) {
+// 		auto& cave = it.second;
+// 		cave->setVulkanEntities(ash, mountain, rocks, crater);
+// 		cave->establish(CaveAspect::STAGING_VERTICES, CaveAspect::STAGING_INSTANCES, CaveAspect::STAGING_TEXTURE);
+// 		cave->establish(CaveAspect::LIVE_VERTICES, CaveAspect::LIVE_INSTANCES, CaveAspect::LIVE_TEXTURE); // TODO use sheduler worker with own commandBuffer as worker for this task
+// 		cave->free(CaveAspect::STAGING_VERTICES, CaveAspect::STAGING_TEXTURE); // TODO free working versices & texture also
+// 		cavesPtr[it.first] = it.second.get();
+// 		lava.addCave(move(cave));
+// 	}
+
+// 	auto time = chrono::duration_cast<chrono::duration<double>>(chrono::high_resolution_clock::now() - start).count();
+// 	printf("Established %lld caves (%lld Mb textures) in %.3fs (%.2f Gb/s)\n", caves.size(), texturesBytes / (1 << 20), time, texturesBytes / time / (1 << 30));
+// }
+
 void Batcher::establish(Ash& ash, Mountain& mountain, Rocks& rocks, Crater& crater, Lava& lava) {
 	this->ash = &ash;
 	this->lava = &lava;
 
 	auto start = chrono::high_resolution_clock::now();
 
+	// team.join();
+
 	for (auto& it : caves) {
 		auto& cave = it.second;
-		cave->setVulkanEntities(ash, mountain, rocks, crater);
-		cave->establish(CaveAspect::STAGING_VERTICES, CaveAspect::STAGING_INSTANCES, CaveAspect::STAGING_TEXTURE);
-		cave->establish(CaveAspect::LIVE_VERTICES, CaveAspect::LIVE_INSTANCES, CaveAspect::LIVE_TEXTURE); // TODO use sheduler worker with own commandBuffer as worker for this task
-		cave->free(CaveAspect::STAGING_VERTICES, CaveAspect::STAGING_TEXTURE); // TODO free working versices & texture also
-		cavesPtr[it.first] = it.second.get();
-		lava.addCave(move(cave));
+		auto id1 = team.task(ST_CPU, [&it, &cave, &ash, &mountain, &rocks, &crater, &lava, this]{
+			cave->setVulkanEntities(ash, mountain, rocks, crater);
+			cave->establish(CaveAspect::STAGING_VERTICES, CaveAspect::STAGING_INSTANCES, CaveAspect::STAGING_TEXTURE);
+		});
+
+		team.task(ST_GPU, [&it, &cave, &ash, &mountain, &rocks, &crater, &lava, this]{
+			cave->establish(CaveAspect::LIVE_VERTICES, CaveAspect::LIVE_INSTANCES, CaveAspect::LIVE_TEXTURE); // TODO use sheduler worker with own commandBuffer as worker for this task
+			cave->free(CaveAspect::STAGING_VERTICES, CaveAspect::STAGING_TEXTURE); // TODO free working versices & texture also
+			cavesPtr[it.first] = it.second.get();
+			lava.addCave(move(cave));
+		}, { id1 });
 	}
+
+	// team.join();
 
 	auto time = chrono::duration_cast<chrono::duration<double>>(chrono::high_resolution_clock::now() - start).count();
 	printf("Established %lld caves (%lld Mb textures) in %.3fs (%.2f Gb/s)\n", caves.size(), texturesBytes / (1 << 20), time, texturesBytes / time / (1 << 30));

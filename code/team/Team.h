@@ -9,6 +9,9 @@
 #include <queue>
 #include <set>
 
+#define GLFW_INCLUDE_VULKAN
+#include <GLFW/glfw3.h>
+
 #include "Specialist.h"
 #include "Task.h"
 
@@ -27,6 +30,7 @@ public:
 	Team();
 	~Team();
 
+	void initGpuSpecialists(VkCommandBuffer commandBuffer);
 	shared_ptr<Task> task(const Speciality speciality, const function<void()> func, const set<shared_ptr<Task>> dependencies = set<shared_ptr<Task>>()); // TODO make cpu_task(...), etc
 	void join();
 	// bool wait(std::chrono::milliseconds time);

@@ -11,9 +11,9 @@ Team::Team() {
 	for (size_t i = 0; i < 6; i++) {
 		specialists.emplace_back(ST_CPU, i + 101, *this);
 	}
-	for (size_t i = 0; i < 1; i++) {
-		specialists.emplace_back(ST_GPU, i + 101, *this);
-	}
+	// for (size_t i = 0; i < 1; i++) {
+	// 	specialists.emplace_back(ST_GPU, i + 101, *this);
+	// }
 	for (size_t i = 0; i < 1; i++) {
 		specialists.emplace_back(ST_PCI, i + 101, *this);
 	}
@@ -33,6 +33,12 @@ Team::~Team() {
 	for (auto& cv : cvs) cv.notify_all();
 
 	for (auto& specialist : specialists) specialist.thr->join();
+}
+
+void Team::initGpuSpecialists(VkCommandBuffer commandBuffer) {
+	for (size_t i = 0; i < 1; i++) {
+		specialists.emplace_back(ST_GPU, i + 101, *this);
+	}
 }
 
 shared_ptr<Task> Team::task(const Speciality speciality, const function<void()> func, const set<shared_ptr<Task>> dependencies) {
