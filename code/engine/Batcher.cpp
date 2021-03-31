@@ -12,7 +12,7 @@
 
 using namespace std;
 
-Batcher::Batcher(Team& team): team(team) {}
+Batcher::Batcher(Ash& ash, Team& team): ash(ash), team(team) {}
 
 Batcher::~Batcher() {}
 
@@ -183,8 +183,7 @@ vector<Vertex> Batcher::initQuad(uint32_t w, uint32_t h) {
 // 	printf("Established %lld caves (%lld Mb textures) in %.3fs (%.2f Gb/s)\n", caves.size(), texturesBytes / (1 << 20), time, texturesBytes / time / (1 << 30));
 // }
 
-void Batcher::establish(Ash& ash, Mountain& mountain, Rocks& rocks, Crater& crater, Lava& lava) {
-	this->ash = &ash;
+void Batcher::establish(Mountain& mountain, Rocks& rocks, Crater& crater, Lava& lava) {
 	this->lava = &lava;
 
 	auto start = chrono::high_resolution_clock::now();
@@ -194,12 +193,12 @@ void Batcher::establish(Ash& ash, Mountain& mountain, Rocks& rocks, Crater& crat
 	for (auto& it : caves) {\
 		auto& key = it.first;
 		auto& cave = it.second;
-		auto id1 = team.task(ST_CPU, [&cave, &ash, &mountain, &rocks, &crater, &lava, this]{
+		auto id1 = team.task(ST_CPU, [&cave, &mountain, &rocks, &crater, &lava, this]{
 			cave->setVulkanEntities(ash, mountain, rocks, crater);
 			cave->establish(CaveAspect::STAGING_VERTICES, CaveAspect::STAGING_INSTANCES, CaveAspect::STAGING_TEXTURE);
 		});
 
-		team.task(ST_GPU, [&key, &cave, &ash, &mountain, &rocks, &crater, &lava, this]{
+		team.task(ST_GPU, [&key, &cave, &mountain, &rocks, &crater, &lava, this]{
 			cave->establish(CaveAspect::LIVE_VERTICES, CaveAspect::LIVE_INSTANCES, CaveAspect::LIVE_TEXTURE); // TODO use sheduler worker with own commandBuffer as worker for this task
 			cave->free(CaveAspect::STAGING_VERTICES, CaveAspect::STAGING_TEXTURE); // TODO free working versices & texture also
 			cavesPtr[key] = cave.get();
@@ -249,7 +248,7 @@ void Batcher::removeInstance(string name, size_t index) {
 	#ifdef use_validation
 	char msg[100];
 	sprintf(msg, "Batcher::removeInstance(%s, %lld) => No such index!\n", name.data(), index);
-	(index < cavesPtr[name]->instances.size()) >> (*ash)(msg);
+	(index < cavesPtr[name]->instances.size()) >> ash(msg);
 	#endif
 
 	cavesPtr[name]->instances[index] = VACUUM;
@@ -261,7 +260,7 @@ void Batcher::updateInstance(string name, size_t index, Instance instance) {
 	#ifdef use_validation
 	char msg[100];
 	sprintf(msg, "Batcher::updateInstance(%s, %lld) => No such index!\n", name.data(), index);
-	(index < cavesPtr[name]->instances.size()) >> (*ash)(msg);
+	(index < cavesPtr[name]->instances.size()) >> ash(msg);
 	#endif
 
 	cavesPtr[name]->instances[index] = instance;

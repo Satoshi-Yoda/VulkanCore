@@ -23,9 +23,11 @@ int main() {
 	try {
 		auto startLoading = chrono::high_resolution_clock::now();
 
+		Ash ash {};
+
 		Team team {};
 		team.initGpuSpecialists(nullptr);
-		Batcher batcher { team };
+		Batcher batcher { ash, team };
 
 		// thread loadSceneThread([&](){
 			// batcher.loadFolderNth("_crops_harvester", 12);
@@ -38,7 +40,6 @@ int main() {
 		batcher.loadFolderTeam("_crops_megafactory");
 		team.join();
 
-		Ash ash {};
 		Mountain mountain { ash };
 		Rocks rocks { ash,  mountain };
 		Crater crater { ash, mountain, rocks };
@@ -46,7 +47,7 @@ int main() {
 		Tectonic tectonic { ash, mountain, rocks, crater, lava };
 
 		// loadSceneThread.join();
-		batcher.establish(ash, mountain, rocks, crater, lava);
+		batcher.establish(mountain, rocks, crater, lava);
 		team.join();
 
 		Scene scene { batcher };
