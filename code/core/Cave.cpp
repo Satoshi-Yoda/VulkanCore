@@ -114,6 +114,7 @@ void Cave::free(CaveAspect aspect) {
 
 void Cave::establishStagingVertices() {
 	#ifdef use_validation
+	// false >> (*ash)("In this cave there is no WORKING_VERTICES or no VULKAN_ENTITIES");
 	aspects.has(CaveAspect::WORKING_VERTICES, CaveAspect::VULKAN_ENTITIES) >> (*ash)("In this cave there is no WORKING_VERTICES or no VULKAN_ENTITIES");
 	// aspects.has(CaveAspect::WORKING_VERTICES) >> (*ash)("In this cave there is no WORKING_VERTICES");
 	// aspects.has(CaveAspect::VULKAN_ENTITIES) >> (*ash)("In this cave there is no VULKAN_ENTITIES");

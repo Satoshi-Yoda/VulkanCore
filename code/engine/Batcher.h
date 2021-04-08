@@ -2,6 +2,7 @@
 
 #include <map>
 #include <memory>
+#include <mutex>
 #include <set>
 #include <string>
 #include <unordered_map>
@@ -12,6 +13,7 @@
 #include "../team/Team.h"
 
 using std::map;
+using std::mutex;
 using std::set;
 using std::string;
 using std::unique_ptr;
