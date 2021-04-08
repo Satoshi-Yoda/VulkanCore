@@ -19,7 +19,6 @@ public:
 	Ash& operator()(string message);
 
 	string current;
-	vector<string> messages;
 	mutex mtx;
 };
 
