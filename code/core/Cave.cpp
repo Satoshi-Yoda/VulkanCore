@@ -3,6 +3,8 @@
 #define GLM_FORCE_RADIANS
 #include <glm/glm.hpp>
 
+#include "../utils/Loader.h"
+
 using glm::vec2;
 using glm::vec3;
 
@@ -11,6 +13,7 @@ using namespace std;
 Cave::Cave() { }
 
 Cave::~Cave() {
+	freeTexture(pixels);
 	if (this->aspects.has(CaveAspect::STAGING_VERTICES))  freeStagingVertices();
 	if (this->aspects.has(CaveAspect::STAGING_INSTANCES)) freeStagingInstances();
 	if (this->aspects.has(CaveAspect::STAGING_TEXTURE))   freeStagingTexture();

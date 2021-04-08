@@ -19,6 +19,8 @@ using namespace std;
 bool run(size_t runId) {
 	auto startLoading = chrono::high_resolution_clock::now();
 
+	Ash ash {};
+
 	Team team {};
 	team.initGpuSpecialists(nullptr);
 	Batcher batcher { team };
@@ -35,7 +37,6 @@ bool run(size_t runId) {
 	// batcher.loadFolderTeam("_crops_uptoride");
 	team.join();
 
-	Ash ash {};
 	Mountain mountain { ash };
 	Rocks rocks { ash,  mountain };
 	Crater crater { ash, mountain, rocks };
@@ -58,7 +59,7 @@ bool run(size_t runId) {
 
 	double t = chrono::duration_cast<chrono::duration<double>>(chrono::high_resolution_clock::now() - finishLoading).count();
 
-	while (frame < 250) {
+	while (frame < 50) {
 		if (glfwWindowShouldClose(mountain.window)) return true;
 
 		double new_t = chrono::duration_cast<chrono::duration<double>>(chrono::high_resolution_clock::now() - finishLoading).count();
