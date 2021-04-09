@@ -204,6 +204,13 @@ void Batcher::establish(Mountain& mountain, Rocks& rocks, Crater& crater, Lava& 
 			cavesPtr[key] = cave.get();
 			lava.addCave(move(cave));
 		}, { id1 });
+
+		// team.gpuTask([&key, &cave, &mountain, &rocks, &crater, &lava, this](VkCommandBuffer cb){
+		// 	cave->establish(CaveAspect::LIVE_VERTICES, CaveAspect::LIVE_INSTANCES, CaveAspect::LIVE_TEXTURE); // TODO use sheduler worker with own commandBuffer as worker for this task
+		// 	cave->free(CaveAspect::STAGING_VERTICES, CaveAspect::STAGING_TEXTURE); // TODO free working versices & texture also
+		// 	cavesPtr[key] = cave.get();
+		// 	lava.addCave(move(cave));
+		// }, { id1 });
 	}
 
 	// team.join();

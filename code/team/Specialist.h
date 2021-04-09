@@ -15,7 +15,7 @@ class Team;
 
 class Specialist {
 public:
-	Specialist(Speciality _speciality, size_t _id, Team& _team);
+	Specialist(Speciality _speciality, size_t _id, Team& _team, VkCommandBuffer _cb = nullptr);
 	~Specialist();
 
 	Specialist(const Specialist&)            = delete;
@@ -27,6 +27,7 @@ public:
 	size_t id = 0;
 	thread* thr;
 	optional<shared_ptr<Task>> task {};
+	VkCommandBuffer cb;
 
 private:
 	Team& team;

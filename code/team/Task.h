@@ -21,13 +21,13 @@ enum Speciality {
 const size_t SpecialityCount = 4;
 
 struct Task {
-	Task(Speciality speciality, function<void()> func) : speciality(speciality), func(func), commandBufferFunk(nullptr) {};
-	Task(Speciality speciality, function<void(VkCommandBuffer)> func) : speciality(speciality), func(nullptr), commandBufferFunk(func) {};
+	Task(Speciality speciality, function<void()> func) : speciality(speciality), func(func), cbFunc(nullptr) {};
+	Task(Speciality speciality, function<void(VkCommandBuffer)> func) : speciality(speciality), func(nullptr), cbFunc(func) {};
 	~Task() {};
 
 	Speciality speciality;
 	function<void()> func;
-	function<void(VkCommandBuffer)> commandBufferFunk;
+	function<void(VkCommandBuffer)> cbFunc;
 	set<shared_ptr<Task>> dependencies;
 	set<shared_ptr<Task>> dependants;
 	bool done = false;

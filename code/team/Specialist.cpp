@@ -4,7 +4,7 @@
 
 using namespace std;
 
-Specialist::Specialist(Speciality _speciality, size_t _id, Team& _team) : speciality(_speciality), id(_id), team(_team) {
+Specialist::Specialist(Speciality _speciality, size_t _id, Team& _team, VkCommandBuffer _cb) : speciality(_speciality), id(_id), team(_team), cb(_cb) {
 	this->thr = new thread([this]{
 		while (true) {
 			size_t index = static_cast<size_t>(speciality);
@@ -30,7 +30,15 @@ Specialist::Specialist(Speciality _speciality, size_t _id, Team& _team) : specia
 			if (task.has_value()) {
 				auto& taskPtr = task.value();
 				// printf("Specialist %d-%d starting task: %lld\n", speciality, id, taskPtr.get());
-				taskPtr->func();
+				if (taskPtr->func != nullptr) {
+					taskPtr->func();
+				} else if (taskPtr->cbFunc != nullptr) {
+					if (speciality == ST_GPU && cb != nullptr) {
+						taskPtr->cbFunc(cb);
+					} else {
+						printf("GPU task needs a command buffer!\n");
+					}
+				}
 
 				team.mutex.lock();
 					taskPtr->done = true;

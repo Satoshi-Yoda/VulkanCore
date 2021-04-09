@@ -36,8 +36,11 @@ Team::~Team() {
 }
 
 void Team::initGpuSpecialists(VkCommandBuffer commandBuffer) {
+	// TODO maybe that way:
+	// 1. create cb here as rocks -> single time cb
+	// 2. on Team.join() flush this cb and create a new one
 	for (size_t i = 0; i < 1; i++) {
-		specialists.emplace_back(ST_GPU, i + 101, *this);
+		specialists.emplace_back(ST_GPU, i + 101, *this, commandBuffer);
 	}
 }
 
@@ -60,6 +63,31 @@ shared_ptr<Task> Team::task(const Speciality speciality, const function<void()> 
 			availableTasks[index].push(task);
 			cvs[index].notify_one();
 			// printf("Inserted available task, now have %lld tasks\n", availableTasks[static_cast<size_t>(speciality)].size());
+		} else {
+			blockedTasks.insert(task);
+		}
+	mutex.unlock();
+
+	return task;
+}
+
+shared_ptr<Task> Team::gpuTask(const function<void(VkCommandBuffer)> func, const set<shared_ptr<Task>> dependencies) {
+	shared_ptr<Task> task = make_shared<Task>(ST_GPU, func);
+	task->dependencies = dependencies;
+
+	mutex.lock();
+		std::erase_if(task->dependencies, [](auto& dependency){
+			return dependency->done;
+		});
+
+		for (auto& dependency : task->dependencies) {
+			dependency->dependants.insert(task);
+		}
+
+		if (task->dependencies.empty()) {
+			size_t index = static_cast<size_t>(ST_GPU);
+			availableTasks[index].push(task);
+			cvs[index].notify_one();
 		} else {
 			blockedTasks.insert(task);
 		}

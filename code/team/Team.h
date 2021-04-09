@@ -32,6 +32,7 @@ public:
 
 	void initGpuSpecialists(VkCommandBuffer commandBuffer);
 	shared_ptr<Task> task(const Speciality speciality, const function<void()> func, const set<shared_ptr<Task>> dependencies = set<shared_ptr<Task>>()); // TODO make cpu_task(...), etc
+	shared_ptr<Task> gpuTask(const function<void(VkCommandBuffer)> func, const set<shared_ptr<Task>> dependencies = set<shared_ptr<Task>>());
 	void join();
 	// bool wait(std::chrono::milliseconds time);
 	Specialist* findCurrentSpecialist();
