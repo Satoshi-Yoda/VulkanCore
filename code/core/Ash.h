@@ -1,13 +1,15 @@
 #pragma once
 
-#include <vector>
+#include <mutex>
 #include <string>
+#include <vector>
 
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
 
-using std::vector;
+using std::mutex;
 using std::string;
+using std::vector;
 
 class Ash {
 public:
@@ -17,7 +19,7 @@ public:
 	Ash& operator()(string message);
 
 	string current;
-	vector<string> messages;
+	mutex mtx;
 };
 
 void operator>>(bool status, Ash& ash);
