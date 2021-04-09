@@ -24,3 +24,5 @@ public:
 
 void operator>>(bool status, Ash& ash);
 void operator>>(VkResult status, Ash& ash);
+
+//TODO maybe make ash() function

@@ -48,7 +48,7 @@ enum class CaveAspect {
 
 class Cave {
 public:
-	Cave();
+	Cave(Ash& ash);
 	~Cave();
 
 	Cave(const Cave&)            = delete;
@@ -58,7 +58,7 @@ public:
 
 	void setName(string name);
 	void setWorkingData(vector<Vertex> vertices, int width, int height, void* pixels);
-	void setVulkanEntities(Ash& ash, Mountain& mountain, Rocks& rocks, Crater& crater);
+	void setVulkanEntities(Mountain& mountain, Rocks& rocks, Crater& crater);
 
 	flag_group<CaveAspect> aspects;
 
@@ -127,7 +127,7 @@ public:
 	}
 
 private:
-	Ash* ash;
+	Ash& ash;
 	Mountain* mountain;
 	Rocks* rocks;
 	Crater* crater;

@@ -29,7 +29,7 @@ void Batcher::loadFolder(string folder) {
 
 		vector<Vertex> vertices = initQuad(width, height);
 
-		unique_ptr<Cave> cave = make_unique<Cave>();
+		unique_ptr<Cave> cave = make_unique<Cave>(ash);
 		cave->setName(name);
 		cave->setWorkingData(vertices, width, height, pixels);
 
@@ -75,7 +75,7 @@ void Batcher::loadFolderNth(string folder, uint32_t workers) {
 
 				vector<Vertex> vertices = initQuad(width, height);
 
-				unique_ptr<Cave> cave = make_unique<Cave>();
+				unique_ptr<Cave> cave = make_unique<Cave>(ash);
 				cave->setName(name);
 				cave->setWorkingData(vertices, width, height, pixels);
 
@@ -116,7 +116,7 @@ void Batcher::loadFolderTeam(string folder) {
 
 				vector<Vertex> vertices = initQuad(width, height);
 
-				unique_ptr<Cave> cave = make_unique<Cave>();
+				unique_ptr<Cave> cave = make_unique<Cave>(ash);
 				cave->setName(name);
 				cave->setWorkingData(vertices, width, height, pixels);
 
@@ -194,7 +194,7 @@ void Batcher::establish(Mountain& mountain, Rocks& rocks, Crater& crater, Lava& 
 		auto& key = it.first;
 		auto& cave = it.second;
 		auto id1 = team.task(ST_CPU, [&cave, &mountain, &rocks, &crater, &lava, this]{
-			cave->setVulkanEntities(ash, mountain, rocks, crater);
+			cave->setVulkanEntities(mountain, rocks, crater);
 			cave->establish(CaveAspect::STAGING_VERTICES, CaveAspect::STAGING_INSTANCES, CaveAspect::STAGING_TEXTURE);
 		});
 
