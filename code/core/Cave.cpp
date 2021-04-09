@@ -114,10 +114,7 @@ void Cave::free(CaveAspect aspect) {
 
 void Cave::establishStagingVertices() {
 	#ifdef use_validation
-	// false >> (*ash)("In this cave there is no WORKING_VERTICES or no VULKAN_ENTITIES");
 	aspects.has(CaveAspect::WORKING_VERTICES, CaveAspect::VULKAN_ENTITIES) >> (*ash)("In this cave there is no WORKING_VERTICES or no VULKAN_ENTITIES");
-	// aspects.has(CaveAspect::WORKING_VERTICES) >> (*ash)("In this cave there is no WORKING_VERTICES");
-	// aspects.has(CaveAspect::VULKAN_ENTITIES) >> (*ash)("In this cave there is no VULKAN_ENTITIES");
 	#endif
 
 	stagingVertexCount = static_cast<uint32_t>(vertices.size());
@@ -266,7 +263,7 @@ void Cave::establishLiveTexture(VkCommandBuffer externalCommandBuffer) {
 
 void Cave::freeStagingVertices() {
 	// TODO can be optimized by calling this later in future frames, without wait, or something
-	vkQueueWaitIdle(mountain->queue);
+	vkQueueWaitIdle(mountain->queue); // TODO do I need this for staging resources?
 	vmaDestroyBuffer(mountain->allocator, stagingVertexBuffer, stagingVertexAllocation);
 	aspects.drop(CaveAspect::STAGING_VERTICES);
 }

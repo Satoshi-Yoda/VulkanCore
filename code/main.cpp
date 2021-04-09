@@ -59,7 +59,7 @@ bool run(size_t runId) {
 
 	double t = chrono::duration_cast<chrono::duration<double>>(chrono::high_resolution_clock::now() - finishLoading).count();
 
-	while (frame < 50) {
+	while (frame < 50 || true) {
 		if (glfwWindowShouldClose(mountain.window)) return true;
 
 		double new_t = chrono::duration_cast<chrono::duration<double>>(chrono::high_resolution_clock::now() - finishLoading).count();
@@ -91,10 +91,12 @@ int main() {
 	printf("===============================================================================\n");
 
 	try {
-		for (size_t i = 1; i <= 750; i++) {
-			printf("            ------------------ starting run %lld ------------------            \n", i);
-			if (run(i)) break;
-		}
+		run(0);
+		// for (size_t i = 1; i <= 750; i++) {
+		// 	printf("            ------------------ starting run %lld ------------------            \n", i);
+		// 	if (run(i)) break;
+		// }
+
 	} catch (const exception& e) {
 		cout << "ERROR " << e.what() << endl;
 		return EXIT_FAILURE;
