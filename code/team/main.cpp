@@ -181,6 +181,7 @@ TEST_CASE("Test for different specialities") {
 	Specialist* specialist4 = nullptr;
 	atomic_int k = 5;
 	Team team {};
+	team.initGpuSpecialists(nullptr);
 
 	auto task1 = team.task(ST_CPU, [&]{
 		k = (k == 5) ? 6 : 0;
