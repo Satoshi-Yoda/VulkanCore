@@ -27,9 +27,9 @@ public:
 	size_t id = 0;
 	thread* thr;
 	optional<shared_ptr<Task>> task {};
-	VkCommandBuffer cb;
 
 private:
 	Team& team;
+	VkCommandBuffer cb;
 
 };
