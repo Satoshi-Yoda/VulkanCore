@@ -138,14 +138,14 @@ void Batcher::establish(Mountain& mountain, Rocks& rocks, Crater& crater, Lava& 
 	set<shared_ptr<Task>> deps;
 	for (auto& it : caves) {
 		auto& cave = it.second;
-		auto id = team.task(ST_CPU, [&cave, &mountain, &rocks, &crater, &lava, this]{
-			cave->setVulkanEntities(mountain, rocks, crater);
+		cave->setVulkanEntities(mountain, rocks, crater);
+
+		deps.insert(team.task(ST_CPU, [&cave, this]{
 			cave->establish(CaveAspect::STAGING_VERTICES, CaveAspect::STAGING_INSTANCES, CaveAspect::STAGING_TEXTURE);
-		});
-		deps.insert(id);
+		}));
 	}
 
-	auto id = team.gpuTask([&mountain, &rocks, &crater, &lava, this](VkCommandBuffer cb){
+	auto id = team.gpuTask([&rocks, this](VkCommandBuffer cb){
 		VkCommandBuffer cb_u = rocks.beginSingleTimeCommands();
 
 		for (auto& it : caves) {
@@ -156,7 +156,7 @@ void Batcher::establish(Mountain& mountain, Rocks& rocks, Crater& crater, Lava& 
 		rocks.endSingleTimeCommands(cb_u);
 	});
 
-	team.gpuTask([&mountain, &rocks, &crater, &lava, this](VkCommandBuffer cb){
+	team.gpuTask([&rocks, &lava, this](VkCommandBuffer cb){
 		VkCommandBuffer cb_u = rocks.beginSingleTimeCommands();
 
 		for (auto& it : caves) {
