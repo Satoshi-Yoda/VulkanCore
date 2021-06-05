@@ -38,10 +38,10 @@ BUILD = build
 # all:;echo $(O_FILES)
 
 ${BUILD}/main.exe : ${O_REQUIREMENTS} ${BUILD}/shaders/shader.vert.spv ${BUILD}/shaders/shader.frag.spv
-	g++ -g ${COMPILE} ${O_REQUIREMENTS} ${LINK} -o ${BUILD}/main.exe
+	g++ ${COMPILE} ${O_REQUIREMENTS} ${LINK} -o ${BUILD}/main.exe
 
 %.o : %.cpp
-	g++ -g ${COMPILE} ${INCLUDE} -c $^ -o $@
+	g++ ${COMPILE} ${INCLUDE} -c $^ -o $@
 
 # ${BUILD}/main.exe : ${O_FILES} ${BUILD}/shaders/shader.vert.spv ${BUILD}/shaders/shader.frag.spv
 # 	g++ ${COMPILE} ${O_FILES} ${LINK} -o ${BUILD}/main.exe

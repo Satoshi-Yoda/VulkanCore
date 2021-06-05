@@ -15,6 +15,8 @@
 #include "Specialist.h"
 #include "Task.h"
 
+#include "../core/Rocks.h"
+
 using std::array;
 using std::condition_variable;
 using std::list;
@@ -30,7 +32,7 @@ public:
 	Team();
 	~Team();
 
-	void initGpuSpecialists(VkCommandBuffer commandBuffer);
+	void initGpuSpecialists(Rocks& rocks);
 	shared_ptr<Task> task(const Speciality speciality, const function<void()> func, const set<shared_ptr<Task>> dependencies = set<shared_ptr<Task>>()); // TODO make cpu_task(...), etc
 	shared_ptr<Task> gpuTask(const function<void(VkCommandBuffer)> func, const set<shared_ptr<Task>> dependencies = set<shared_ptr<Task>>());
 	void join();
@@ -48,6 +50,8 @@ public:
 	bool quitFlag = false;
 
 private:
+	// Rocks* rocks = nullptr;
+
 	list<Specialist> specialists;
 	std::chrono::time_point<std::chrono::steady_clock> start;
 	std::chrono::time_point<std::chrono::steady_clock> ready;

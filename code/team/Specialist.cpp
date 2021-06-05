@@ -1,10 +1,16 @@
 #include "Specialist.h"
 
+#include <cassert>
 #include <iostream>
 
 using namespace std;
 
-Specialist::Specialist(Speciality _speciality, size_t _id, Team& _team, VkCommandBuffer _cb) : speciality(_speciality), id(_id), team(_team), cb(_cb) {
+Specialist::Specialist(Speciality _speciality, size_t _id, Team& _team, Rocks* _rocks) : speciality(_speciality), id(_id), team(_team), rocks(_rocks) {
+	assert((_speciality == ST_GPU) == (rocks != nullptr));
+	if (rocks != nullptr) {
+		// cb = rocks->beginSingleTimeCommands();
+	}
+
 	this->thr = new thread([this]{
 		while (true) {
 			size_t index = static_cast<size_t>(speciality);
@@ -70,3 +76,13 @@ Specialist::Specialist(Speciality _speciality, size_t _id, Team& _team, VkComman
 }
 
 Specialist::~Specialist() {}
+
+void Specialist::flushCommandBuffer() {
+	assert(speciality == ST_GPU);
+	assert(rocks != nullptr);
+	assert(cb != nullptr);
+
+	// rocks->endSingleTimeCommands(cb);
+	// cb = nullptr;
+	// cb = rocks->beginSingleTimeCommands();
+}
