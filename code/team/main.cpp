@@ -181,7 +181,6 @@ TEST_CASE("Test for different specialities") {
 	Specialist* specialist4 = nullptr;
 	atomic_int k = 5;
 	Team team {};
-	team.initGpuSpecialists(nullptr);
 
 	auto task1 = team.task(ST_CPU, [&]{
 		k = (k == 5) ? 6 : 0;
@@ -189,7 +188,7 @@ TEST_CASE("Test for different specialities") {
 			specialist1 = team.findCurrentSpecialist();
 		team.mutex.unlock();
 	});
-	auto task2 = team.task(ST_GPU, [&]{
+	auto task2 = team.task(ST_CPU, [&]{
 		k = (k == 6) ? 7 : 0;
 		team.mutex.lock();
 			specialist2 = team.findCurrentSpecialist();
@@ -211,7 +210,7 @@ TEST_CASE("Test for different specialities") {
 	bool done = true;//team.wait(std::chrono::milliseconds(100));
 	team.join();
 	REQUIRE(specialist1->speciality == ST_CPU);
-	REQUIRE(specialist2->speciality == ST_GPU);
+	REQUIRE(specialist2->speciality == ST_CPU);
 	REQUIRE(specialist3->speciality == ST_PCI);
 	REQUIRE(specialist4->speciality == ST_HDD);
 	REQUIRE(done == true);
