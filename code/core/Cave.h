@@ -103,12 +103,11 @@ public:
 		establish(args...);
 	}
 
-	// TODO can I use the same "establish" name for this?
-	void mount(VkCommandBuffer commandBuffer, CaveAspect aspect);
+	void establish(VkCommandBuffer cb, CaveAspect aspect);
 	template <typename... Args>
-	void mount(VkCommandBuffer commandBuffer, CaveAspect aspect, Args... args) {
-		mount(commandBuffer, aspect);
-		mount(commandBuffer, args...);
+	void establish(VkCommandBuffer cb, CaveAspect aspect, Args... args) {
+		establish(cb, aspect);
+		establish(cb, args...);
 	}
 
 	void refresh(CaveAspect aspect);

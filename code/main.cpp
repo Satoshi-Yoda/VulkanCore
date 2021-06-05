@@ -22,20 +22,11 @@ bool run(size_t runId) {
 	Ash ash {};
 
 	Team team {};
-	// team.initGpuSpecialists(nullptr);
 	Batcher batcher { ash, team };
 
-	// thread loadSceneThread([&](){
-		// batcher.loadFolderNth("_crops_harvester", 12);
-		// batcher.loadFolder("_crops_harvester");
-
-		// batcher.loadFolderTeam("_crops_harvester");
-		// batcher.loadFolderTeam("_crops_mess");
-	// });
-
-	// batcher.loadFolderTeam("_crops_megafactory");
-	batcher.loadFolderTeam("_crops_uptoride");
-	team.join();
+	// batcher.loadFolderTeam("_crops_one");
+	batcher.loadFolder("_crops_harvester");
+	// batcher.loadFolderTeam("_crops_uptoride");
 
 	Mountain mountain { ash };
 	Rocks rocks { ash,  mountain };
@@ -43,9 +34,10 @@ bool run(size_t runId) {
 	Lava lava { ash, mountain, rocks, crater };
 	Tectonic tectonic { ash, mountain, rocks, crater, lava };
 
+	team.join();
 	team.initGpuSpecialists(rocks);
 
-	// loadSceneThread.join();
+	// team.join();
 	batcher.establish(mountain, rocks, crater, lava);
 	team.join();
 

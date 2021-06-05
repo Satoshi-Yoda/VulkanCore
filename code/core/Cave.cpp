@@ -50,10 +50,10 @@ void Cave::establish(CaveAspect aspect) {
 	if (aspect == CaveAspect::LIVE_TEXTURE)      establishLiveTexture();
 }
 
-void Cave::mount(VkCommandBuffer commandBuffer, CaveAspect aspect) {
-	if (aspect == CaveAspect::LIVE_VERTICES)  establishLiveVertices(commandBuffer);
-	if (aspect == CaveAspect::LIVE_INSTANCES) establishLiveInstances(commandBuffer);
-	if (aspect == CaveAspect::LIVE_TEXTURE)   establishLiveTexture(commandBuffer);
+void Cave::establish(VkCommandBuffer cb, CaveAspect aspect) {
+	if (aspect == CaveAspect::LIVE_VERTICES)  establishLiveVertices(cb);
+	if (aspect == CaveAspect::LIVE_INSTANCES) establishLiveInstances(cb);
+	if (aspect == CaveAspect::LIVE_TEXTURE)   establishLiveTexture(cb);
 }
 
 void Cave::refresh(CaveAspect aspect) {
