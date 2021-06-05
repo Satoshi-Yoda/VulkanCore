@@ -3,8 +3,10 @@
 #include <algorithm>
 #include <cassert>
 #include <iostream>
+#include <ranges>
 
 using namespace std;
+using namespace std::ranges::views;
 
 Team::Team() {
 	start = chrono::steady_clock::now();
@@ -85,10 +87,8 @@ shared_ptr<Task> Team::task(const Speciality speciality, const function<void()> 
 shared_ptr<Task> Team::gpuTask(const function<void(VkCommandBuffer)> func, const set<shared_ptr<Task>> dependencies) {
 	assert(count_if(specialists.begin(), specialists.end(), [](auto& s){ return s.speciality == ST_GPU; }) > 0); // TODO maybe not, maybe you can create specialist(s) after creating task
 
-	for (auto& specialist : specialists) {
-		if (specialist.speciality == ST_GPU) {
-			specialist.ensureCommandBuffer();
-		}
+	for (auto& specialist : specialists | filter([](auto& s){ return s.speciality == ST_GPU; })) {
+		specialist.ensureCommandBuffer();
 	}
 
 	shared_ptr<Task> task = make_shared<Task>(ST_GPU, func);
