@@ -83,6 +83,8 @@ shared_ptr<Task> Team::task(const Speciality speciality, const function<void()> 
 }
 
 shared_ptr<Task> Team::gpuTask(const function<void(VkCommandBuffer)> func, const set<shared_ptr<Task>> dependencies) {
+	assert(count_if(specialists.begin(), specialists.end(), [](auto& s){ return s.speciality == ST_GPU; }) > 0); // TODO maybe not, maybe you can create specialist after creating task
+
 	for (auto& specialist : specialists) {
 		if (specialist.speciality == ST_GPU) {
 			specialist.ensureCommandBuffer();
