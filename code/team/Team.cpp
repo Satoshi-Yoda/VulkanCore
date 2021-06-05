@@ -1,6 +1,7 @@
 #include "Team.h"
 
 #include <algorithm>
+#include <cassert>
 #include <iostream>
 
 using namespace std;
@@ -53,6 +54,8 @@ void Team::initGpuSpecialists(Rocks& rocks) {
 }
 
 shared_ptr<Task> Team::task(const Speciality speciality, const function<void()> func, const set<shared_ptr<Task>> dependencies) {
+	assert(speciality != ST_GPU); // TODO remove later
+
 	shared_ptr<Task> task = make_shared<Task>(speciality, func);
 	task->dependencies = dependencies;
 
@@ -80,6 +83,12 @@ shared_ptr<Task> Team::task(const Speciality speciality, const function<void()> 
 }
 
 shared_ptr<Task> Team::gpuTask(const function<void(VkCommandBuffer)> func, const set<shared_ptr<Task>> dependencies) {
+	for (auto& specialist : specialists) {
+		if (specialist.speciality == ST_GPU) {
+			specialist.ensureCommandBuffer();
+		}
+	}
+
 	shared_ptr<Task> task = make_shared<Task>(ST_GPU, func);
 	task->dependencies = dependencies;
 

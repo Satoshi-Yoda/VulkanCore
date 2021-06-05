@@ -25,6 +25,7 @@ public:
 	Specialist& operator=(const Specialist&) = delete;
 	Specialist& operator=(Specialist&&)      = delete;
 
+	void ensureCommandBuffer();
 	void flushCommandBuffer();
 
 	Speciality speciality;

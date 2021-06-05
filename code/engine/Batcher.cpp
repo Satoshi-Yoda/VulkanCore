@@ -198,19 +198,19 @@ void Batcher::establish(Mountain& mountain, Rocks& rocks, Crater& crater, Lava& 
 			cave->establish(CaveAspect::STAGING_VERTICES, CaveAspect::STAGING_INSTANCES, CaveAspect::STAGING_TEXTURE);
 		});
 
-		team.task(ST_GPU, [&key, &cave, &mountain, &rocks, &crater, &lava, this]{
-			cave->establish(CaveAspect::LIVE_VERTICES, CaveAspect::LIVE_INSTANCES, CaveAspect::LIVE_TEXTURE); // TODO use sheduler worker with own commandBuffer as worker for this task
-			cave->free(CaveAspect::STAGING_VERTICES, CaveAspect::STAGING_TEXTURE); // TODO free working versices & texture also
-			cavesPtr[key] = cave.get();
-			lava.addCave(move(cave));
-		}, { id1 });
-
-		// team.gpuTask([&key, &cave, &mountain, &rocks, &crater, &lava, this](VkCommandBuffer cb){
+		// team.task(ST_GPU, [&key, &cave, &mountain, &rocks, &crater, &lava, this]{
 		// 	cave->establish(CaveAspect::LIVE_VERTICES, CaveAspect::LIVE_INSTANCES, CaveAspect::LIVE_TEXTURE); // TODO use sheduler worker with own commandBuffer as worker for this task
 		// 	cave->free(CaveAspect::STAGING_VERTICES, CaveAspect::STAGING_TEXTURE); // TODO free working versices & texture also
 		// 	cavesPtr[key] = cave.get();
 		// 	lava.addCave(move(cave));
 		// }, { id1 });
+
+		team.gpuTask([&key, &cave, &mountain, &rocks, &crater, &lava, this](VkCommandBuffer cb){
+			cave->establish(CaveAspect::LIVE_VERTICES, CaveAspect::LIVE_INSTANCES, CaveAspect::LIVE_TEXTURE); // TODO use sheduler worker with own commandBuffer as worker for this task
+			cave->free(CaveAspect::STAGING_VERTICES, CaveAspect::STAGING_TEXTURE); // TODO free working versices & texture also
+			cavesPtr[key] = cave.get();
+			lava.addCave(move(cave));
+		}, { id1 });
 	}
 
 	// team.join();

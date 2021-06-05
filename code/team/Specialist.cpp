@@ -7,9 +7,6 @@ using namespace std;
 
 Specialist::Specialist(Speciality _speciality, size_t _id, Team& _team, Rocks* _rocks) : speciality(_speciality), id(_id), team(_team), rocks(_rocks) {
 	assert((_speciality == ST_GPU) == (rocks != nullptr));
-	if (rocks != nullptr) {
-		// cb = rocks->beginSingleTimeCommands();
-	}
 
 	this->thr = new thread([this]{
 		while (true) {
@@ -37,13 +34,12 @@ Specialist::Specialist(Speciality _speciality, size_t _id, Team& _team, Rocks* _
 				auto& taskPtr = task.value();
 				// printf("Specialist %d-%d starting task: %lld\n", speciality, id, taskPtr.get());
 				if (taskPtr->func != nullptr) {
+					assert(speciality != ST_GPU);
 					taskPtr->func();
 				} else if (taskPtr->cbFunc != nullptr) {
-					if (speciality == ST_GPU && cb != nullptr) {
-						taskPtr->cbFunc(cb);
-					} else {
-						printf("GPU task needs a command buffer!\n");
-					}
+					assert(speciality == ST_GPU);
+					assert(cb != nullptr);
+					taskPtr->cbFunc(cb);
 				}
 
 				team.mutex.lock();
@@ -77,12 +73,21 @@ Specialist::Specialist(Speciality _speciality, size_t _id, Team& _team, Rocks* _
 
 Specialist::~Specialist() {}
 
+void Specialist::ensureCommandBuffer() {
+	assert(speciality == ST_GPU);
+	assert(rocks != nullptr);
+
+	if (cb == nullptr) {
+		cb = rocks->beginSingleTimeCommands();
+	}
+}
+
 void Specialist::flushCommandBuffer() {
 	assert(speciality == ST_GPU);
 	assert(rocks != nullptr);
-	assert(cb != nullptr);
 
-	// rocks->endSingleTimeCommands(cb);
-	// cb = nullptr;
-	// cb = rocks->beginSingleTimeCommands();
+	if (cb == nullptr) {
+		rocks->endSingleTimeCommands(cb);
+		cb = nullptr;
+	}
 }
