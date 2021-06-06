@@ -34,11 +34,9 @@ bool run(size_t runId) {
 	Lava lava { ash, mountain, rocks, crater };
 	Tectonic tectonic { ash, mountain, rocks, crater, lava };
 
-	team.join();
 	team.initGpuSpecialists(rocks);
 
 	team.join();
-
 	batcher.establish(mountain, rocks, crater, lava);
 	team.join();
 

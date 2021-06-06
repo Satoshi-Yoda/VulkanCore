@@ -11,6 +11,7 @@
 #include "../core/Lava.h"
 #include "../core/Tectonic.h"
 #include "../engine/Batcher.h"
+#include "Rectangle.hpp"
 
 using std::string;
 using std::unordered_map;
@@ -39,4 +40,6 @@ private:
 	int N;
 	int extent_w, extent_h;
 	double nextChange = 0.0f;
+
+	Rectangle rectangle;
 };

@@ -29,7 +29,8 @@ private:
 	Crater& crater;
 	Lava &lava;
 
-	const static int IN_FLIGHT_FRAMES = 2;
+	// TODO remove IN_FLIGHT_FRAMES (always use 1)
+	const static int IN_FLIGHT_FRAMES = 1;
 	int inFlightIndex = 0;
 
 	array<VkCommandBuffer,   IN_FLIGHT_FRAMES> commandBuffers;
