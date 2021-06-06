@@ -37,7 +37,8 @@ bool run(size_t runId) {
 	team.join();
 	team.initGpuSpecialists(rocks);
 
-	// team.join();
+	team.join();
+
 	batcher.establish(mountain, rocks, crater, lava);
 	team.join();
 

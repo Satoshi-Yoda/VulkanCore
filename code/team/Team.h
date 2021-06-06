@@ -50,8 +50,6 @@ public:
 	bool quitFlag = false;
 
 private:
-	// Rocks* rocks = nullptr;
-
 	list<Specialist> specialists;
 	std::chrono::time_point<std::chrono::steady_clock> start;
 	std::chrono::time_point<std::chrono::steady_clock> ready;

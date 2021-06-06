@@ -107,8 +107,13 @@ vector<Vertex> Batcher::initQuad(uint32_t w, uint32_t h) {
 
 // 	auto start = chrono::high_resolution_clock::now();
 
-// 	set<shared_ptr<Task>> deps;
+// 	VkCommandBuffer cb_u;
 
+// 	auto id0 = team.gpuTask([&rocks, &cb_u, this](VkCommandBuffer cb){
+// 		cb_u = rocks.beginSingleTimeCommands();
+// 	});
+
+// 	set<shared_ptr<Task>> deps;
 // 	for (auto& it : caves) {
 // 		auto& key = it.first;
 // 		auto& cave = it.second;
@@ -119,16 +124,32 @@ vector<Vertex> Batcher::initQuad(uint32_t w, uint32_t h) {
 // 		});
 
 // 		auto id2 = team.gpuTask([&key, &cave, &mountain, &rocks, &crater, &lava, this](VkCommandBuffer cb){
-// 			cave->establish(CaveAspect::LIVE_VERTICES, CaveAspect::LIVE_INSTANCES, CaveAspect::LIVE_TEXTURE); // TODO use sheduler worker with own commandBuffer as worker for this task
-// 			// cave->free(CaveAspect::STAGING_VERTICES, CaveAspect::STAGING_TEXTURE); // TODO free working versices & texture also
+// 			cave->establish(CaveAspect::LIVE_VERTICES, CaveAspect::LIVE_INSTANCES, CaveAspect::LIVE_TEXTURE);
+// 		}, { id1 });
+// 		deps.insert(id2);
+// 	}
+
+// 	team.gpuTask([&rocks, &cb_u, this](VkCommandBuffer cb){
+// 		rocks.endSingleTimeCommands(cb_u);
+// 	}, { id0 });
+
+// 	auto id3 = team.gpuTask([&rocks, this](VkCommandBuffer cb){
+// 	}, deps);
+
+// 	auto id4 = team.gpuTask([&rocks, &lava, this](VkCommandBuffer cb){
+// 		for (auto& it : caves) {
+// 			auto& key = it.first;
+// 			auto& cave = it.second;
 // 			cavesPtr[key] = cave.get();
 // 			lava.addCave(move(cave));
-// 		}, { id1 });
-// 	}
+// 		}
+// 	}, { id3 });
 
 // 	auto time = chrono::duration_cast<chrono::duration<double>>(chrono::high_resolution_clock::now() - start).count();
 // 	printf("Established %lld caves (%lld Mb textures) in %.3fs (%.2f Gb/s)\n", caves.size(), texturesBytes / (1 << 20), time, texturesBytes / time / (1 << 30));
 // }
+
+
 
 void Batcher::establish(Mountain& mountain, Rocks& rocks, Crater& crater, Lava& lava) {
 	this->lava = &lava;
@@ -145,20 +166,14 @@ void Batcher::establish(Mountain& mountain, Rocks& rocks, Crater& crater, Lava& 
 		}));
 	}
 
-	auto id = team.gpuTask([&rocks, this](VkCommandBuffer cb){
-		VkCommandBuffer cb_u = rocks.beginSingleTimeCommands();
-
+	auto id = team.gpuTask([this](VkCommandBuffer cb){
 		for (auto& it : caves) {
 			auto& cave = it.second;
-			cave->establish(cb_u, CaveAspect::LIVE_VERTICES, CaveAspect::LIVE_INSTANCES, CaveAspect::LIVE_TEXTURE);
+			cave->establish(cb, CaveAspect::LIVE_VERTICES, CaveAspect::LIVE_INSTANCES, CaveAspect::LIVE_TEXTURE);
 		}
+	}, deps);
 
-		rocks.endSingleTimeCommands(cb_u);
-	});
-
-	team.gpuTask([&rocks, &lava, this](VkCommandBuffer cb){
-		VkCommandBuffer cb_u = rocks.beginSingleTimeCommands();
-
+	team.gpuTask([&lava, this](VkCommandBuffer cb){
 		for (auto& it : caves) {
 			auto& key = it.first;
 			auto& cave = it.second;
@@ -166,13 +181,13 @@ void Batcher::establish(Mountain& mountain, Rocks& rocks, Crater& crater, Lava& 
 			cavesPtr[key] = cave.get();
 			lava.addCave(move(cave));
 		}
-
-		rocks.endSingleTimeCommands(cb_u);
 	}, { id });
 
 	auto time = chrono::duration_cast<chrono::duration<double>>(chrono::high_resolution_clock::now() - start).count();
 	printf("Established %lld caves (%lld Mb textures) in %.3fs (%.2f Gb/s)\n", caves.size(), texturesBytes / (1 << 20), time, texturesBytes / time / (1 << 30));
 }
+
+
 
 size_t Batcher::addInstance(string name, Instance instance) {
 	size_t result = 0;

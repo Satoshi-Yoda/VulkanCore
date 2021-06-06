@@ -36,6 +36,6 @@ public:
 private:
 	Team& team;
 	Rocks* rocks = nullptr;
-	VkCommandBuffer cb = nullptr;
+	// VkCommandBuffer cb = nullptr;
 
 };

@@ -39,17 +39,6 @@ Team::~Team() {
 }
 
 void Team::initGpuSpecialists(Rocks& rocks) {
-	// Figure out, where is cb that is used now creating?
-	//  - It is creating insde Cave::establishLiveXXX() for every aspect of every cave
-
-	// this->rocks = &rocks;
-
-	// TODO maybe that way:
-	// 1. create cb here as rocks -> single time cb
-	// 2. on Team.join() flush this cb and create a new one
-
-	// VkCommandBuffer commandBuffer = this->rocks->beginSingleTimeCommands();
-
 	for (size_t i = 0; i < 1; i++) {
 		specialists.emplace_back(ST_GPU, i + 101, *this, &rocks);
 	}
@@ -87,9 +76,9 @@ shared_ptr<Task> Team::task(const Speciality speciality, const function<void()> 
 shared_ptr<Task> Team::gpuTask(const function<void(VkCommandBuffer)> func, const set<shared_ptr<Task>> dependencies) {
 	assert(count_if(specialists.begin(), specialists.end(), [](auto& s){ return s.speciality == ST_GPU; }) > 0); // TODO maybe not, maybe you can create specialist(s) after creating task
 
-	for (auto& specialist : specialists | filter([](auto& s){ return s.speciality == ST_GPU; })) {
-		specialist.ensureCommandBuffer();
-	}
+	// for (auto& specialist : specialists | filter([](auto& s){ return s.speciality == ST_GPU; })) {
+	// 	specialist.ensureCommandBuffer();
+	// }
 
 	shared_ptr<Task> task = make_shared<Task>(ST_GPU, func);
 	task->dependencies = dependencies;
@@ -133,11 +122,9 @@ void Team::join() {
 		return done;
 	});
 
-	for (auto& specialist : specialists) {
-		if (specialist.speciality == ST_GPU) {
-			specialist.flushCommandBuffer();
-		}
-	}
+	// for (auto& specialist : specialists | filter([](auto& s){ return s.speciality == ST_GPU; })) {
+	// 	specialist.flushCommandBuffer();
+	// }
 }
 
 // bool Team::wait(std::chrono::milliseconds time) {

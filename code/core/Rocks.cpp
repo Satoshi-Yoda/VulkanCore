@@ -1,8 +1,9 @@
 #include "Rocks.h"
 
-#include <vector>
-#include <fstream>
+#include <cassert>
 #include <chrono>
+#include <fstream>
+#include <vector>
 
 using namespace std;
 
@@ -192,6 +193,8 @@ VkCommandBuffer Rocks::beginSingleTimeCommands() {
 }
 
 void Rocks::endSingleTimeCommands(VkCommandBuffer tempCommandBuffer) {
+	assert(tempCommandBuffer != nullptr);
+
 	vkEndCommandBuffer(tempCommandBuffer);
 
 	VkSubmitInfo submitInfo { VK_STRUCTURE_TYPE_SUBMIT_INFO };

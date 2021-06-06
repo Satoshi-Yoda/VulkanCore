@@ -38,8 +38,12 @@ Specialist::Specialist(Speciality _speciality, size_t _id, Team& _team, Rocks* _
 					taskPtr->func();
 				} else if (taskPtr->cbFunc != nullptr) {
 					assert(speciality == ST_GPU);
-					assert(cb != nullptr);
+					assert(rocks != nullptr);
+					// assert(cb != nullptr);
+					VkCommandBuffer cb = rocks->beginSingleTimeCommands();
 					taskPtr->cbFunc(cb);
+					rocks->endSingleTimeCommands(cb);
+					cb = nullptr;
 				}
 
 				team.mutex.lock();
@@ -73,21 +77,21 @@ Specialist::Specialist(Speciality _speciality, size_t _id, Team& _team, Rocks* _
 
 Specialist::~Specialist() {}
 
-void Specialist::ensureCommandBuffer() {
-	assert(speciality == ST_GPU);
-	assert(rocks != nullptr);
+// void Specialist::ensureCommandBuffer() {
+// 	assert(speciality == ST_GPU);
+// 	assert(rocks != nullptr);
 
-	if (cb == nullptr) {
-		cb = rocks->beginSingleTimeCommands();
-	}
-}
+// 	if (cb == nullptr) {
+// 		cb = rocks->beginSingleTimeCommands();
+// 	}
+// }
 
-void Specialist::flushCommandBuffer() {
-	assert(speciality == ST_GPU);
-	assert(rocks != nullptr);
+// void Specialist::flushCommandBuffer() {
+// 	assert(speciality == ST_GPU);
+// 	assert(rocks != nullptr);
 
-	if (cb == nullptr) {
-		rocks->endSingleTimeCommands(cb);
-		cb = nullptr;
-	}
-}
+// 	if (cb != nullptr) {
+// 		rocks->endSingleTimeCommands(cb);
+// 		cb = nullptr;
+// 	}
+// }
