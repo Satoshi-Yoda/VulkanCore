@@ -468,7 +468,7 @@ void Mountain::createCommandPool() {
 void Mountain::createDescriptorPool() {
 	array<VkDescriptorPoolSize, 2> poolSizes {};
 
-	uint32_t size = 2 * 9000; // about ~ IN_FLIGHT_FRAMES * texture count
+	uint32_t size = 2 * 9000; // about ~ texture count
 
 	poolSizes[0].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
 	poolSizes[0].descriptorCount = size;

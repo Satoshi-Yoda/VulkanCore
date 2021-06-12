@@ -30,23 +30,23 @@ private:
 	Lava &lava;
 
 	// TODO remove IN_FLIGHT_FRAMES (always use 1)
-	const static int IN_FLIGHT_FRAMES = 1;
-	int inFlightIndex = 0;
+	// const static int IN_FLIGHT_FRAMES = 1;
+	// int inFlightIndex = 0;
 
-	array<VkCommandBuffer,   IN_FLIGHT_FRAMES> commandBuffers;
-	array<VkSemaphore,       IN_FLIGHT_FRAMES> imageAvailableSemaphores;
-	array<VkSemaphore,       IN_FLIGHT_FRAMES> renderFinishedSemaphores;
-	array<VkFence,           IN_FLIGHT_FRAMES> fences;
-	array<VkFramebuffer,     IN_FLIGHT_FRAMES> framebuffers;
-	array<VkBuffer,          IN_FLIGHT_FRAMES> uniformBuffers;
-	array<VmaAllocation,     IN_FLIGHT_FRAMES> uniformBuffersAllocations;
-	array<VmaAllocationInfo, IN_FLIGHT_FRAMES> uniformBuffersAllocationInfos;
-	vector<array<VkDescriptorSet, IN_FLIGHT_FRAMES>> descriptorSets;
+	VkCommandBuffer commandBuffer;
+	VkSemaphore imageAvailableSemaphore;
+	VkSemaphore renderFinishedSemaphore;
+	VkFence fence;
+	VkFramebuffer framebuffer;
+	VkBuffer uniformBuffer;
+	VmaAllocation uniformBuffersAllocation;
+	VmaAllocationInfo uniformBuffersAllocationInfo;
+	vector<VkDescriptorSet> descriptorSets;
 
 	void createInFlightResources();
 	void createUniformBuffers();
 	void resizeDescriptorSets(size_t size);
 	void updateInFlightUniformBuffer();
-	void updateDescriptorSet(size_t frameIndex, size_t textureIndex, VkImageView& imageView);
+	void updateDescriptorSet(size_t textureIndex, VkImageView& imageView);
 	void prepareFrame(uint32_t craterIndex);
 };
