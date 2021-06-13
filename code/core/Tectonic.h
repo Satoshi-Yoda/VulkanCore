@@ -35,7 +35,7 @@ private:
 	VkFence fence;
 	VkFramebuffer framebuffer;
 
-	// TODO move ubo to Crater?
+	// TODO move ubo to Crater? Or better to lava, because it contains shift also?
 	VkBuffer uniformBuffer;
 	VmaAllocation uniformBuffersAllocation;
 	VmaAllocationInfo uniformBuffersAllocationInfo;
