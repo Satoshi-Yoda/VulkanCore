@@ -4,9 +4,10 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
-#include <vector>
 #include <array>
+#include <cassert>
 #include <chrono>
+#include <vector>
 
 using namespace std;
 using glm::vec2;
@@ -67,22 +68,18 @@ void Tectonic::resizeDescriptorSets(size_t size) {
 
 	descriptorSets.resize(size);
 
-	for (auto& descriptorSet : descriptorSets) {
-		VkDescriptorSetLayout layout { lava.descriptorSetLayout };
+	for (size_t i = 0; i < descriptorSets.size(); i++) {
+		auto& descriptorSet = descriptorSets[i];
+
 		VkDescriptorSetAllocateInfo allocInfo { VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO };
 		allocInfo.descriptorPool = mountain.descriptorPool;
 		allocInfo.descriptorSetCount = 1;
-		allocInfo.pSetLayouts = &layout;
+		allocInfo.pSetLayouts = &lava.descriptorSetLayout;
 
 		vkAllocateDescriptorSets(mountain.device, &allocInfo, &descriptorSet) >> ash("Failed to allocate descriptor set!");
-	}
 
-	// TODO slightly faster (4700 -> 4800 fps)
-	// for (size_t frameIndex = 0; frameIndex < 1; frameIndex++) {
-	// 	for (size_t textureIndex = 0; textureIndex < lava.textureImageViews.size(); textureIndex++) {
-	// 		updateDescriptorSet(frameIndex, textureIndex, lava.textureImageViews[textureIndex]);
-	// 	}
-	// }
+		updateDescriptorSet(i, lava.caves[i]->textureView);
+	}
 }
 
 void Tectonic::updateInFlightUniformBuffer() {
@@ -93,7 +90,6 @@ void Tectonic::updateInFlightUniformBuffer() {
 	memcpy(uniformBuffersAllocationInfo.pMappedData, &ubo, sizeof(ubo));
 }
 
-// TODO maybe this won't be needed when there will be only one in-flight frame
 void Tectonic::updateDescriptorSet(size_t textureIndex, VkImageView& imageView) {
 	VkDescriptorImageInfo imageInfo {};
 	imageInfo.sampler = lava.textureSampler;
@@ -213,7 +209,6 @@ void Tectonic::prepareFrame(uint32_t craterIndex) {
 				VkDeviceSize offsets[] { 0 };
 				vkCmdBindVertexBuffers(commandBuffer, 0, 1, &lava.caves[i]->vertexBuffer, offsets);
 				vkCmdBindVertexBuffers(commandBuffer, 1, 1, &lava.caves[i]->instanceBuffer, offsets);
-				updateDescriptorSet(i, lava.caves[i]->textureView);
 				vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, lava.pipelineLayout, 0, 1, &descriptorSets[i], 0, nullptr);
 				vkCmdDraw(commandBuffer, lava.caves[i]->vertexCount, lava.caves[i]->instanceCount, 0, 0);
 			}

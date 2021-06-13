@@ -29,10 +29,6 @@ private:
 	Crater& crater;
 	Lava &lava;
 
-	// TODO remove IN_FLIGHT_FRAMES (always use 1)
-	// const static int IN_FLIGHT_FRAMES = 1;
-	// int inFlightIndex = 0;
-
 	VkCommandBuffer commandBuffer;
 	VkSemaphore imageAvailableSemaphore;
 	VkSemaphore renderFinishedSemaphore;
@@ -41,7 +37,7 @@ private:
 	VkBuffer uniformBuffer;
 	VmaAllocation uniformBuffersAllocation;
 	VmaAllocationInfo uniformBuffersAllocationInfo;
-	vector<VkDescriptorSet> descriptorSets;
+	vector<VkDescriptorSet> descriptorSets; // TODO with removal of in flight frames maybe this can go to cave?
 
 	void createInFlightResources();
 	void createUniformBuffers();

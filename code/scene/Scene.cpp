@@ -26,7 +26,7 @@ void Scene::init() {
 	// full scale
 	// int N = 1840000;   // static
 	// int N = 1700000; // old stream with instances (92% from static) 780 Mb/second
-	int N = 200000; // new stream with instances
+	int N = 2000; // new stream with instances
 	// int N = 100000; // dynamic 10% with instances
 	float percent = 0.01;
 	// N = 301;
@@ -51,6 +51,13 @@ void Scene::init() {
 		if (distribution(random) < percent) {
 			updatableIndexes.push_back(index);
 		}
+	}
+
+	for (float x = -extent_w; x < extent_w; x += step)
+	for (float y = -extent_h; y < extent_h; y += step)
+	{
+		Instance instance { { x, y } };
+		batcher.addInstance("asteroid-s3.2", instance);
 	}
 
 	// printf("Lava: %lld sprites\n", instances.size());
