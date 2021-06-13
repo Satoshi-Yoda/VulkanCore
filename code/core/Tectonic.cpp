@@ -110,6 +110,13 @@ void Tectonic::prepareFrame(uint32_t craterIndex) {
 		// vkCmdPipelineBarrier(commandBuffer, VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT, VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT, 0, 0, nullptr, 0, nullptr, 1, &barrierFromPresentToDraw);
 		// vkCmdPipelineBarrier(commandBuffer, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, 0, 0, nullptr, 0, nullptr, 1, &barrierFromPresentToDraw);
 
+		// So, for second drawable I need:
+		// - all from cave or similar
+		// - renderPass (maybe)
+		// - framebuffer (maybe)
+	 	// - pipeline
+		// - pipelineLayout
+
 		VkRenderPassBeginInfo passBeginInfo { VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO };
 		passBeginInfo.renderPass = lava.renderPass;
 		passBeginInfo.framebuffer = framebuffer;
