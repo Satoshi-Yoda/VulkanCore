@@ -23,7 +23,7 @@ public:
 
 	const bool USE_GAMMA_CORRECT  = false;
 	const bool USE_10_BIT         = false;
-	const bool USE_VSYNC          = false;
+	const bool USE_VSYNC          = true;
 
 	const size_t ADDITIONAL_CHAIN_SIZE = 1;
 

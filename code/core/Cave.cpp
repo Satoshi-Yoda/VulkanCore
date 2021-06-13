@@ -1,5 +1,7 @@
 #include "cave.h"
 
+#include <cassert>
+
 #define GLM_FORCE_RADIANS
 #include <glm/glm.hpp>
 
@@ -34,10 +36,11 @@ void Cave::setWorkingData(vector<Vertex> vertices, int width, int height, void* 
 	aspects.raise(CaveAspect::WORKING_VERTICES, CaveAspect::WORKING_INSTANCES, CaveAspect::WORKING_TEXTURE);
 }
 
-void Cave::setVulkanEntities(Mountain& mountain, Rocks& rocks, Crater& crater) {
+void Cave::setVulkanEntities(Mountain& mountain, Rocks& rocks, Crater& crater, Lava& lava) {
 	this->mountain = &mountain;
 	this->rocks = &rocks;
 	this->crater = &crater;
+	this->lava = &lava;
 	aspects.raise(CaveAspect::VULKAN_ENTITIES);
 }
 
@@ -102,6 +105,47 @@ void Cave::updateInstances(vector<size_t> indexes) {
 	VkBuffer& stagingBuffer = stagingInstanceBuffer;
 
 	rocks->copyBufferToBuffer(stagingBuffer, buffer, regions, VK_ACCESS_VERTEX_ATTRIBUTE_READ_BIT);
+}
+
+void Cave::createDescriptorSet() {
+	assert(mountain != nullptr);
+
+	VkDescriptorSetAllocateInfo allocInfo { VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO };
+	allocInfo.descriptorPool = mountain->descriptorPool;
+	allocInfo.descriptorSetCount = 1;
+	allocInfo.pSetLayouts = &lava->descriptorSetLayout;
+
+	vkAllocateDescriptorSets(mountain->device, &allocInfo, &descriptorSet) >> ash("Failed to allocate descriptor set!");
+
+	VkDescriptorImageInfo imageInfo {};
+	imageInfo.sampler = lava->textureSampler;
+	imageInfo.imageView = textureView;
+	imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+
+	VkDescriptorBufferInfo uniformInfo {};
+	uniformInfo.buffer = lava->uniformBuffer;
+	uniformInfo.offset = 0;
+	uniformInfo.range = sizeof(UniformBufferObject);
+
+	VkWriteDescriptorSet imageWrite { VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET };
+	imageWrite.dstSet = descriptorSet;
+	imageWrite.dstBinding = 0;
+	imageWrite.dstArrayElement = 0;
+	imageWrite.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+	imageWrite.descriptorCount = 1;
+	imageWrite.pImageInfo = &imageInfo;
+
+	VkWriteDescriptorSet uniformWrite { VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET };
+	uniformWrite.dstSet = descriptorSet;
+	uniformWrite.dstBinding = 1;
+	uniformWrite.dstArrayElement = 0;
+	uniformWrite.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+	uniformWrite.descriptorCount = 1;
+	uniformWrite.pBufferInfo = &uniformInfo;
+
+	array<VkWriteDescriptorSet, 2> descriptorWrites { imageWrite, uniformWrite };
+
+	vkUpdateDescriptorSets(mountain->device, static_cast<uint32_t>(descriptorWrites.size()), descriptorWrites.data(), 0, nullptr);
 }
 
 void Cave::free(CaveAspect aspect) {

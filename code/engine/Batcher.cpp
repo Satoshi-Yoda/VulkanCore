@@ -159,7 +159,7 @@ void Batcher::establish(Mountain& mountain, Rocks& rocks, Crater& crater, Lava& 
 	set<shared_ptr<Task>> deps;
 	for (auto& it : caves) {
 		auto& cave = it.second;
-		cave->setVulkanEntities(mountain, rocks, crater);
+		cave->setVulkanEntities(mountain, rocks, crater, lava);
 
 		deps.insert(team.task(ST_CPU, [&cave, this]{
 			cave->establish(CaveAspect::STAGING_VERTICES, CaveAspect::STAGING_INSTANCES, CaveAspect::STAGING_TEXTURE);
@@ -178,6 +178,7 @@ void Batcher::establish(Mountain& mountain, Rocks& rocks, Crater& crater, Lava& 
 			auto& key = it.first;
 			auto& cave = it.second;
 			cave->free(CaveAspect::STAGING_VERTICES, CaveAspect::STAGING_TEXTURE); // TODO free working versices & texture also
+			cave->createDescriptorSet();
 			cavesPtr[key] = cave.get();
 			lava.addCave(move(cave));
 		}

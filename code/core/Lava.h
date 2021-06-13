@@ -31,6 +31,8 @@ struct UniformBufferObject {
     vec2 shift;
 };
 
+class Cave;
+
 class Lava {
 public:
 	Lava(Ash &ash, Mountain &mountain, Rocks &rocks, Crater &crater);

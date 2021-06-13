@@ -14,15 +14,19 @@
 #include <glm/glm.hpp>
 
 #include "Crater.h"
+#include "Lava.h"
 #include "Rocks.h"
 #include "../state/flag_group.hpp"
 
-using glm::vec2;
-using glm::vec3;
 using std::bitset;
 using std::set;
 using std::string;
 using std::vector;
+
+using glm::vec2;
+using glm::vec3;
+
+class Lava;
 
 struct Vertex {
 	vec2 pos;
@@ -58,7 +62,7 @@ public:
 
 	void setName(string name);
 	void setWorkingData(vector<Vertex> vertices, int width, int height, void* pixels);
-	void setVulkanEntities(Mountain& mountain, Rocks& rocks, Crater& crater);
+	void setVulkanEntities(Mountain& mountain, Rocks& rocks, Crater& crater, Lava& lava);
 
 	flag_group<CaveAspect> aspects;
 
@@ -96,6 +100,8 @@ public:
 	VmaAllocation stagingTextureAllocation;
 	VmaAllocationInfo stagingTextureInfo;
 
+	VkDescriptorSet descriptorSet;
+
 	void establish(CaveAspect aspect);
 	template <typename... Args>
 	void establish(CaveAspect aspect, Args... args) {
@@ -119,6 +125,8 @@ public:
 
 	void updateInstances(vector<size_t> indexes);
 
+	void createDescriptorSet();
+
 	void free(CaveAspect aspect);
 	template <typename... Args>
 	void free(CaveAspect aspect, Args... args) {
@@ -128,18 +136,19 @@ public:
 
 private:
 	Ash& ash;
-	Mountain* mountain;
-	Rocks* rocks;
-	Crater* crater;
+	Mountain* mountain = nullptr;
+	Rocks* rocks       = nullptr;
+	Crater* crater     = nullptr;
+	Lava* lava         = nullptr;
 
 	void establishStagingVertices();
 	void establishStagingInstances();
 	void refreshStagingInstances();
 	void establishStagingTexture();
-	void establishLiveVertices(VkCommandBuffer externalCommandBuffer = nullptr);
+	void establishLiveVertices (VkCommandBuffer externalCommandBuffer = nullptr);
 	void establishLiveInstances(VkCommandBuffer externalCommandBuffer = nullptr);
-	void refreshLiveInstances(VkCommandBuffer externalCommandBuffer = nullptr);
-	void establishLiveTexture(VkCommandBuffer externalCommandBuffer = nullptr);
+	void refreshLiveInstances  (VkCommandBuffer externalCommandBuffer = nullptr);
+	void establishLiveTexture  (VkCommandBuffer externalCommandBuffer = nullptr);
 
 	void freeStagingVertices();
 	void freeStagingInstances();

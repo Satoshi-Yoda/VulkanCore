@@ -51,63 +51,12 @@ void Tectonic::createInFlightResources() {
 	framebuffer = VK_NULL_HANDLE;
 }
 
-void Tectonic::resizeDescriptorSets(size_t size) {
-	if (descriptorSets.size() == size) return;
-
-	descriptorSets.resize(size);
-
-	for (size_t i = 0; i < descriptorSets.size(); i++) {
-		auto& descriptorSet = descriptorSets[i];
-
-		VkDescriptorSetAllocateInfo allocInfo { VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO };
-		allocInfo.descriptorPool = mountain.descriptorPool;
-		allocInfo.descriptorSetCount = 1;
-		allocInfo.pSetLayouts = &lava.descriptorSetLayout;
-
-		vkAllocateDescriptorSets(mountain.device, &allocInfo, &descriptorSet) >> ash("Failed to allocate descriptor set!");
-
-		updateDescriptorSet(i, lava.caves[i]->textureView);
-	}
-}
-
 void Tectonic::updateInFlightUniformBuffer() {
 	UniformBufferObject ubo {};
 	ubo.shift = { 0.0f, 0.0f };
 	ubo.scale = { 2.0f / (crater.extent.width + 1), 2.0f / (crater.extent.height + 1) };
 
 	memcpy(lava.uniformBuffersAllocationInfo.pMappedData, &ubo, sizeof(ubo));
-}
-
-void Tectonic::updateDescriptorSet(size_t textureIndex, VkImageView& imageView) {
-	VkDescriptorImageInfo imageInfo {};
-	imageInfo.sampler = lava.textureSampler;
-	imageInfo.imageView = imageView;
-	imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-
-	VkDescriptorBufferInfo uniformInfo {};
-	uniformInfo.buffer = lava.uniformBuffer;
-	uniformInfo.offset = 0;
-	uniformInfo.range = sizeof(UniformBufferObject);
-
-	VkWriteDescriptorSet imageWrite { VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET };
-	imageWrite.dstSet = descriptorSets[textureIndex];
-	imageWrite.dstBinding = 0;
-	imageWrite.dstArrayElement = 0;
-	imageWrite.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-	imageWrite.descriptorCount = 1;
-	imageWrite.pImageInfo = &imageInfo;
-
-	VkWriteDescriptorSet uniformWrite { VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET };
-	uniformWrite.dstSet = descriptorSets[textureIndex];
-	uniformWrite.dstBinding = 1;
-	uniformWrite.dstArrayElement = 0;
-	uniformWrite.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-	uniformWrite.descriptorCount = 1;
-	uniformWrite.pBufferInfo = &uniformInfo;
-
-	array<VkWriteDescriptorSet, 2> descriptorWrites { imageWrite, uniformWrite };
-
-	vkUpdateDescriptorSets(mountain.device, static_cast<uint32_t>(descriptorWrites.size()), descriptorWrites.data(), 0, nullptr);
 }
 
 void Tectonic::prepareFrame(uint32_t craterIndex) {
@@ -189,15 +138,13 @@ void Tectonic::prepareFrame(uint32_t craterIndex) {
 			vkCmdSetViewport(commandBuffer, 0, 1, &viewport);
 			vkCmdSetScissor (commandBuffer, 0, 1, &scissor);
 
-			resizeDescriptorSets(lava.caves.size());
-
 			for (size_t i = 0; i < lava.caves.size(); i++) {
 				if (lava.caves[i]->instanceCount == 0) continue;
 
 				VkDeviceSize offsets[] { 0 };
 				vkCmdBindVertexBuffers(commandBuffer, 0, 1, &lava.caves[i]->vertexBuffer, offsets);
 				vkCmdBindVertexBuffers(commandBuffer, 1, 1, &lava.caves[i]->instanceBuffer, offsets);
-				vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, lava.pipelineLayout, 0, 1, &descriptorSets[i], 0, nullptr);
+				vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, lava.pipelineLayout, 0, 1, &lava.caves[i]->descriptorSet, 0, nullptr);
 				vkCmdDraw(commandBuffer, lava.caves[i]->vertexCount, lava.caves[i]->instanceCount, 0, 0);
 			}
 

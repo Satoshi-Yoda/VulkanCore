@@ -35,8 +35,6 @@ private:
 	VkFence fence;
 	VkFramebuffer framebuffer;
 
-	vector<VkDescriptorSet> descriptorSets; // TODO with removal of in flight frames maybe this can go to cave? But it contains ubo data.
-
 	void createInFlightResources();
 	void createUniformBuffers();
 	void resizeDescriptorSets(size_t size);
