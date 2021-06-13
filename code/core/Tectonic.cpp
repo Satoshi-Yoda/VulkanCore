@@ -16,14 +16,8 @@ using glm::vec4;
 using glm::mat4;
 using glm::radians;
 
-struct UniformBufferObject {
-    vec2 scale;
-    vec2 shift;
-};
-
 Tectonic::Tectonic(Ash &ash, Mountain &mountain, Rocks &rocks, Crater &crater, Lava &lava) : ash(ash), mountain(mountain), rocks(rocks), crater(crater), lava(lava) {
 	createInFlightResources();
-	createUniformBuffers();
 }
 
 Tectonic::~Tectonic() {
@@ -36,8 +30,6 @@ Tectonic::~Tectonic() {
 	if (renderFinishedSemaphore != VK_NULL_HANDLE) vkDestroySemaphore  (mountain.device, renderFinishedSemaphore, nullptr);
 	if (fence                   != VK_NULL_HANDLE) vkDestroyFence      (mountain.device, fence, nullptr);
 	if (framebuffer             != VK_NULL_HANDLE) vkDestroyFramebuffer(mountain.device, framebuffer, nullptr);
-
-	vmaDestroyBuffer(mountain.allocator, uniformBuffer, uniformBuffersAllocation);
 }
 
 void Tectonic::createInFlightResources() {
@@ -57,10 +49,6 @@ void Tectonic::createInFlightResources() {
 	vkCreateFence(mountain.device, &fenceInfo, nullptr, &fence) >> ash("Failed to create fence!");
 
 	framebuffer = VK_NULL_HANDLE;
-}
-
-void Tectonic::createUniformBuffers() {
-	rocks.createBufferVMA(sizeof(UniformBufferObject), VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VMA_MEMORY_USAGE_CPU_ONLY, uniformBuffer, uniformBuffersAllocation, uniformBuffersAllocationInfo);
 }
 
 void Tectonic::resizeDescriptorSets(size_t size) {
@@ -87,7 +75,7 @@ void Tectonic::updateInFlightUniformBuffer() {
 	ubo.shift = { 0.0f, 0.0f };
 	ubo.scale = { 2.0f / (crater.extent.width + 1), 2.0f / (crater.extent.height + 1) };
 
-	memcpy(uniformBuffersAllocationInfo.pMappedData, &ubo, sizeof(ubo));
+	memcpy(lava.uniformBuffersAllocationInfo.pMappedData, &ubo, sizeof(ubo));
 }
 
 void Tectonic::updateDescriptorSet(size_t textureIndex, VkImageView& imageView) {
@@ -97,7 +85,7 @@ void Tectonic::updateDescriptorSet(size_t textureIndex, VkImageView& imageView) 
 	imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
 
 	VkDescriptorBufferInfo uniformInfo {};
-	uniformInfo.buffer = uniformBuffer;
+	uniformInfo.buffer = lava.uniformBuffer;
 	uniformInfo.offset = 0;
 	uniformInfo.range = sizeof(UniformBufferObject);
 

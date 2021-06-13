@@ -35,11 +35,6 @@ private:
 	VkFence fence;
 	VkFramebuffer framebuffer;
 
-	// TODO move ubo to Crater? Or better to lava, because it contains shift also?
-	VkBuffer uniformBuffer;
-	VmaAllocation uniformBuffersAllocation;
-	VmaAllocationInfo uniformBuffersAllocationInfo;
-
 	vector<VkDescriptorSet> descriptorSets; // TODO with removal of in flight frames maybe this can go to cave? But it contains ubo data.
 
 	void createInFlightResources();

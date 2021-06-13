@@ -20,6 +20,17 @@
 using std::unique_ptr;
 using std::vector;
 
+using glm::vec2;
+using glm::vec3;
+using glm::vec4;
+using glm::mat4;
+using glm::radians;
+
+struct UniformBufferObject {
+    vec2 scale;
+    vec2 shift;
+};
+
 class Lava {
 public:
 	Lava(Ash &ash, Mountain &mountain, Rocks &rocks, Crater &crater);

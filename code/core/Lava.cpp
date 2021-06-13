@@ -5,16 +5,6 @@
 #include <vector>
 
 using namespace std;
-using glm::vec2;
-using glm::vec3;
-using glm::vec4;
-using glm::mat4;
-using glm::radians;
-
-struct UniformBufferObject {
-    vec2 scale;
-    vec2 shift;
-};
 
 Lava::Lava(Ash &ash, Mountain &mountain, Rocks &rocks, Crater &crater) : ash(ash), mountain(mountain), rocks(rocks), crater(crater) {
 	createTextureSampler();
@@ -39,6 +29,10 @@ Lava::~Lava() {
 
 		vmaDestroyBuffer(mountain.allocator, uniformBuffer, uniformBuffersAllocation);
 	}
+}
+
+void Lava::addCave(unique_ptr<Cave> cave) {
+	this->caves.push_back(move(cave));
 }
 
 void Lava::createRenderPass() {
@@ -253,10 +247,6 @@ void Lava::createPipeline() {
 
 void Lava::createUniformBuffers() {
 	rocks.createBufferVMA(sizeof(UniformBufferObject), VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VMA_MEMORY_USAGE_CPU_ONLY, uniformBuffer, uniformBuffersAllocation, uniformBuffersAllocationInfo);
-}
-
-void Lava::addCave(unique_ptr<Cave> cave) {
-	this->caves.push_back(move(cave));
 }
 
 void Lava::createTextureSampler() {
