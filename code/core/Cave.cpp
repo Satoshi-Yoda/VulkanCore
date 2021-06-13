@@ -81,6 +81,8 @@ void Cave::refresh(CaveAspect aspect) {
 }
 
 void Cave::updateInstances(vector<size_t> indexes) {
+	assert(indexes.size() > 0);
+
 	Instance* stagingVector = reinterpret_cast<Instance*>(stagingInstanceInfo.pMappedData);
 	for (auto& index : indexes) {
 		stagingVector[index] = instances[index];

@@ -289,6 +289,8 @@ void Rocks::copyBufferToBuffer(VkBuffer& srcBuffer, VkBuffer& dstBuffer, VkDevic
 void Rocks::copyBufferToBuffer(VkBuffer& srcBuffer, VkBuffer& dstBuffer, vector<VkBufferCopy> regions, VkAccessFlags resultAccessFlags, VkCommandBuffer externalCommandBuffer) {
 	// auto start = chrono::high_resolution_clock::now();
 
+	assert(regions.size() > 0);
+
 	// VkCommandBuffer commandBuffer = beginSingleTimeCommands();
 	bool useExternalCommandBuffer = (externalCommandBuffer != nullptr);
 	VkCommandBuffer commandBuffer = useExternalCommandBuffer ? externalCommandBuffer : beginSingleTimeCommands();

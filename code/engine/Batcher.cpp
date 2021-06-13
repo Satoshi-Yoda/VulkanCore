@@ -248,7 +248,7 @@ void Batcher::update(double t, double dt) {
 	for (auto& [name, value] : touchedIndexes) {
 		if (resizedNames.find(name) != resizedNames.end() || value.size() * 100 > cavesPtr[name]->instanceCount) {
 			cavesPtr[name]->refresh(CaveAspect::STAGING_INSTANCES, CaveAspect::LIVE_INSTANCES);
-		} else {
+		} else if (value.size() > 0) {
 			cavesPtr[name]->updateInstances(value);
 		}
 		value.clear();

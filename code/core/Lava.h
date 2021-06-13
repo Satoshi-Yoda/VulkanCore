@@ -31,6 +31,10 @@ public:
 	VkSampler textureSampler;
 	VkDescriptorSetLayout descriptorSetLayout;
 
+	VkBuffer uniformBuffer;
+	VmaAllocation uniformBuffersAllocation;
+	VmaAllocationInfo uniformBuffersAllocationInfo;
+
 	vector<unique_ptr<Cave>> caves;
 
 	void addCave(unique_ptr<Cave> cave);
@@ -47,4 +51,6 @@ private:
 	void createPipeline();
 	void createTextureSampler();
 	void createDescriptorSetLayout();
+
+	void createUniformBuffers();
 };
