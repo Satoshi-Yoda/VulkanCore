@@ -138,14 +138,14 @@ void Tectonic::prepareFrame(uint32_t craterIndex) {
 			vkCmdSetViewport(commandBuffer, 0, 1, &viewport);
 			vkCmdSetScissor (commandBuffer, 0, 1, &scissor);
 
-			for (size_t i = 0; i < lava.caves.size(); i++) {
-				if (lava.caves[i]->instanceCount == 0) continue;
+			for (auto& cave : lava.caves) {
+				if (cave->instanceCount == 0) continue;
 
 				VkDeviceSize offsets[] { 0 };
-				vkCmdBindVertexBuffers(commandBuffer, 0, 1, &lava.caves[i]->vertexBuffer, offsets);
-				vkCmdBindVertexBuffers(commandBuffer, 1, 1, &lava.caves[i]->instanceBuffer, offsets);
-				vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, lava.pipelineLayout, 0, 1, &lava.caves[i]->descriptorSet, 0, nullptr);
-				vkCmdDraw(commandBuffer, lava.caves[i]->vertexCount, lava.caves[i]->instanceCount, 0, 0);
+				vkCmdBindVertexBuffers(commandBuffer, 0, 1, &cave->vertexBuffer, offsets);
+				vkCmdBindVertexBuffers(commandBuffer, 1, 1, &cave->instanceBuffer, offsets);
+				vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, lava.pipelineLayout, 0, 1, &cave->descriptorSet, 0, nullptr);
+				vkCmdDraw(commandBuffer, cave->vertexCount, cave->instanceCount, 0, 0);
 			}
 
 		vkCmdEndRenderPass(commandBuffer);
