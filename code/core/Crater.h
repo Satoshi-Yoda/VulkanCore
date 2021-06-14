@@ -21,11 +21,11 @@ public:
 	const bool DISPLAY_PRESENT_TRANSFORM = false;
 	const bool DISPLAY_PRESENT_MODES     = false;
 
-	const bool USE_GAMMA_CORRECT  = false;
-	const bool USE_10_BIT         = false;
-	const bool USE_VSYNC          = true;
+	const bool USE_GAMMA_CORRECT = false;
+	const bool USE_10_BIT        = false;
+	const bool USE_VSYNC         = true;
 
-	const size_t ADDITIONAL_CHAIN_SIZE = 1;
+	const size_t ADDITIONAL_CHAIN_SIZE = 0;
 
 	VkSwapchainKHR swapChain = VK_NULL_HANDLE;
 	VkSurfaceFormatKHR surfaceFormat;
