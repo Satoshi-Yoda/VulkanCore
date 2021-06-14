@@ -8,7 +8,6 @@ using namespace std;
 
 Lava::Lava(Ash &ash, Mountain &mountain, Rocks &rocks, Crater &crater) : ash(ash), mountain(mountain), rocks(rocks), crater(crater) {
 	createTextureSampler();
-
 	createDescriptorSetLayout();
 
 	createRenderPass();

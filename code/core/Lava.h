@@ -39,8 +39,11 @@ public:
 	~Lava();
 
 	VkRenderPass renderPass;
+
+	// TODO this is drawing-primitive-specific, so maybe move it to Cave static or something?
 	VkPipelineLayout pipelineLayout;
 	VkPipeline pipeline;
+
 	VkSampler textureSampler;
 	VkDescriptorSetLayout descriptorSetLayout;
 

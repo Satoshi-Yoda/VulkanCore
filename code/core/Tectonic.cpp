@@ -47,8 +47,6 @@ void Tectonic::createInFlightResources() {
 	VkFenceCreateInfo fenceInfo { VK_STRUCTURE_TYPE_FENCE_CREATE_INFO };
 	fenceInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
 	vkCreateFence(mountain.device, &fenceInfo, nullptr, &fence) >> ash("Failed to create fence!");
-
-	framebuffer = VK_NULL_HANDLE;
 }
 
 void Tectonic::updateInFlightUniformBuffer() {
@@ -112,8 +110,6 @@ void Tectonic::prepareFrame(uint32_t craterIndex) {
 
 		// So, for second drawable I need:
 		// - all from cave or similar
-		// - renderPass (maybe)
-		// - framebuffer (maybe)
 	 	// - pipeline
 		// - pipelineLayout
 

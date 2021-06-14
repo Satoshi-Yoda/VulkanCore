@@ -33,7 +33,7 @@ private:
 	VkSemaphore imageAvailableSemaphore;
 	VkSemaphore renderFinishedSemaphore;
 	VkFence fence;
-	VkFramebuffer framebuffer;
+	VkFramebuffer framebuffer = VK_NULL_HANDLE;
 
 	void createInFlightResources();
 	void createUniformBuffers();
