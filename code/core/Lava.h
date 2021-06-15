@@ -38,9 +38,6 @@ public:
 	Lava(Ash &ash, Mountain &mountain, Rocks &rocks, Crater &crater);
 	~Lava();
 
-	// TODO move that to crater
-	VkRenderPass renderPass;
-
 	// TODO this is drawing-primitive-specific, so maybe move it to Cave static or something?
 	VkPipelineLayout pipelineLayout;
 	VkPipeline pipeline;
@@ -64,7 +61,6 @@ private:
 
 	int mipLevels = 1;
 
-	void createRenderPass();
 	void createPipeline();
 	void createTextureSampler();
 	void createDescriptorSetLayout();

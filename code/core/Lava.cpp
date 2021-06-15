@@ -10,7 +10,6 @@ Lava::Lava(Ash &ash, Mountain &mountain, Rocks &rocks, Crater &crater) : ash(ash
 	createTextureSampler();
 	createDescriptorSetLayout();
 
-	createRenderPass();
 	createPipeline();
 
 	createUniformBuffers();
@@ -24,7 +23,6 @@ Lava::~Lava() {
 		if (descriptorSetLayout != VK_NULL_HANDLE) vkDestroyDescriptorSetLayout(mountain.device, descriptorSetLayout, nullptr);
 	 	if (pipelineLayout      != VK_NULL_HANDLE) vkDestroyPipelineLayout(mountain.device, pipelineLayout, nullptr);
 		if (pipeline            != VK_NULL_HANDLE) vkDestroyPipeline(mountain.device, pipeline, nullptr);
-		if (renderPass          != VK_NULL_HANDLE) vkDestroyRenderPass(mountain.device, renderPass, nullptr);
 
 		vmaDestroyBuffer(mountain.allocator, uniformBuffer, uniformBuffersAllocation);
 	}
@@ -32,66 +30,6 @@ Lava::~Lava() {
 
 void Lava::addCave(unique_ptr<Cave> cave) {
 	this->caves.push_back(move(cave));
-}
-
-void Lava::createRenderPass() {
-	VkAttachmentDescription colorAttachment {};
-	colorAttachment.format = crater.surfaceFormat.format;
-	colorAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
-	colorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
-	colorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
-	colorAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-	colorAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-	colorAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-	colorAttachment.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
-
-	vector<VkAttachmentDescription> attachments { colorAttachment };
-
-	VkAttachmentReference colorAttachmentRef {};
-	colorAttachmentRef.attachment = 0;
-	colorAttachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-
-	VkSubpassDescription subpass {};
-	subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
-	subpass.inputAttachmentCount = 0;
-	subpass.pInputAttachments = nullptr;
-	subpass.colorAttachmentCount = 1;
-	subpass.pColorAttachments = &colorAttachmentRef;
-	subpass.pResolveAttachments = nullptr;
-	subpass.pDepthStencilAttachment = nullptr;
-	subpass.preserveAttachmentCount = 0;
-	subpass.pPreserveAttachments = nullptr;
-
-	// TODO what does that dependencies do? (no visible effect so far)
-	VkSubpassDependency dependency1 {};
-	dependency1.srcSubpass = VK_SUBPASS_EXTERNAL;
-	dependency1.dstSubpass = 0;
-	dependency1.srcStageMask = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
-	dependency1.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-	dependency1.srcAccessMask = VK_ACCESS_MEMORY_READ_BIT;
-	dependency1.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
-	dependency1.dependencyFlags = VK_DEPENDENCY_BY_REGION_BIT;
-
-	VkSubpassDependency dependency2 {};
-	dependency2.srcSubpass = 0;
-	dependency2.dstSubpass = VK_SUBPASS_EXTERNAL;
-	dependency2.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-	dependency2.dstStageMask = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
-	dependency2.srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
-	dependency2.dstAccessMask = VK_ACCESS_MEMORY_READ_BIT;
-	dependency2.dependencyFlags = VK_DEPENDENCY_BY_REGION_BIT;
-
-	vector<VkSubpassDependency> dependencies { dependency1, dependency2 };
-
-	VkRenderPassCreateInfo createInfo { VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO };
-	createInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
-	createInfo.pAttachments = attachments.data();
-	createInfo.subpassCount = 1;
-	createInfo.pSubpasses = &subpass;
-	createInfo.dependencyCount = static_cast<uint32_t>(dependencies.size());
-	createInfo.pDependencies = dependencies.data();
-
-	vkCreateRenderPass(mountain.device, &createInfo, nullptr, &renderPass) >> ash("Failed to create render pass!");
 }
 
 void Lava::createPipeline() {
@@ -233,7 +171,7 @@ void Lava::createPipeline() {
 	pipelineCreateInfo.pColorBlendState = &colorBlending;
 	pipelineCreateInfo.pDynamicState = &dynamicStateCreateInfo;
 	pipelineCreateInfo.layout = pipelineLayout;
-	pipelineCreateInfo.renderPass = renderPass;
+	pipelineCreateInfo.renderPass = crater.renderPass;
 	pipelineCreateInfo.subpass = 0;
 	pipelineCreateInfo.basePipelineHandle = VK_NULL_HANDLE;
 	pipelineCreateInfo.basePipelineIndex = -1;

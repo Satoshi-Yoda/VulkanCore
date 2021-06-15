@@ -43,6 +43,7 @@ void Crater::init() {
 	createSwapChain();
 	queryImages();
 	createImageViews();
+	createRenderPass();
 }
 
 void Crater::clear() {
@@ -56,9 +57,8 @@ void Crater::clear() {
 		}
 	}
 
-	if (swapChain != VK_NULL_HANDLE) {
-		vkDestroySwapchainKHR(mountain.device, swapChain, nullptr);
-	}
+	if (swapChain  != VK_NULL_HANDLE) vkDestroySwapchainKHR(mountain.device, swapChain, nullptr);
+	if (renderPass != VK_NULL_HANDLE) vkDestroyRenderPass(mountain.device, renderPass, nullptr);
 }
 
 void Crater::querySurfaceCapabilities() {
@@ -238,4 +238,64 @@ void Crater::createImageViews() {
 	for (size_t i = 0; i < images.size(); i++) {
 		imageViews[i] = rocks.createImageView(images[i], surfaceFormat.format, VK_IMAGE_ASPECT_COLOR_BIT, 1);
 	}
+}
+
+void Crater::createRenderPass() {
+	VkAttachmentDescription colorAttachment {};
+	colorAttachment.format = surfaceFormat.format;
+	colorAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
+	colorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+	colorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+	colorAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+	colorAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+	colorAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+	colorAttachment.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+
+	vector<VkAttachmentDescription> attachments { colorAttachment };
+
+	VkAttachmentReference colorAttachmentRef {};
+	colorAttachmentRef.attachment = 0;
+	colorAttachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+
+	VkSubpassDescription subpass {};
+	subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
+	subpass.inputAttachmentCount = 0;
+	subpass.pInputAttachments = nullptr;
+	subpass.colorAttachmentCount = 1;
+	subpass.pColorAttachments = &colorAttachmentRef;
+	subpass.pResolveAttachments = nullptr;
+	subpass.pDepthStencilAttachment = nullptr;
+	subpass.preserveAttachmentCount = 0;
+	subpass.pPreserveAttachments = nullptr;
+
+	// TODO what does that dependencies do? (no visible effect so far)
+	VkSubpassDependency dependency1 {};
+	dependency1.srcSubpass = VK_SUBPASS_EXTERNAL;
+	dependency1.dstSubpass = 0;
+	dependency1.srcStageMask = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
+	dependency1.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+	dependency1.srcAccessMask = VK_ACCESS_MEMORY_READ_BIT;
+	dependency1.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+	dependency1.dependencyFlags = VK_DEPENDENCY_BY_REGION_BIT;
+
+	VkSubpassDependency dependency2 {};
+	dependency2.srcSubpass = 0;
+	dependency2.dstSubpass = VK_SUBPASS_EXTERNAL;
+	dependency2.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+	dependency2.dstStageMask = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
+	dependency2.srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+	dependency2.dstAccessMask = VK_ACCESS_MEMORY_READ_BIT;
+	dependency2.dependencyFlags = VK_DEPENDENCY_BY_REGION_BIT;
+
+	vector<VkSubpassDependency> dependencies { dependency1, dependency2 };
+
+	VkRenderPassCreateInfo createInfo { VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO };
+	createInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
+	createInfo.pAttachments = attachments.data();
+	createInfo.subpassCount = 1;
+	createInfo.pSubpasses = &subpass;
+	createInfo.dependencyCount = static_cast<uint32_t>(dependencies.size());
+	createInfo.pDependencies = dependencies.data();
+
+	vkCreateRenderPass(mountain.device, &createInfo, nullptr, &renderPass) >> ash("Failed to create render pass!");
 }

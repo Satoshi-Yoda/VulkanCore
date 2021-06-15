@@ -68,7 +68,7 @@ void Tectonic::prepareFrame(uint32_t craterIndex) {
 
 	// TODO why #framebuffers != crater.chainSize and not stored in crater? (but instead it == # in flight frames and stored here)
 	VkFramebufferCreateInfo framebufferCreateInfo { VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO };
-	framebufferCreateInfo.renderPass = lava.renderPass;
+	framebufferCreateInfo.renderPass = crater.renderPass;
 	framebufferCreateInfo.attachmentCount = 1;
 	framebufferCreateInfo.pAttachments = &crater.imageViews[craterIndex];
 	framebufferCreateInfo.width  = crater.extent.width;
@@ -114,7 +114,7 @@ void Tectonic::prepareFrame(uint32_t craterIndex) {
 		// - pipelineLayout
 
 		VkRenderPassBeginInfo passBeginInfo { VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO };
-		passBeginInfo.renderPass = lava.renderPass;
+		passBeginInfo.renderPass = crater.renderPass;
 		passBeginInfo.framebuffer = framebuffer;
 		passBeginInfo.renderArea.offset = { 0, 0 };
 		passBeginInfo.renderArea.extent = crater.extent;

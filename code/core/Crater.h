@@ -32,6 +32,7 @@ public:
 	VkExtent2D extent;
 	vector<VkImage> images;
 	vector<VkImageView> imageViews;
+	VkRenderPass renderPass;
 
 	void reinit();
 
@@ -65,4 +66,5 @@ private:
 	void createSwapChain();
 	void queryImages();
 	void createImageViews();
+	void createRenderPass();
 };
