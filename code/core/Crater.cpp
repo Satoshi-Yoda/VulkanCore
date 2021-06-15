@@ -162,14 +162,14 @@ void Crater::chooseImageUsageFlags() {
 	}
 	cout << "VK_IMAGE_USAGE_TRANSFER_DST image usage is not supported by the swap chain!" << endl
 		 << "Supported swap chain's image usages include:" << endl
-		 << (capabilities.supportedUsageFlags & VK_IMAGE_USAGE_TRANSFER_SRC_BIT              ? "    VK_IMAGE_USAGE_TRANSFER_SRC\n" : "")
-		 << (capabilities.supportedUsageFlags & VK_IMAGE_USAGE_TRANSFER_DST_BIT              ? "    VK_IMAGE_USAGE_TRANSFER_DST\n" : "")
-		 << (capabilities.supportedUsageFlags & VK_IMAGE_USAGE_SAMPLED_BIT                   ? "    VK_IMAGE_USAGE_SAMPLED\n" : "")
-		 << (capabilities.supportedUsageFlags & VK_IMAGE_USAGE_STORAGE_BIT                   ? "    VK_IMAGE_USAGE_STORAGE\n" : "")
-		 << (capabilities.supportedUsageFlags & VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT          ? "    VK_IMAGE_USAGE_COLOR_ATTACHMENT\n" : "")
-		 << (capabilities.supportedUsageFlags & VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT  ? "    VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT\n" : "")
-		 << (capabilities.supportedUsageFlags & VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT      ? "    VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT\n" : "")
-		 << (capabilities.supportedUsageFlags & VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT          ? "    VK_IMAGE_USAGE_INPUT_ATTACHMENT" : "")
+		 << (capabilities.supportedUsageFlags & VK_IMAGE_USAGE_TRANSFER_SRC_BIT             ? "    VK_IMAGE_USAGE_TRANSFER_SRC\n" : "")
+		 << (capabilities.supportedUsageFlags & VK_IMAGE_USAGE_TRANSFER_DST_BIT             ? "    VK_IMAGE_USAGE_TRANSFER_DST\n" : "")
+		 << (capabilities.supportedUsageFlags & VK_IMAGE_USAGE_SAMPLED_BIT                  ? "    VK_IMAGE_USAGE_SAMPLED\n" : "")
+		 << (capabilities.supportedUsageFlags & VK_IMAGE_USAGE_STORAGE_BIT                  ? "    VK_IMAGE_USAGE_STORAGE\n" : "")
+		 << (capabilities.supportedUsageFlags & VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT         ? "    VK_IMAGE_USAGE_COLOR_ATTACHMENT\n" : "")
+		 << (capabilities.supportedUsageFlags & VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT ? "    VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT\n" : "")
+		 << (capabilities.supportedUsageFlags & VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT     ? "    VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT\n" : "")
+		 << (capabilities.supportedUsageFlags & VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT         ? "    VK_IMAGE_USAGE_INPUT_ATTACHMENT" : "")
 		 << endl;
 	imageUsageFlags = static_cast<VkImageUsageFlags>(-1);
 }
@@ -201,8 +201,6 @@ void Crater::choosePresentMode() {
 }
 
 void Crater::createSwapChain() {
-	// VkSwapchainKHR oldSwapChain = swapChain;
-
 	VkSwapchainCreateInfoKHR createInfo { VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR };
 	createInfo.surface = mountain.surface;
 	createInfo.minImageCount = chainSize;
@@ -218,21 +216,15 @@ void Crater::createSwapChain() {
 	createInfo.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
 	createInfo.presentMode = presentMode;
 	createInfo.clipped = VK_TRUE;
-	createInfo.oldSwapchain = VK_NULL_HANDLE; // oldSwapChain
+	createInfo.oldSwapchain = VK_NULL_HANDLE;
 
 	vkCreateSwapchainKHR(mountain.device, &createInfo, nullptr, &swapChain) >> ash("Failed to create swap chain!");
-
-	// if (oldSwapChain != VK_NULL_HANDLE) {
-	// 	// TODO can not be here because Crater recreates with vulkan SwapChain
-	// 	// TODO maybe there is a need to move SwapChain destroy from ~Crater() to here
-	// 	vkDestroySwapchainKHR(mountain.device, oldSwapChain, nullptr);
-	// }
 }
 
 void Crater::queryImages() {
 	uint32_t imageCount = 0;
-	vkGetSwapchainImagesKHR(mountain.device, swapChain, &imageCount, nullptr)       >> ash("Failed to get count of swap chain images!");
-	(imageCount != 0)                                                               >> ash("Zero images in swap chain!");
+	vkGetSwapchainImagesKHR(mountain.device, swapChain, &imageCount, nullptr) >> ash("Failed to get count of swap chain images!");
+	(imageCount != 0)                                                         >> ash("Zero images in swap chain!");
 
 	images.resize(imageCount);
 	vkGetSwapchainImagesKHR(mountain.device, swapChain, &imageCount, images.data()) >> ash("Failed to get swap chain images!");
