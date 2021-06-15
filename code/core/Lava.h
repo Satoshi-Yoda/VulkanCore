@@ -39,13 +39,6 @@ public:
 	Lava(Ash &ash, Mountain &mountain, Rocks &rocks, Crater &crater);
 	~Lava();
 
-	// TODO this is drawing-primitive-specific, so maybe move it to Cave static or something?
-	VkPipelineLayout pipelineLayout;
-	VkPipeline pipeline;
-
-	VkSampler textureSampler;
-	VkDescriptorSetLayout descriptorSetLayout;
-
 	VkBuffer uniformBuffer;
 	VmaAllocation uniformBuffersAllocation;
 	VmaAllocationInfo uniformBuffersAllocationInfo;
@@ -60,11 +53,9 @@ private:
 	Rocks& rocks;
 	Crater& crater;
 
+public:
 	CaveLayout caveLayout { ash, mountain, rocks, crater };
 
-	void createPipeline();
-	void createTextureSampler();
-	void createDescriptorSetLayout();
-
+private:
 	void createUniformBuffers();
 };

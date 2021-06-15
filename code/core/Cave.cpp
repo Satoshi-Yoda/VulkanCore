@@ -113,12 +113,12 @@ void Cave::createDescriptorSet() {
 	VkDescriptorSetAllocateInfo allocInfo { VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO };
 	allocInfo.descriptorPool = mountain->descriptorPool;
 	allocInfo.descriptorSetCount = 1;
-	allocInfo.pSetLayouts = &lava->descriptorSetLayout;
+	allocInfo.pSetLayouts = &lava->caveLayout.descriptorSetLayout;
 
 	vkAllocateDescriptorSets(mountain->device, &allocInfo, &descriptorSet) >> ash("Failed to allocate descriptor set!");
 
 	VkDescriptorImageInfo imageInfo {};
-	imageInfo.sampler = lava->textureSampler;
+	imageInfo.sampler = lava->caveLayout.textureSampler;
 	imageInfo.imageView = textureView;
 	imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
 

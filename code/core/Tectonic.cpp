@@ -108,7 +108,7 @@ void Tectonic::prepareFrame(uint32_t craterIndex) {
 		vkCmdBeginRenderPass(commandBuffer, &passBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
 
 			// TODO can go near the vkCmdBindDescriptorSets for clarity
-			vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, lava.pipeline);
+			vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, lava.caveLayout.pipeline);
 
 			VkViewport viewport {};
 			viewport.x = 0.0f;
@@ -131,7 +131,7 @@ void Tectonic::prepareFrame(uint32_t craterIndex) {
 				VkDeviceSize offsets[] { 0 };
 				vkCmdBindVertexBuffers(commandBuffer, 0, 1, &cave->vertexBuffer, offsets);
 				vkCmdBindVertexBuffers(commandBuffer, 1, 1, &cave->instanceBuffer, offsets);
-				vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, lava.pipelineLayout, 0, 1, &cave->descriptorSet, 0, nullptr);
+				vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, lava.caveLayout.pipelineLayout, 0, 1, &cave->descriptorSet, 0, nullptr);
 				vkCmdDraw(commandBuffer, cave->vertexCount, cave->instanceCount, 0, 0);
 			}
 
