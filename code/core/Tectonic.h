@@ -34,9 +34,6 @@ private:
 	VkSemaphore renderFinishedSemaphore;
 	VkFence fence;
 
-	// TODO move to crater after renderPass
-	VkFramebuffer framebuffer = VK_NULL_HANDLE;
-
 	void createInFlightResources();
 	void createUniformBuffers();
 	void resizeDescriptorSets(size_t size);

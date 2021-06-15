@@ -33,6 +33,7 @@ public:
 	vector<VkImage> images;
 	vector<VkImageView> imageViews;
 	VkRenderPass renderPass;
+	vector<VkFramebuffer> framebuffers;
 
 	void reinit();
 
@@ -67,4 +68,5 @@ private:
 	void queryImages();
 	void createImageViews();
 	void createRenderPass();
+	void createFramebuffers();
 };

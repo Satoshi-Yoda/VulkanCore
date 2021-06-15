@@ -29,7 +29,6 @@ Tectonic::~Tectonic() {
 	if (imageAvailableSemaphore != VK_NULL_HANDLE) vkDestroySemaphore  (mountain.device, imageAvailableSemaphore, nullptr);
 	if (renderFinishedSemaphore != VK_NULL_HANDLE) vkDestroySemaphore  (mountain.device, renderFinishedSemaphore, nullptr);
 	if (fence                   != VK_NULL_HANDLE) vkDestroyFence      (mountain.device, fence, nullptr);
-	if (framebuffer             != VK_NULL_HANDLE) vkDestroyFramebuffer(mountain.device, framebuffer, nullptr);
 }
 
 void Tectonic::createInFlightResources() {
@@ -58,24 +57,9 @@ void Tectonic::updateInFlightUniformBuffer() {
 }
 
 void Tectonic::prepareFrame(uint32_t craterIndex) {
-	if (framebuffer != VK_NULL_HANDLE) {
-		vkDestroyFramebuffer(mountain.device, framebuffer, nullptr);
-	}
-
 	// TODO
 	// I can draw to separate single image with commandBuffer with a lot of operations,
 	// and then copy it to dedicated swapChain image with prepared short commandBuffer
-
-	// TODO why #framebuffers != crater.chainSize and not stored in crater? (but instead it == # in flight frames and stored here)
-	VkFramebufferCreateInfo framebufferCreateInfo { VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO };
-	framebufferCreateInfo.renderPass = crater.renderPass;
-	framebufferCreateInfo.attachmentCount = 1;
-	framebufferCreateInfo.pAttachments = &crater.imageViews[craterIndex];
-	framebufferCreateInfo.width  = crater.extent.width;
-	framebufferCreateInfo.height = crater.extent.height;
-	framebufferCreateInfo.layers = 1;
-
-	vkCreateFramebuffer(mountain.device, &framebufferCreateInfo, nullptr, &framebuffer) >> ash("Failed to create framebuffer!");
 
 	VkCommandBufferBeginInfo bufferBeginInfo { VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO };
 	bufferBeginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
@@ -115,7 +99,7 @@ void Tectonic::prepareFrame(uint32_t craterIndex) {
 
 		VkRenderPassBeginInfo passBeginInfo { VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO };
 		passBeginInfo.renderPass = crater.renderPass;
-		passBeginInfo.framebuffer = framebuffer;
+		passBeginInfo.framebuffer = crater.framebuffers[craterIndex];
 		passBeginInfo.renderArea.offset = { 0, 0 };
 		passBeginInfo.renderArea.extent = crater.extent;
 		passBeginInfo.clearValueCount = static_cast<uint32_t>(clearColors.size());

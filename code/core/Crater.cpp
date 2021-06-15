@@ -44,6 +44,7 @@ void Crater::init() {
 	queryImages();
 	createImageViews();
 	createRenderPass();
+	createFramebuffers();
 }
 
 void Crater::clear() {
@@ -52,9 +53,11 @@ void Crater::clear() {
 	}
 
 	for (auto imageView : imageViews) {
-		if (imageView != VK_NULL_HANDLE) {
-			vkDestroyImageView(mountain.device, imageView, nullptr);
-		}
+		if (imageView != VK_NULL_HANDLE) vkDestroyImageView(mountain.device, imageView, nullptr);
+	}
+
+	for (auto framebuffer : framebuffers) {
+		if (framebuffer != VK_NULL_HANDLE) vkDestroyFramebuffer(mountain.device, framebuffer, nullptr);
 	}
 
 	if (swapChain  != VK_NULL_HANDLE) vkDestroySwapchainKHR(mountain.device, swapChain, nullptr);
@@ -298,4 +301,20 @@ void Crater::createRenderPass() {
 	createInfo.pDependencies = dependencies.data();
 
 	vkCreateRenderPass(mountain.device, &createInfo, nullptr, &renderPass) >> ash("Failed to create render pass!");
+}
+
+void Crater::createFramebuffers() {
+	framebuffers.resize(images.size());
+
+	for (size_t i = 0; i < images.size(); i++) {
+		VkFramebufferCreateInfo framebufferCreateInfo { VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO };
+		framebufferCreateInfo.renderPass = renderPass;
+		framebufferCreateInfo.attachmentCount = 1;
+		framebufferCreateInfo.pAttachments = &imageViews[i];
+		framebufferCreateInfo.width  = extent.width;
+		framebufferCreateInfo.height = extent.height;
+		framebufferCreateInfo.layers = 1;
+
+		vkCreateFramebuffer(mountain.device, &framebufferCreateInfo, nullptr, &framebuffers[i]) >> ash("Failed to create framebuffer!");
+	}
 }
