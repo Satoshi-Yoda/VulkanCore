@@ -1,4 +1,4 @@
-#include "cave.h"
+#include "Cave.h"
 
 #include <cassert>
 

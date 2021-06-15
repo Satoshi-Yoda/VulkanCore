@@ -25,9 +25,9 @@ public:
 private:
 	Ash& ash;
 	Mountain& mountain;
-	Rocks &rocks;
+	Rocks& rocks;
 	Crater& crater;
-	Lava &lava;
+	Lava& lava;
 
 	VkCommandBuffer commandBuffer;
 	VkSemaphore imageAvailableSemaphore;

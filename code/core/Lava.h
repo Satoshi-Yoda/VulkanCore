@@ -13,6 +13,7 @@
 #include <glm/glm.hpp>
 
 #include "Cave.h"
+#include "CaveLayout.h"
 #include "Crater.h"
 #include "Mountain.h"
 #include "Rocks.h"
@@ -59,7 +60,7 @@ private:
 	Rocks& rocks;
 	Crater& crater;
 
-	int mipLevels = 1;
+	CaveLayout caveLayout { ash, mountain, rocks, crater };
 
 	void createPipeline();
 	void createTextureSampler();

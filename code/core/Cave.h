@@ -13,10 +13,11 @@
 #define GLM_FORCE_RADIANS
 #include <glm/glm.hpp>
 
+#include "../state/flag_group.hpp"
+#include "CaveLayout.h"
 #include "Crater.h"
 #include "Lava.h"
 #include "Rocks.h"
-#include "../state/flag_group.hpp"
 
 using std::bitset;
 using std::set;
@@ -27,15 +28,6 @@ using glm::vec2;
 using glm::vec3;
 
 class Lava;
-
-struct Vertex {
-	vec2 pos;
-	vec2 texCoord;
-};
-
-struct Instance {
-	vec2 pos;
-};
 
 enum class CaveAspect {
 	WORKING_VERTICES,
