@@ -6,6 +6,15 @@ Qualities:
  - workers & multithreading
  - replays
 
+Several drawables:
+ - Duplicate Cave into Rectangle
+ - Duplicate CaveLayout into RectangleLayout
+ - Duplicate cave shaders to rectangle shaders
+ - Declare some rectangles in lava
+ - Draw some rectangles in tectonic
+ - Modify Rectangle to be just rectangle
+ - See what is common between Cave and Rectangle
+
 Path:
  ? Look at cpu ram vertex buffer at vulkan tutorial, without staging buffer for dynamic & stream mode
  ? maybe use vkCmdUpdateBuffer() for small data buffers
