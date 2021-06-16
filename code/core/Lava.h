@@ -34,6 +34,7 @@ struct UniformBufferObject {
 
 class Cave;
 
+// TODO now lava contains all possible drawable objects in engine. But scene contains only used ones. Maybe it can be merged to single entity.
 class Lava {
 public:
 	Lava(Ash &ash, Mountain &mountain, Rocks &rocks, Crater &crater);
