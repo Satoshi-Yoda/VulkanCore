@@ -29,28 +29,50 @@ else
 endif
 
 CPP_FILES = $(wildcard */*.cpp) $(wildcard */*/*.cpp)
-O_REQUIREMENTS = $(patsubst %.cpp,%.o,${CPP_FILES})
-# O_FILES = $(subst code-,temp/,$(subst /,-,${O_REQUIREMENTS}))
+O_FILES = $(patsubst %.cpp,%.o,${CPP_FILES})
+# O_FILES_2 = $(subst code-,temp/,$(subst /,-,${O_FILES}))
+
+# .SUFFIXES:
+
+GLSL_FILES = $(wildcard */*/*.vert) $(wildcard */*/*.frag)
+SPV_FILES = $(addprefix build/shaders/,$(addsuffix .spv,$(subst .,-,$(subst -shader,,$(subst code-,,$(subst /,-,${GLSL_FILES}))))))
+# all:;echo $(SPV_FILES)
 
 CODE = code
 BUILD = build
 
-# all:;echo $(O_FILES)
-
-${BUILD}/main.exe : ${O_REQUIREMENTS} ${BUILD}/shaders/shader.vert.spv ${BUILD}/shaders/shader.frag.spv
-	g++ ${COMPILE} ${O_REQUIREMENTS} ${LINK} -o ${BUILD}/main.exe
-
-%.o : %.cpp
-	g++ ${COMPILE} ${INCLUDE} -c $^ -o $@
+# all:;echo $(O_FILES_2)
 
 # ${BUILD}/main.exe : ${O_FILES} ${BUILD}/shaders/shader.vert.spv ${BUILD}/shaders/shader.frag.spv
 # 	g++ ${COMPILE} ${O_FILES} ${LINK} -o ${BUILD}/main.exe
 
-# $(O_FILES) : %o : $(subst -,/,$(subst tempp/,code/,$(patsubst %.o,%.cpp,$@)))
+${BUILD}/main.exe : ${O_FILES} ${SPV_FILES}
+	g++ ${COMPILE} ${O_FILES} ${LINK} -o ${BUILD}/main.exe
+
+%.o : %.cpp
+	g++ ${COMPILE} ${INCLUDE} -c $^ -o $@
+# 	echo $^
+
+# %.vert.spv : $(addprefix qq,$@)
+# 	echo $^
+
+# %.frag.spv : $(addprefix qq,$@)
+# 	echo $^
+
+# ${SPV_FILES} : %.spv : $(addprefix qq,$@)
+# 	echo $^
+
+define GLSL_RECIPE
+$(1)
+	glslc $$^ -o $$@
+endef
+$(foreach context,$(join $(addsuffix :,$(SPV_FILES)),$(GLSL_FILES)),$(eval $(call GLSL_RECIPE,$(context))))
+
+# $(O_FILES_2) : %o : $(subst -,/,$(subst tempp/,code/,$(patsubst %.o,%.cpp,$@)))
 # 	g++ ${COMPILE} ${INCLUDE} -c $(subst -,/,$(subst temp/,code/,$(patsubst %.o,%.cpp,$@))) -o $@
 
-${BUILD}/shaders/shader.vert.spv : ${CODE}/shaders/shader.vert
-	glslc ${CODE}/shaders/shader.vert -o ${BUILD}/shaders/shader.vert.spv
+# ${BUILD}/shaders/shader.vert.spv : ${CODE}/shaders/shader.vert
+# 	glslc ${CODE}/shaders/shader.vert -o ${BUILD}/shaders/shader.vert.spv
 
-${BUILD}/shaders/shader.frag.spv : ${CODE}/shaders/shader.frag
-	glslc ${CODE}/shaders/shader.frag -o ${BUILD}/shaders/shader.frag.spv
+# ${BUILD}/shaders/shader.frag.spv : ${CODE}/shaders/shader.frag
+# 	glslc ${CODE}/shaders/shader.frag -o ${BUILD}/shaders/shader.frag.spv

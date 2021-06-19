@@ -73,8 +73,8 @@ void BatchLayout::createDescriptorSetLayout() {
 
 void BatchLayout::createPipeline() {
 	// TODO try catch or assert
-	auto vertShaderCode = rocks.readFile("shaders/shader.vert.spv");
-	auto fragShaderCode = rocks.readFile("shaders/shader.frag.spv");
+	auto vertShaderCode = rocks.readFile("shaders/batch-vert.spv");
+	auto fragShaderCode = rocks.readFile("shaders/batch-frag.spv");
 
 	VkShaderModule vertShaderModule = rocks.createShaderModule(vertShaderCode);
 	VkShaderModule fragShaderModule = rocks.createShaderModule(fragShaderCode);
