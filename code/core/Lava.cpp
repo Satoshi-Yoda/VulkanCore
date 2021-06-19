@@ -22,6 +22,6 @@ void Lava::createUniformBuffers() {
 	rocks.createBufferVMA(sizeof(UniformBufferObject), VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VMA_MEMORY_USAGE_CPU_ONLY, uniformBuffer, uniformBuffersAllocation, uniformBuffersAllocationInfo);
 }
 
-void Lava::addCave(unique_ptr<Cave> cave) {
-	this->caves.push_back(move(cave));
+void Lava::addBatch(unique_ptr<Batch> batch) {
+	this->batches.push_back(move(batch));
 }

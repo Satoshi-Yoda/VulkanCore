@@ -1,12 +1,12 @@
 #ifndef tests_here
 
+#include "batch/Batcher.h"
 #include "core/Ash.h"
 #include "core/Crater.h"
 #include "core/Lava.h"
 #include "core/Mountain.h"
 #include "core/Rocks.h"
 #include "core/Tectonic.h"
-#include "engine/Batcher.h"
 #include "scene/Scene.h"
 #include "team/Team.h"
 

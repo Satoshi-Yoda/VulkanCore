@@ -1,4 +1,4 @@
-#include "CaveLayout.h"
+#include "BatchLayout.h"
 
 #include <cassert>
 
@@ -10,13 +10,13 @@ using glm::vec3;
 
 using namespace std;
 
-CaveLayout::CaveLayout(Ash& ash, Mountain& mountain, Rocks& rocks, Crater& crater) : ash(ash), mountain(mountain), rocks(rocks), crater(crater) {
+BatchLayout::BatchLayout(Ash& ash, Mountain& mountain, Rocks& rocks, Crater& crater) : ash(ash), mountain(mountain), rocks(rocks), crater(crater) {
 	createTextureSampler();
 	createDescriptorSetLayout();
 	createPipeline();
 }
 
-CaveLayout::~CaveLayout() {
+BatchLayout::~BatchLayout() {
 	if (mountain.device != VK_NULL_HANDLE) {
 		vkDeviceWaitIdle(mountain.device);
 
@@ -27,7 +27,7 @@ CaveLayout::~CaveLayout() {
 	}
 }
 
-void CaveLayout::createTextureSampler() {
+void BatchLayout::createTextureSampler() {
 	VkSamplerCreateInfo samplerInfo { VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO };
 	samplerInfo.magFilter = VK_FILTER_NEAREST;
 	samplerInfo.minFilter = VK_FILTER_NEAREST;
@@ -48,7 +48,7 @@ void CaveLayout::createTextureSampler() {
 	vkCreateSampler(mountain.device, &samplerInfo, nullptr, &textureSampler) >> ash("Failed to create texture sampler!");
 }
 
-void CaveLayout::createDescriptorSetLayout() {
+void BatchLayout::createDescriptorSetLayout() {
 	VkDescriptorSetLayoutBinding samplerLayoutBinding {};
 	samplerLayoutBinding.binding = 0;
 	samplerLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
@@ -71,7 +71,7 @@ void CaveLayout::createDescriptorSetLayout() {
 	vkCreateDescriptorSetLayout(mountain.device, &createInfo, nullptr, &descriptorSetLayout) >> ash("Failed to create descriptor set layout!");
 }
 
-void CaveLayout::createPipeline() {
+void BatchLayout::createPipeline() {
 	// TODO try catch or assert
 	auto vertShaderCode = rocks.readFile("shaders/shader.vert.spv");
 	auto fragShaderCode = rocks.readFile("shaders/shader.frag.spv");
@@ -83,7 +83,7 @@ void CaveLayout::createPipeline() {
 	vertShaderStageInfo.stage = VK_SHADER_STAGE_VERTEX_BIT;
 	vertShaderStageInfo.module = vertShaderModule;
 	vertShaderStageInfo.pName = "main";
-	// TODO pSpecializationInfo can contain custom flags that can help compiler discarg if-s inside shader code during compiling spv . assembler
+	// TODO pSpecializationInfo can contain custom flags that can help compiler discarg if-s inside shader code during compiling spv -> assembler
 	vertShaderStageInfo.pSpecializationInfo = nullptr;
 
 	VkPipelineShaderStageCreateInfo fragShaderStageInfo { VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO };

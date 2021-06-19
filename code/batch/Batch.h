@@ -13,11 +13,11 @@
 #define GLM_FORCE_RADIANS
 #include <glm/glm.hpp>
 
+#include "../core/Crater.h"
+#include "../core/Lava.h"
+#include "../core/Rocks.h"
 #include "../state/flag_group.hpp"
-#include "CaveLayout.h"
-#include "Crater.h"
-#include "Lava.h"
-#include "Rocks.h"
+#include "BatchLayout.h"
 
 using std::bitset;
 using std::set;
@@ -29,7 +29,7 @@ using glm::vec3;
 
 class Lava;
 
-enum class CaveAspect {
+enum class BatchAspect {
 	WORKING_VERTICES,
 	WORKING_INSTANCES,
 	WORKING_TEXTURE,
@@ -42,21 +42,21 @@ enum class CaveAspect {
 	VULKAN_ENTITIES,
 };
 
-class Cave {
+class Batch {
 public:
-	Cave(Ash& ash);
-	~Cave();
+	Batch(Ash& ash);
+	~Batch();
 
-	Cave(const Cave&)            = delete;
-	Cave(Cave&&)                 = delete;
-	Cave& operator=(const Cave&) = delete;
-	Cave& operator=(Cave&&)      = delete;
+	Batch(const Batch&)            = delete;
+	Batch(Batch&&)                 = delete;
+	Batch& operator=(const Batch&) = delete;
+	Batch& operator=(Batch&&)      = delete;
 
 	void setName(string name);
 	void setWorkingData(vector<Vertex> vertices, int width, int height, void* pixels);
 	void setVulkanEntities(Mountain& mountain, Rocks& rocks, Crater& crater, Lava& lava);
 
-	flag_group<CaveAspect> aspects;
+	flag_group<BatchAspect> aspects;
 
 	string name;
 
@@ -94,23 +94,23 @@ public:
 
 	VkDescriptorSet descriptorSet;
 
-	void establish(CaveAspect aspect);
+	void establish(BatchAspect aspect);
 	template <typename... Args>
-	void establish(CaveAspect aspect, Args... args) {
+	void establish(BatchAspect aspect, Args... args) {
 		establish(aspect);
 		establish(args...);
 	}
 
-	void establish(VkCommandBuffer cb, CaveAspect aspect);
+	void establish(VkCommandBuffer cb, BatchAspect aspect);
 	template <typename... Args>
-	void establish(VkCommandBuffer cb, CaveAspect aspect, Args... args) {
+	void establish(VkCommandBuffer cb, BatchAspect aspect, Args... args) {
 		establish(cb, aspect);
 		establish(cb, args...);
 	}
 
-	void refresh(CaveAspect aspect);
+	void refresh(BatchAspect aspect);
 	template <typename... Args>
-	void refresh(CaveAspect aspect, Args... args) {
+	void refresh(BatchAspect aspect, Args... args) {
 		refresh(aspect);
 		refresh(args...);
 	}
@@ -119,9 +119,9 @@ public:
 
 	void createDescriptorSet();
 
-	void free(CaveAspect aspect);
+	void free(BatchAspect aspect);
 	template <typename... Args>
-	void free(CaveAspect aspect, Args... args) {
+	void free(BatchAspect aspect, Args... args) {
 		free(aspect);
 		free(args...);
 	}

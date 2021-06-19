@@ -7,6 +7,7 @@ Qualities:
  - replays
 
 Several drawables:
+ - Organize cave batch into single folder, rework glsl files compilation
  - Duplicate Cave into Rectangle
  - Duplicate CaveLayout into RectangleLayout
  - Duplicate cave shaders to rectangle shaders

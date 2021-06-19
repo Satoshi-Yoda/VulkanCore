@@ -1,4 +1,4 @@
-#include "Cave.h"
+#include "Batch.h"
 
 #include <cassert>
 
@@ -12,57 +12,57 @@ using glm::vec3;
 
 using namespace std;
 
-Cave::Cave(Ash& ash) : ash(ash) { }
+Batch::Batch(Ash& ash) : ash(ash) { }
 
-Cave::~Cave() {
+Batch::~Batch() {
 	freeTexture(pixels);
-	if (this->aspects.has(CaveAspect::STAGING_VERTICES))  freeStagingVertices();
-	if (this->aspects.has(CaveAspect::STAGING_INSTANCES)) freeStagingInstances();
-	if (this->aspects.has(CaveAspect::STAGING_TEXTURE))   freeStagingTexture();
-	if (this->aspects.has(CaveAspect::LIVE_VERTICES))     freeLiveVertices();
-	if (this->aspects.has(CaveAspect::LIVE_INSTANCES))    freeLiveInstances();
-	if (this->aspects.has(CaveAspect::LIVE_TEXTURE))      freeLiveTexture();
+	if (this->aspects.has(BatchAspect::STAGING_VERTICES))  freeStagingVertices();
+	if (this->aspects.has(BatchAspect::STAGING_INSTANCES)) freeStagingInstances();
+	if (this->aspects.has(BatchAspect::STAGING_TEXTURE))   freeStagingTexture();
+	if (this->aspects.has(BatchAspect::LIVE_VERTICES))     freeLiveVertices();
+	if (this->aspects.has(BatchAspect::LIVE_INSTANCES))    freeLiveInstances();
+	if (this->aspects.has(BatchAspect::LIVE_TEXTURE))      freeLiveTexture();
 }
 
-void Cave::setName(string name) {
+void Batch::setName(string name) {
 	this->name = name;
 }
 
-void Cave::setWorkingData(vector<Vertex> vertices, int width, int height, void* pixels) {
+void Batch::setWorkingData(vector<Vertex> vertices, int width, int height, void* pixels) {
 	this->vertices = vertices;
 	this->width = width;
 	this->height = height;
 	this->pixels = pixels;
-	aspects.raise(CaveAspect::WORKING_VERTICES, CaveAspect::WORKING_INSTANCES, CaveAspect::WORKING_TEXTURE);
+	aspects.raise(BatchAspect::WORKING_VERTICES, BatchAspect::WORKING_INSTANCES, BatchAspect::WORKING_TEXTURE);
 }
 
-void Cave::setVulkanEntities(Mountain& mountain, Rocks& rocks, Crater& crater, Lava& lava) {
+void Batch::setVulkanEntities(Mountain& mountain, Rocks& rocks, Crater& crater, Lava& lava) {
 	this->mountain = &mountain;
 	this->rocks = &rocks;
 	this->crater = &crater;
 	this->lava = &lava;
-	aspects.raise(CaveAspect::VULKAN_ENTITIES);
+	aspects.raise(BatchAspect::VULKAN_ENTITIES);
 }
 
-void Cave::establish(CaveAspect aspect) {
-	if (aspect == CaveAspect::STAGING_VERTICES)  establishStagingVertices();
-	if (aspect == CaveAspect::STAGING_INSTANCES) establishStagingInstances();
-	if (aspect == CaveAspect::STAGING_TEXTURE)   establishStagingTexture();
-	if (aspect == CaveAspect::LIVE_VERTICES)     establishLiveVertices();
-	if (aspect == CaveAspect::LIVE_INSTANCES)    establishLiveInstances();
-	if (aspect == CaveAspect::LIVE_TEXTURE)      establishLiveTexture();
+void Batch::establish(BatchAspect aspect) {
+	if (aspect == BatchAspect::STAGING_VERTICES)  establishStagingVertices();
+	if (aspect == BatchAspect::STAGING_INSTANCES) establishStagingInstances();
+	if (aspect == BatchAspect::STAGING_TEXTURE)   establishStagingTexture();
+	if (aspect == BatchAspect::LIVE_VERTICES)     establishLiveVertices();
+	if (aspect == BatchAspect::LIVE_INSTANCES)    establishLiveInstances();
+	if (aspect == BatchAspect::LIVE_TEXTURE)      establishLiveTexture();
 }
 
-void Cave::establish(VkCommandBuffer cb, CaveAspect aspect) {
-	if (aspect == CaveAspect::LIVE_VERTICES)  establishLiveVertices(cb);
-	if (aspect == CaveAspect::LIVE_INSTANCES) establishLiveInstances(cb);
-	if (aspect == CaveAspect::LIVE_TEXTURE)   establishLiveTexture(cb);
+void Batch::establish(VkCommandBuffer cb, BatchAspect aspect) {
+	if (aspect == BatchAspect::LIVE_VERTICES)  establishLiveVertices(cb);
+	if (aspect == BatchAspect::LIVE_INSTANCES) establishLiveInstances(cb);
+	if (aspect == BatchAspect::LIVE_TEXTURE)   establishLiveTexture(cb);
 }
 
-void Cave::refresh(CaveAspect aspect) {
-	if (aspect == CaveAspect::STAGING_INSTANCES) {
+void Batch::refresh(BatchAspect aspect) {
+	if (aspect == BatchAspect::STAGING_INSTANCES) {
 		if (instances.size() != stagingInstanceCount) {
-			if (this->aspects.has(CaveAspect::STAGING_INSTANCES)) {
+			if (this->aspects.has(BatchAspect::STAGING_INSTANCES)) {
 				freeStagingInstances();
 			}
 			establishStagingInstances();
@@ -71,9 +71,9 @@ void Cave::refresh(CaveAspect aspect) {
 		}
 	}
 
-	if (aspect == CaveAspect::LIVE_INSTANCES) {
+	if (aspect == BatchAspect::LIVE_INSTANCES) {
 		if (stagingInstanceCount != instanceCount) {
-			if (this->aspects.has(CaveAspect::LIVE_INSTANCES)) {
+			if (this->aspects.has(BatchAspect::LIVE_INSTANCES)) {
 				freeLiveInstances();
 			}
 			establishLiveInstances();
@@ -83,7 +83,7 @@ void Cave::refresh(CaveAspect aspect) {
 	}
 }
 
-void Cave::updateInstances(vector<size_t> indexes) {
+void Batch::updateInstances(vector<size_t> indexes) {
 	assert(indexes.size() > 0);
 
 	Instance* stagingVector = reinterpret_cast<Instance*>(stagingInstanceInfo.pMappedData);
@@ -107,18 +107,18 @@ void Cave::updateInstances(vector<size_t> indexes) {
 	rocks->copyBufferToBuffer(stagingBuffer, buffer, regions, VK_ACCESS_VERTEX_ATTRIBUTE_READ_BIT);
 }
 
-void Cave::createDescriptorSet() {
+void Batch::createDescriptorSet() {
 	assert(mountain != nullptr);
 
 	VkDescriptorSetAllocateInfo allocInfo { VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO };
 	allocInfo.descriptorPool = mountain->descriptorPool;
 	allocInfo.descriptorSetCount = 1;
-	allocInfo.pSetLayouts = &lava->caveLayout.descriptorSetLayout;
+	allocInfo.pSetLayouts = &lava->batchLayout.descriptorSetLayout;
 
 	vkAllocateDescriptorSets(mountain->device, &allocInfo, &descriptorSet) >> ash("Failed to allocate descriptor set!");
 
 	VkDescriptorImageInfo imageInfo {};
-	imageInfo.sampler = lava->caveLayout.textureSampler;
+	imageInfo.sampler = lava->batchLayout.textureSampler;
 	imageInfo.imageView = textureView;
 	imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
 
@@ -148,18 +148,18 @@ void Cave::createDescriptorSet() {
 	vkUpdateDescriptorSets(mountain->device, static_cast<uint32_t>(descriptorWrites.size()), descriptorWrites.data(), 0, nullptr);
 }
 
-void Cave::free(CaveAspect aspect) {
-	if (aspect == CaveAspect::STAGING_VERTICES  && this->aspects.has(aspect)) freeStagingVertices();
-	if (aspect == CaveAspect::STAGING_INSTANCES && this->aspects.has(aspect)) freeStagingInstances();
-	if (aspect == CaveAspect::STAGING_TEXTURE   && this->aspects.has(aspect)) freeStagingTexture();
-	if (aspect == CaveAspect::LIVE_VERTICES     && this->aspects.has(aspect)) freeLiveVertices();
-	if (aspect == CaveAspect::LIVE_INSTANCES    && this->aspects.has(aspect)) freeLiveInstances();
-	if (aspect == CaveAspect::LIVE_TEXTURE      && this->aspects.has(aspect)) freeLiveTexture();
+void Batch::free(BatchAspect aspect) {
+	if (aspect == BatchAspect::STAGING_VERTICES  && this->aspects.has(aspect)) freeStagingVertices();
+	if (aspect == BatchAspect::STAGING_INSTANCES && this->aspects.has(aspect)) freeStagingInstances();
+	if (aspect == BatchAspect::STAGING_TEXTURE   && this->aspects.has(aspect)) freeStagingTexture();
+	if (aspect == BatchAspect::LIVE_VERTICES     && this->aspects.has(aspect)) freeLiveVertices();
+	if (aspect == BatchAspect::LIVE_INSTANCES    && this->aspects.has(aspect)) freeLiveInstances();
+	if (aspect == BatchAspect::LIVE_TEXTURE      && this->aspects.has(aspect)) freeLiveTexture();
 }
 
-void Cave::establishStagingVertices() {
+void Batch::establishStagingVertices() {
 	#ifdef use_validation
-	aspects.has(CaveAspect::WORKING_VERTICES, CaveAspect::VULKAN_ENTITIES) >> ash("In this cave there is no WORKING_VERTICES or no VULKAN_ENTITIES");
+	aspects.has(BatchAspect::WORKING_VERTICES, BatchAspect::VULKAN_ENTITIES) >> ash("In this cave there is no WORKING_VERTICES or no VULKAN_ENTITIES");
 	#endif
 
 	stagingVertexCount = static_cast<uint32_t>(vertices.size());
@@ -168,12 +168,12 @@ void Cave::establishStagingVertices() {
 	rocks->createBufferVMA(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VMA_MEMORY_USAGE_CPU_ONLY, stagingVertexBuffer, stagingVertexAllocation, stagingVertexInfo);
 	memcpy(stagingVertexInfo.pMappedData, vertices.data(), static_cast<size_t>(bufferSize));
 
-	aspects.raise(CaveAspect::STAGING_VERTICES);
+	aspects.raise(BatchAspect::STAGING_VERTICES);
 }
 
-void Cave::establishStagingInstances() {
+void Batch::establishStagingInstances() {
 	#ifdef use_validation
-	aspects.has(CaveAspect::WORKING_INSTANCES, CaveAspect::VULKAN_ENTITIES) >> ash("In this cave there is no WORKING_INSTANCES or no VULKAN_ENTITIES");
+	aspects.has(BatchAspect::WORKING_INSTANCES, BatchAspect::VULKAN_ENTITIES) >> ash("In this cave there is no WORKING_INSTANCES or no VULKAN_ENTITIES");
 	#endif
 
 	stagingInstanceCount = static_cast<uint32_t>(instances.size());
@@ -183,12 +183,12 @@ void Cave::establishStagingInstances() {
 	rocks->createBufferVMA(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VMA_MEMORY_USAGE_CPU_ONLY, stagingInstanceBuffer, stagingInstanceAllocation, stagingInstanceInfo);
 	memcpy(stagingInstanceInfo.pMappedData, instances.data(), static_cast<size_t>(bufferSize));
 
-	aspects.raise(CaveAspect::STAGING_INSTANCES);
+	aspects.raise(BatchAspect::STAGING_INSTANCES);
 }
 
-void Cave::refreshStagingInstances() {
+void Batch::refreshStagingInstances() {
 	#ifdef use_validation
-	aspects.has(CaveAspect::WORKING_INSTANCES, CaveAspect::VULKAN_ENTITIES) >> ash("In this cave there is no WORKING_INSTANCES or no VULKAN_ENTITIES");
+	aspects.has(BatchAspect::WORKING_INSTANCES, BatchAspect::VULKAN_ENTITIES) >> ash("In this cave there is no WORKING_INSTANCES or no VULKAN_ENTITIES");
 	(stagingInstanceCount == static_cast<uint32_t>(instances.size()))       >> ash("copyStagingInstances() called when stagingInstanceCount != instances.size()");
 	#endif
 
@@ -198,9 +198,9 @@ void Cave::refreshStagingInstances() {
 	memcpy(stagingInstanceInfo.pMappedData, instances.data(), static_cast<size_t>(bufferSize));
 }
 
-void Cave::establishStagingTexture() {
+void Batch::establishStagingTexture() {
 	#ifdef use_validation
-	aspects.has(CaveAspect::WORKING_TEXTURE, CaveAspect::VULKAN_ENTITIES) >> ash("In this cave there is no WORKING_TEXTURE or no VULKAN_ENTITIES");
+	aspects.has(BatchAspect::WORKING_TEXTURE, BatchAspect::VULKAN_ENTITIES) >> ash("In this cave there is no WORKING_TEXTURE or no VULKAN_ENTITIES");
 	#endif
 
 	VkDeviceSize imageSize = width * height * 4;
@@ -208,12 +208,12 @@ void Cave::establishStagingTexture() {
 	rocks->createBufferVMA(imageSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VMA_MEMORY_USAGE_CPU_ONLY, stagingTextureBuffer, stagingTextureAllocation, stagingTextureInfo);
 	memcpy(stagingTextureInfo.pMappedData, pixels, static_cast<size_t>(imageSize));
 
-	aspects.raise(CaveAspect::STAGING_TEXTURE);
+	aspects.raise(BatchAspect::STAGING_TEXTURE);
 }
 
-void Cave::establishLiveVertices(VkCommandBuffer externalCommandBuffer) {
+void Batch::establishLiveVertices(VkCommandBuffer externalCommandBuffer) {
 	#ifdef use_validation
-	aspects.has(CaveAspect::STAGING_VERTICES, CaveAspect::VULKAN_ENTITIES) >> ash("In this cave there is no STAGING_VERTICES or no VULKAN_ENTITIES");
+	aspects.has(BatchAspect::STAGING_VERTICES, BatchAspect::VULKAN_ENTITIES) >> ash("In this cave there is no STAGING_VERTICES or no VULKAN_ENTITIES");
 	#endif
 
 	VkDeviceSize bufferSize = sizeof(Vertex) * stagingVertexCount;
@@ -230,14 +230,14 @@ void Cave::establishLiveVertices(VkCommandBuffer externalCommandBuffer) {
 		rocks->endSingleTimeCommands(commandBuffer);
 	}
 
-	aspects.raise(CaveAspect::LIVE_VERTICES);
+	aspects.raise(BatchAspect::LIVE_VERTICES);
 }
 
-void Cave::establishLiveInstances(VkCommandBuffer externalCommandBuffer) {
+void Batch::establishLiveInstances(VkCommandBuffer externalCommandBuffer) {
 	if (stagingInstanceCount == 0) return;
 
 	#ifdef use_validation
-	aspects.has(CaveAspect::STAGING_INSTANCES, CaveAspect::VULKAN_ENTITIES) >> ash("In this cave there is no STAGING_INSTANCES or no VULKAN_ENTITIES");
+	aspects.has(BatchAspect::STAGING_INSTANCES, BatchAspect::VULKAN_ENTITIES) >> ash("In this cave there is no STAGING_INSTANCES or no VULKAN_ENTITIES");
 	#endif
 
 	VkDeviceSize bufferSize = sizeof(Instance) * stagingInstanceCount;
@@ -254,14 +254,14 @@ void Cave::establishLiveInstances(VkCommandBuffer externalCommandBuffer) {
 		rocks->endSingleTimeCommands(commandBuffer);
 	}
 
-	aspects.raise(CaveAspect::LIVE_INSTANCES);
+	aspects.raise(BatchAspect::LIVE_INSTANCES);
 }
 
-void Cave::refreshLiveInstances(VkCommandBuffer externalCommandBuffer) {
+void Batch::refreshLiveInstances(VkCommandBuffer externalCommandBuffer) {
 	if (instanceCount == 0) return;
 
 	#ifdef use_validation
-	aspects.has(CaveAspect::STAGING_INSTANCES, CaveAspect::VULKAN_ENTITIES) >> ash("In this cave there is no STAGING_INSTANCES or no VULKAN_ENTITIES");
+	aspects.has(BatchAspect::STAGING_INSTANCES, BatchAspect::VULKAN_ENTITIES) >> ash("In this cave there is no STAGING_INSTANCES or no VULKAN_ENTITIES");
 	#endif
 
 	VkDeviceSize bufferSize = sizeof(Instance) * instanceCount;
@@ -276,9 +276,9 @@ void Cave::refreshLiveInstances(VkCommandBuffer externalCommandBuffer) {
 	}
 }
 
-void Cave::establishLiveTexture(VkCommandBuffer externalCommandBuffer) {
+void Batch::establishLiveTexture(VkCommandBuffer externalCommandBuffer) {
 	#ifdef use_validation
-	aspects.has(CaveAspect::STAGING_TEXTURE, CaveAspect::VULKAN_ENTITIES) >> ash("In this cave there is no STAGING_TEXTURE or no VULKAN_ENTITIES");
+	aspects.has(BatchAspect::STAGING_TEXTURE, BatchAspect::VULKAN_ENTITIES) >> ash("In this cave there is no STAGING_TEXTURE or no VULKAN_ENTITIES");
 	#endif
 
 	auto preferred8bitFormat = crater->USE_GAMMA_CORRECT ? VK_FORMAT_R8G8B8A8_SRGB : VK_FORMAT_R8G8B8A8_UNORM;
@@ -303,43 +303,43 @@ void Cave::establishLiveTexture(VkCommandBuffer externalCommandBuffer) {
 
 	textureView = rocks->createImageView(textureImage, preferred8bitFormat, VK_IMAGE_ASPECT_COLOR_BIT, mipLevels);
 
-	aspects.raise(CaveAspect::LIVE_TEXTURE);
+	aspects.raise(BatchAspect::LIVE_TEXTURE);
 }
 
-void Cave::freeStagingVertices() {
+void Batch::freeStagingVertices() {
 	// TODO can be optimized by calling this later in future frames, without wait, or something
 	vkQueueWaitIdle(mountain->queue); // TODO do I need this for staging resources?
 	vmaDestroyBuffer(mountain->allocator, stagingVertexBuffer, stagingVertexAllocation);
-	aspects.drop(CaveAspect::STAGING_VERTICES);
+	aspects.drop(BatchAspect::STAGING_VERTICES);
 }
 
-void Cave::freeStagingInstances() {
+void Batch::freeStagingInstances() {
 	vkQueueWaitIdle(mountain->queue);
 	vmaDestroyBuffer(mountain->allocator, stagingInstanceBuffer, stagingInstanceAllocation);
-	aspects.drop(CaveAspect::STAGING_INSTANCES);
+	aspects.drop(BatchAspect::STAGING_INSTANCES);
 }
 
-void Cave::freeStagingTexture() {
+void Batch::freeStagingTexture() {
 	vkQueueWaitIdle(mountain->queue);
 	vmaDestroyBuffer(mountain->allocator, stagingTextureBuffer, stagingTextureAllocation);
-	aspects.drop(CaveAspect::STAGING_TEXTURE);
+	aspects.drop(BatchAspect::STAGING_TEXTURE);
 }
 
-void Cave::freeLiveVertices() {
+void Batch::freeLiveVertices() {
 	vkQueueWaitIdle(mountain->queue);
 	vmaDestroyBuffer(mountain->allocator, vertexBuffer, vertexAllocation);
-	aspects.drop(CaveAspect::LIVE_VERTICES);
+	aspects.drop(BatchAspect::LIVE_VERTICES);
 }
 
-void Cave::freeLiveInstances() {
+void Batch::freeLiveInstances() {
 	vkQueueWaitIdle(mountain->queue);
 	vmaDestroyBuffer(mountain->allocator, instanceBuffer, instanceAllocation);
-	aspects.drop(CaveAspect::LIVE_INSTANCES);
+	aspects.drop(BatchAspect::LIVE_INSTANCES);
 }
 
-void Cave::freeLiveTexture() {
+void Batch::freeLiveTexture() {
 	vkQueueWaitIdle(mountain->queue);
 	vkDestroyImageView(mountain->device, textureView, nullptr);
 	vmaDestroyImage(mountain->allocator, textureImage, textureAllocation);
-	aspects.drop(CaveAspect::LIVE_TEXTURE);
+	aspects.drop(BatchAspect::LIVE_TEXTURE);
 }

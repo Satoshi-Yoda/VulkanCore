@@ -13,9 +13,9 @@
 #define GLM_FORCE_RADIANS
 #include <glm/glm.hpp>
 
-#include "Crater.h"
-#include "Mountain.h"
-#include "Rocks.h"
+#include "../core/Crater.h"
+#include "../core/Mountain.h"
+#include "../core/Rocks.h"
 
 using std::bitset;
 using std::set;
@@ -36,15 +36,15 @@ struct Instance {
 	vec2 pos;
 };
 
-class CaveLayout {
+class BatchLayout {
 public:
-	CaveLayout(Ash& ash, Mountain& mountain, Rocks& rocks, Crater& crater);
-	~CaveLayout();
+	BatchLayout(Ash& ash, Mountain& mountain, Rocks& rocks, Crater& crater);
+	~BatchLayout();
 
-	CaveLayout(const CaveLayout&)            = delete;
-	CaveLayout(CaveLayout&&)                 = delete;
-	CaveLayout& operator=(const CaveLayout&) = delete;
-	CaveLayout& operator=(CaveLayout&&)      = delete;
+	BatchLayout(const BatchLayout&)            = delete;
+	BatchLayout(BatchLayout&&)                 = delete;
+	BatchLayout& operator=(const BatchLayout&) = delete;
+	BatchLayout& operator=(BatchLayout&&)      = delete;
 
 	VkSampler textureSampler;
 	VkDescriptorSetLayout descriptorSetLayout;

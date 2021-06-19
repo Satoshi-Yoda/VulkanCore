@@ -8,7 +8,7 @@
 #include <unordered_map>
 #include <vector>
 
-#include "../core/Cave.h"
+#include "../batch/Batch.h"
 #include "../core/Lava.h"
 #include "../team/Team.h"
 
@@ -38,8 +38,8 @@ private:
 
 	const Instance VACUUM { { 1e16f, 1e16f } };
 
-	map<string, unique_ptr<Cave>> caves;
-	map<string, Cave*> cavesPtr;
+	map<string, unique_ptr<Batch>> caves;
+	map<string, Batch*> cavesPtr;
 	map<string, size_t> indexes;
 	set<string> resizedNames;
 	map<string, vector<size_t>> touchedIndexes;

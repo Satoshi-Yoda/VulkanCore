@@ -8,9 +8,9 @@
 #define GLM_FORCE_RADIANS
 #include <glm/glm.hpp>
 
+#include "../batch/Batcher.h"
 #include "../core/Lava.h"
 #include "../core/Tectonic.h"
-#include "../engine/Batcher.h"
 #include "Rectangle.hpp"
 
 using std::string;

@@ -12,8 +12,8 @@
 #define GLM_FORCE_RADIANS
 #include <glm/glm.hpp>
 
-#include "Cave.h"
-#include "CaveLayout.h"
+#include "../batch/Batch.h"
+#include "../batch/BatchLayout.h"
 #include "Crater.h"
 #include "Mountain.h"
 #include "Rocks.h"
@@ -32,7 +32,7 @@ struct UniformBufferObject {
     vec2 shift;
 };
 
-class Cave;
+class Batch;
 
 // TODO now lava contains all possible drawable objects in engine. But scene contains only used ones. Maybe it can be merged to single entity.
 class Lava {
@@ -44,9 +44,9 @@ public:
 	VmaAllocation uniformBuffersAllocation;
 	VmaAllocationInfo uniformBuffersAllocationInfo;
 
-	vector<unique_ptr<Cave>> caves;
+	vector<unique_ptr<Batch>> batches;
 
-	void addCave(unique_ptr<Cave> cave);
+	void addBatch(unique_ptr<Batch> batch);
 
 private:
 	Ash& ash;
@@ -55,7 +55,7 @@ private:
 	Crater& crater;
 
 public:
-	CaveLayout caveLayout { ash, mountain, rocks, crater };
+	BatchLayout batchLayout { ash, mountain, rocks, crater };
 
 private:
 	void createUniformBuffers();
