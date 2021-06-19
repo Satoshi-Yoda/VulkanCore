@@ -66,7 +66,7 @@ define GLSL_RECIPE
 $(1)
 	glslc $$^ -o $$@
 endef
-$(foreach context,$(join $(addsuffix :,$(SPV_FILES)),$(GLSL_FILES)),$(eval $(call GLSL_RECIPE,$(context))))
+$(foreach file,$(join $(addsuffix :,$(SPV_FILES)),$(GLSL_FILES)),$(eval $(call GLSL_RECIPE,$(file))))
 
 # $(O_FILES_2) : %o : $(subst -,/,$(subst tempp/,code/,$(patsubst %.o,%.cpp,$@)))
 # 	g++ ${COMPILE} ${INCLUDE} -c $(subst -,/,$(subst temp/,code/,$(patsubst %.o,%.cpp,$@))) -o $@
