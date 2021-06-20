@@ -1,7 +1,6 @@
 VULKAN_HOME     = C:/_soft/VulkanSDK_1.2.148.1
 GLFW_HOME       = O:/_libs/glfw-3.3.2.bin.WIN64
 GLM_HOME        = O:/_libs/glm
-# STB_HOME        = O:/_libs/stb-master
 STB_HOME        = O:/_repo/stb
 VMA_HOME        = O:/_libs/VulkanMemoryAllocator-master/src
 MAGIC_ENUM_HOME = O:/_libs/magic_enum-master/include
@@ -29,50 +28,22 @@ else
 endif
 
 CPP_FILES = $(wildcard */*.cpp) $(wildcard */*/*.cpp)
-O_FILES = $(patsubst %.cpp,%.o,${CPP_FILES})
-# O_FILES_2 = $(subst code-,temp/,$(subst /,-,${O_FILES}))
-
-# .SUFFIXES:
+O_FILES = $(subst code-,temp/,$(subst /,-,$(patsubst %.cpp,%.o,${CPP_FILES})))
 
 GLSL_FILES = $(wildcard */*/*.vert) $(wildcard */*/*.frag)
 SPV_FILES = $(addprefix build/shaders/,$(addsuffix .spv,$(subst .,-,$(subst -shader,,$(subst code-,,$(subst /,-,${GLSL_FILES}))))))
-# all:;echo $(SPV_FILES)
 
-CODE = code
-BUILD = build
+build/main.exe : ${O_FILES} ${SPV_FILES}
+	g++ ${COMPILE} ${O_FILES} ${LINK} -o build/main.exe
 
-# all:;echo $(O_FILES_2)
+define CPP_O_RECIPE
+$(1)
+	g++ $${COMPILE} $${INCLUDE} -c $$^ -o $$@
+endef
+$(foreach file,$(join $(addsuffix :,$(O_FILES)),$(CPP_FILES)),$(eval $(call CPP_O_RECIPE,$(file))))
 
-# ${BUILD}/main.exe : ${O_FILES} ${BUILD}/shaders/shader.vert.spv ${BUILD}/shaders/shader.frag.spv
-# 	g++ ${COMPILE} ${O_FILES} ${LINK} -o ${BUILD}/main.exe
-
-${BUILD}/main.exe : ${O_FILES} ${SPV_FILES}
-	g++ ${COMPILE} ${O_FILES} ${LINK} -o ${BUILD}/main.exe
-
-%.o : %.cpp
-	g++ ${COMPILE} ${INCLUDE} -c $^ -o $@
-# 	echo $^
-
-# %.vert.spv : $(addprefix qq,$@)
-# 	echo $^
-
-# %.frag.spv : $(addprefix qq,$@)
-# 	echo $^
-
-# ${SPV_FILES} : %.spv : $(addprefix qq,$@)
-# 	echo $^
-
-define GLSL_RECIPE
+define GLSL_SPV_RECIPE
 $(1)
 	glslc $$^ -o $$@
 endef
-$(foreach file,$(join $(addsuffix :,$(SPV_FILES)),$(GLSL_FILES)),$(eval $(call GLSL_RECIPE,$(file))))
-
-# $(O_FILES_2) : %o : $(subst -,/,$(subst tempp/,code/,$(patsubst %.o,%.cpp,$@)))
-# 	g++ ${COMPILE} ${INCLUDE} -c $(subst -,/,$(subst temp/,code/,$(patsubst %.o,%.cpp,$@))) -o $@
-
-# ${BUILD}/shaders/shader.vert.spv : ${CODE}/shaders/shader.vert
-# 	glslc ${CODE}/shaders/shader.vert -o ${BUILD}/shaders/shader.vert.spv
-
-# ${BUILD}/shaders/shader.frag.spv : ${CODE}/shaders/shader.frag
-# 	glslc ${CODE}/shaders/shader.frag -o ${BUILD}/shaders/shader.frag.spv
+$(foreach file,$(join $(addsuffix :,$(SPV_FILES)),$(GLSL_FILES)),$(eval $(call GLSL_SPV_RECIPE,$(file))))
