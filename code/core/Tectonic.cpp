@@ -101,10 +101,6 @@ void Tectonic::prepareFrame(uint32_t craterIndex) {
 		passBeginInfo.pClearValues = clearColors.data();
 
 		vkCmdBeginRenderPass(commandBuffer, &passBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
-
-			// TODO can go near the vkCmdBindDescriptorSets for clarity
-			vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, lava.batchLayout.pipeline);
-
 			VkViewport viewport {};
 			viewport.x = 0.0f;
 			viewport.y = 0.0f;
@@ -120,6 +116,7 @@ void Tectonic::prepareFrame(uint32_t craterIndex) {
 			vkCmdSetViewport(commandBuffer, 0, 1, &viewport);
 			vkCmdSetScissor (commandBuffer, 0, 1, &scissor);
 
+			vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, lava.batchLayout.pipeline);
 			for (auto& batch : lava.batches) {
 				if (batch->instanceCount == 0) continue;
 
@@ -130,6 +127,16 @@ void Tectonic::prepareFrame(uint32_t craterIndex) {
 				vkCmdDraw(commandBuffer, batch->vertexCount, batch->instanceCount, 0, 0);
 			}
 
+			vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, lava.rectangleLayout.pipeline);
+			for (auto& rectangle : lava.rectangles) {
+				if (rectangle->instanceCount == 0) continue;
+
+				VkDeviceSize offsets[] { 0 };
+				vkCmdBindVertexBuffers(commandBuffer, 0, 1, &rectangle->vertexBuffer, offsets);
+				vkCmdBindVertexBuffers(commandBuffer, 1, 1, &rectangle->instanceBuffer, offsets);
+				vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, lava.rectangleLayout.pipelineLayout, 0, 1, &rectangle->descriptorSet, 0, nullptr);
+				vkCmdDraw(commandBuffer, rectangle->vertexCount, rectangle->instanceCount, 0, 0);
+			}
 		vkCmdEndRenderPass(commandBuffer);
 
 		// VkImageMemoryBarrier barrierFromDrawToPresent { VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER };

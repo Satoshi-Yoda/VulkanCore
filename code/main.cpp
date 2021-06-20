@@ -40,7 +40,7 @@ bool run(size_t runId) {
 	batcher.establish(mountain, rocks, crater, lava);
 	team.join();
 
-	Scene scene { ash, batcher, lava };
+	Scene scene { ash, batcher, mountain, rocks, crater, lava };
 	scene.init();
 
 	mountain.showWindow();

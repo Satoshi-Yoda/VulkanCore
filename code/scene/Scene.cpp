@@ -12,7 +12,7 @@
 
 using namespace std;
 
-Scene::Scene(Ash& ash, Batcher& batcher, Lava& lava) : ash(ash), batcher(batcher), lava(lava) {}
+Scene::Scene(Ash& ash, Batcher& batcher, Mountain& mountain, Rocks& rocks, Crater& crater, Lava& lava) : ash(ash), batcher(batcher), mountain(mountain), rocks(rocks), crater(crater), lava(lava) {}
 
 Scene::~Scene() {}
 
@@ -74,10 +74,18 @@ unique_ptr<Rectangle> Scene::initRectangle() {
 	loadTexture("_crops_harvester/solar-panel.2.png", pixels, &width, &height);
 
 	vector<Vertex> vertices = initQuad(width, height);
+	Instance instance { { 0, 0 } };
 
 	unique_ptr<Rectangle> rectangle = make_unique<Rectangle>(ash);
 	rectangle->setName("rectangle_name");
 	rectangle->setWorkingData(vertices, width, height, pixels);
+	rectangle->instances.push_back(instance);
+
+	rectangle->setVulkanEntities(mountain, rocks, crater, lava);
+	rectangle->establish(RectangleAspect::STAGING_VERTICES, RectangleAspect::STAGING_INSTANCES, RectangleAspect::STAGING_TEXTURE);
+	rectangle->establish(RectangleAspect::LIVE_VERTICES, RectangleAspect::LIVE_INSTANCES, RectangleAspect::LIVE_TEXTURE);
+	rectangle->free(RectangleAspect::STAGING_VERTICES, RectangleAspect::STAGING_TEXTURE); // TODO free working versices & texture also
+	rectangle->createDescriptorSet();
 
 	return rectangle;
 }

@@ -25,7 +25,7 @@ using std::vector;
 
 class Scene {
 public:
-	Scene(Ash& ash, Batcher& batcher, Lava& lava);
+	Scene(Ash& ash, Batcher& batcher, Mountain& mountain, Rocks& rocks, Crater& crater, Lava& lava);
 	~Scene();
 
 	void init();
@@ -35,6 +35,9 @@ public:
 private:
 	Ash& ash;
 	Batcher& batcher;
+	Mountain& mountain;
+	Rocks& rocks;
+	Crater& crater;
 	Lava& lava;
 
 	unordered_map<size_t, Instance> instances;
