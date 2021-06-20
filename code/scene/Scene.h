@@ -43,9 +43,9 @@ private:
 	unordered_map<size_t, Instance> instances;
 	vector<size_t> updatableIndexes;
 
-	mt19937_64 random {};
+	mt19937_64 random;
 	uniform_real_distribution<double> distribution { 0.0, 1.0 };
-	int N;
+	size_t N;
 	int extent_w, extent_h;
 	double nextChange = 0.0f;
 

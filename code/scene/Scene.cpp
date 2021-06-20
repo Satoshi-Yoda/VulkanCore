@@ -24,22 +24,22 @@ void Scene::init() {
 	extent_w = 1500 / 2;
 
 	// full scale
-	// int N = 1840000;   // static
-	// int N = 1700000; // old stream with instances (92% from static) 780 Mb/second
-	int N = 2000; // new stream with instances
-	// int N = 100000; // dynamic 10% with instances
-	float percent = 0.01;
+	// N = 1840000;   // static
+	// N = 1700000; // old stream with instances (92% from static) 780 Mb/second
+	N = 200; // new stream with instances
+	// N = 100000; // dynamic 10% with instances
+	float percent = 0.05;
 	// N = 301;
 
 	// 0.5 scale
-	// int N = 5888000;
-	// int N = 4500000; // stream size 0.5 (76% from static) 2070 Mb/second
+	// N = 5888000;
+	// N = 4500000; // stream size 0.5 (76% from static) 2070 Mb/second
 
 	// 0.25 size
-	// int N = 11905000;
-	// int N = 4875000; // stream size 0.5 (41% from static) 2240 Mb/second
+	// N = 11905000;
+	// N = 4875000; // stream size 0.5 (41% from static) 2240 Mb/second
 
-	int count = 0.97 * sqrt(2 * N) * extent_h / extent_w;
+	size_t count = 0.97 * sqrt(2 * N) * extent_h / extent_w;
 	float step = 2.0f * extent_h / count;
 
 	for (float x = -extent_w; x < extent_w; x += step)
@@ -56,7 +56,7 @@ void Scene::init() {
 	for (float x = -extent_w; x < extent_w; x += step)
 	for (float y = -extent_h; y < extent_h; y += step)
 	{
-		Instance instance { { x, y } };
+		Instance instance { { x + step / 2, y + step / 2 } };
 		batcher.addInstance("asteroid-s3.2", instance);
 	}
 
@@ -143,7 +143,7 @@ void Scene::update(double t, double dt) {
 		size_t index = batcher.addInstance("bomb.6", instance);
 		instances[index] = instance;
 
-		nextChange = nextChange + 0.01;
+		nextChange = nextChange + 1.0/60.0;
 	}
 
 	// TODO
