@@ -12,7 +12,7 @@
 
 using namespace std;
 
-Scene::Scene(Batcher& batcher) : batcher(batcher) {}
+Scene::Scene(Ash& ash, Batcher& batcher, Lava& lava) : ash(ash), batcher(batcher), lava(lava) {}
 
 Scene::~Scene() {}
 
@@ -60,22 +60,26 @@ void Scene::init() {
 		batcher.addInstance("asteroid-s3.2", instance);
 	}
 
+	lava.addRectangle(initRectangle());
+
 	// printf("Lava: %lld sprites\n", instances.size());
 	// printf("Lava: stream: %.2f Mb/frame\n", static_cast<float>(instances.size() * sizeof(Instance)) / (1 << 20));
 	// printf("Lava: stream: %.2f Mb/second (for 60 fps)\n", 60 * static_cast<float>(instances.size() * sizeof(Instance)) / (1 << 20));
 	// printf("Lava: fillrate: %.0f Mpixels/frame\n", (instances.size()) * width * height * scale * scale / 1000000);
 }
 
-void Scene::initRectangle() {
-	// void* pixels;
-	// int width, height;
-	// loadTexture("_crops_harvester\solar-panel.2.png", pixels, &width, &height);
+unique_ptr<Rectangle> Scene::initRectangle() {
+	void* pixels;
+	int width, height;
+	loadTexture("_crops_harvester/solar-panel.2.png", pixels, &width, &height);
 
-	// vector<Vertex> vertices = initQuad(width, height);
+	vector<Vertex> vertices = initQuad(width, height);
 
-	// unique_ptr<Rectangle> rectangle = make_unique<Rectangle>(ash);
-	// rectangle->setName("rectangle_name");
-	// rectangle->setWorkingData(vertices, width, height, pixels);
+	unique_ptr<Rectangle> rectangle = make_unique<Rectangle>(ash);
+	rectangle->setName("rectangle_name");
+	rectangle->setWorkingData(vertices, width, height, pixels);
+
+	return rectangle;
 }
 
 vector<Vertex> Scene::initQuad(uint32_t w, uint32_t h) {

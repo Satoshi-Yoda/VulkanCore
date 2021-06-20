@@ -15,16 +15,17 @@
 #include "../rectangle/Rectangle.h"
 #include "../rectangle/RectangleLayout.h"
 
+using glm::vec2;
+using std::mt19937_64;
 using std::string;
+using std::uniform_real_distribution;
+using std::unique_ptr;
 using std::unordered_map;
 using std::vector;
-using std::mt19937_64;
-using std::uniform_real_distribution;
-using glm::vec2;
 
 class Scene {
 public:
-	Scene(Batcher& batcher);
+	Scene(Ash& ash, Batcher& batcher, Lava& lava);
 	~Scene();
 
 	void init();
@@ -32,7 +33,9 @@ public:
 	size_t sprites();
 
 private:
+	Ash& ash;
 	Batcher& batcher;
+	Lava& lava;
 
 	unordered_map<size_t, Instance> instances;
 	vector<size_t> updatableIndexes;
@@ -43,6 +46,6 @@ private:
 	int extent_w, extent_h;
 	double nextChange = 0.0f;
 
-	void initRectangle();
+	unique_ptr<Rectangle> initRectangle();
 	vector<Vertex> initQuad(uint32_t w, uint32_t h);
 };

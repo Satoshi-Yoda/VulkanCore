@@ -159,7 +159,7 @@ void Batch::free(BatchAspect aspect) {
 
 void Batch::establishStagingVertices() {
 	#ifdef use_validation
-	aspects.has(BatchAspect::WORKING_VERTICES, BatchAspect::VULKAN_ENTITIES) >> ash("In this cave there is no WORKING_VERTICES or no VULKAN_ENTITIES");
+	aspects.has(BatchAspect::WORKING_VERTICES, BatchAspect::VULKAN_ENTITIES) >> ash("In this batch there is no WORKING_VERTICES or no VULKAN_ENTITIES");
 	#endif
 
 	stagingVertexCount = static_cast<uint32_t>(vertices.size());
@@ -173,7 +173,7 @@ void Batch::establishStagingVertices() {
 
 void Batch::establishStagingInstances() {
 	#ifdef use_validation
-	aspects.has(BatchAspect::WORKING_INSTANCES, BatchAspect::VULKAN_ENTITIES) >> ash("In this cave there is no WORKING_INSTANCES or no VULKAN_ENTITIES");
+	aspects.has(BatchAspect::WORKING_INSTANCES, BatchAspect::VULKAN_ENTITIES) >> ash("In this batch there is no WORKING_INSTANCES or no VULKAN_ENTITIES");
 	#endif
 
 	stagingInstanceCount = static_cast<uint32_t>(instances.size());
@@ -188,7 +188,7 @@ void Batch::establishStagingInstances() {
 
 void Batch::refreshStagingInstances() {
 	#ifdef use_validation
-	aspects.has(BatchAspect::WORKING_INSTANCES, BatchAspect::VULKAN_ENTITIES) >> ash("In this cave there is no WORKING_INSTANCES or no VULKAN_ENTITIES");
+	aspects.has(BatchAspect::WORKING_INSTANCES, BatchAspect::VULKAN_ENTITIES) >> ash("In this batch there is no WORKING_INSTANCES or no VULKAN_ENTITIES");
 	(stagingInstanceCount == static_cast<uint32_t>(instances.size()))       >> ash("copyStagingInstances() called when stagingInstanceCount != instances.size()");
 	#endif
 
@@ -200,7 +200,7 @@ void Batch::refreshStagingInstances() {
 
 void Batch::establishStagingTexture() {
 	#ifdef use_validation
-	aspects.has(BatchAspect::WORKING_TEXTURE, BatchAspect::VULKAN_ENTITIES) >> ash("In this cave there is no WORKING_TEXTURE or no VULKAN_ENTITIES");
+	aspects.has(BatchAspect::WORKING_TEXTURE, BatchAspect::VULKAN_ENTITIES) >> ash("In this batch there is no WORKING_TEXTURE or no VULKAN_ENTITIES");
 	#endif
 
 	VkDeviceSize imageSize = width * height * 4;
@@ -213,7 +213,7 @@ void Batch::establishStagingTexture() {
 
 void Batch::establishLiveVertices(VkCommandBuffer externalCommandBuffer) {
 	#ifdef use_validation
-	aspects.has(BatchAspect::STAGING_VERTICES, BatchAspect::VULKAN_ENTITIES) >> ash("In this cave there is no STAGING_VERTICES or no VULKAN_ENTITIES");
+	aspects.has(BatchAspect::STAGING_VERTICES, BatchAspect::VULKAN_ENTITIES) >> ash("In this batch there is no STAGING_VERTICES or no VULKAN_ENTITIES");
 	#endif
 
 	VkDeviceSize bufferSize = sizeof(Vertex) * stagingVertexCount;
@@ -237,7 +237,7 @@ void Batch::establishLiveInstances(VkCommandBuffer externalCommandBuffer) {
 	if (stagingInstanceCount == 0) return;
 
 	#ifdef use_validation
-	aspects.has(BatchAspect::STAGING_INSTANCES, BatchAspect::VULKAN_ENTITIES) >> ash("In this cave there is no STAGING_INSTANCES or no VULKAN_ENTITIES");
+	aspects.has(BatchAspect::STAGING_INSTANCES, BatchAspect::VULKAN_ENTITIES) >> ash("In this batch there is no STAGING_INSTANCES or no VULKAN_ENTITIES");
 	#endif
 
 	VkDeviceSize bufferSize = sizeof(Instance) * stagingInstanceCount;
@@ -261,7 +261,7 @@ void Batch::refreshLiveInstances(VkCommandBuffer externalCommandBuffer) {
 	if (instanceCount == 0) return;
 
 	#ifdef use_validation
-	aspects.has(BatchAspect::STAGING_INSTANCES, BatchAspect::VULKAN_ENTITIES) >> ash("In this cave there is no STAGING_INSTANCES or no VULKAN_ENTITIES");
+	aspects.has(BatchAspect::STAGING_INSTANCES, BatchAspect::VULKAN_ENTITIES) >> ash("In this batch there is no STAGING_INSTANCES or no VULKAN_ENTITIES");
 	#endif
 
 	VkDeviceSize bufferSize = sizeof(Instance) * instanceCount;
@@ -278,7 +278,7 @@ void Batch::refreshLiveInstances(VkCommandBuffer externalCommandBuffer) {
 
 void Batch::establishLiveTexture(VkCommandBuffer externalCommandBuffer) {
 	#ifdef use_validation
-	aspects.has(BatchAspect::STAGING_TEXTURE, BatchAspect::VULKAN_ENTITIES) >> ash("In this cave there is no STAGING_TEXTURE or no VULKAN_ENTITIES");
+	aspects.has(BatchAspect::STAGING_TEXTURE, BatchAspect::VULKAN_ENTITIES) >> ash("In this batch there is no STAGING_TEXTURE or no VULKAN_ENTITIES");
 	#endif
 
 	auto preferred8bitFormat = crater->USE_GAMMA_CORRECT ? VK_FORMAT_R8G8B8A8_SRGB : VK_FORMAT_R8G8B8A8_UNORM;

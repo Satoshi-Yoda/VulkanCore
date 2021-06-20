@@ -159,7 +159,7 @@ void Rectangle::free(RectangleAspect aspect) {
 
 void Rectangle::establishStagingVertices() {
 	#ifdef use_validation
-	aspects.has(RectangleAspect::WORKING_VERTICES, RectangleAspect::VULKAN_ENTITIES) >> ash("In this cave there is no WORKING_VERTICES or no VULKAN_ENTITIES");
+	aspects.has(RectangleAspect::WORKING_VERTICES, RectangleAspect::VULKAN_ENTITIES) >> ash("In this rectangle there is no WORKING_VERTICES or no VULKAN_ENTITIES");
 	#endif
 
 	stagingVertexCount = static_cast<uint32_t>(vertices.size());
@@ -173,7 +173,7 @@ void Rectangle::establishStagingVertices() {
 
 void Rectangle::establishStagingInstances() {
 	#ifdef use_validation
-	aspects.has(RectangleAspect::WORKING_INSTANCES, RectangleAspect::VULKAN_ENTITIES) >> ash("In this cave there is no WORKING_INSTANCES or no VULKAN_ENTITIES");
+	aspects.has(RectangleAspect::WORKING_INSTANCES, RectangleAspect::VULKAN_ENTITIES) >> ash("In this rectangle there is no WORKING_INSTANCES or no VULKAN_ENTITIES");
 	#endif
 
 	stagingInstanceCount = static_cast<uint32_t>(instances.size());
@@ -188,7 +188,7 @@ void Rectangle::establishStagingInstances() {
 
 void Rectangle::refreshStagingInstances() {
 	#ifdef use_validation
-	aspects.has(RectangleAspect::WORKING_INSTANCES, RectangleAspect::VULKAN_ENTITIES) >> ash("In this cave there is no WORKING_INSTANCES or no VULKAN_ENTITIES");
+	aspects.has(RectangleAspect::WORKING_INSTANCES, RectangleAspect::VULKAN_ENTITIES) >> ash("In this rectangle there is no WORKING_INSTANCES or no VULKAN_ENTITIES");
 	(stagingInstanceCount == static_cast<uint32_t>(instances.size()))       >> ash("copyStagingInstances() called when stagingInstanceCount != instances.size()");
 	#endif
 
@@ -200,7 +200,7 @@ void Rectangle::refreshStagingInstances() {
 
 void Rectangle::establishStagingTexture() {
 	#ifdef use_validation
-	aspects.has(RectangleAspect::WORKING_TEXTURE, RectangleAspect::VULKAN_ENTITIES) >> ash("In this cave there is no WORKING_TEXTURE or no VULKAN_ENTITIES");
+	aspects.has(RectangleAspect::WORKING_TEXTURE, RectangleAspect::VULKAN_ENTITIES) >> ash("In this rectangle there is no WORKING_TEXTURE or no VULKAN_ENTITIES");
 	#endif
 
 	VkDeviceSize imageSize = width * height * 4;
@@ -213,7 +213,7 @@ void Rectangle::establishStagingTexture() {
 
 void Rectangle::establishLiveVertices(VkCommandBuffer externalCommandBuffer) {
 	#ifdef use_validation
-	aspects.has(RectangleAspect::STAGING_VERTICES, RectangleAspect::VULKAN_ENTITIES) >> ash("In this cave there is no STAGING_VERTICES or no VULKAN_ENTITIES");
+	aspects.has(RectangleAspect::STAGING_VERTICES, RectangleAspect::VULKAN_ENTITIES) >> ash("In this rectangle there is no STAGING_VERTICES or no VULKAN_ENTITIES");
 	#endif
 
 	VkDeviceSize bufferSize = sizeof(Vertex) * stagingVertexCount;
@@ -237,7 +237,7 @@ void Rectangle::establishLiveInstances(VkCommandBuffer externalCommandBuffer) {
 	if (stagingInstanceCount == 0) return;
 
 	#ifdef use_validation
-	aspects.has(RectangleAspect::STAGING_INSTANCES, RectangleAspect::VULKAN_ENTITIES) >> ash("In this cave there is no STAGING_INSTANCES or no VULKAN_ENTITIES");
+	aspects.has(RectangleAspect::STAGING_INSTANCES, RectangleAspect::VULKAN_ENTITIES) >> ash("In this rectangle there is no STAGING_INSTANCES or no VULKAN_ENTITIES");
 	#endif
 
 	VkDeviceSize bufferSize = sizeof(Instance) * stagingInstanceCount;
@@ -261,7 +261,7 @@ void Rectangle::refreshLiveInstances(VkCommandBuffer externalCommandBuffer) {
 	if (instanceCount == 0) return;
 
 	#ifdef use_validation
-	aspects.has(RectangleAspect::STAGING_INSTANCES, RectangleAspect::VULKAN_ENTITIES) >> ash("In this cave there is no STAGING_INSTANCES or no VULKAN_ENTITIES");
+	aspects.has(RectangleAspect::STAGING_INSTANCES, RectangleAspect::VULKAN_ENTITIES) >> ash("In this rectangle there is no STAGING_INSTANCES or no VULKAN_ENTITIES");
 	#endif
 
 	VkDeviceSize bufferSize = sizeof(Instance) * instanceCount;
@@ -278,7 +278,7 @@ void Rectangle::refreshLiveInstances(VkCommandBuffer externalCommandBuffer) {
 
 void Rectangle::establishLiveTexture(VkCommandBuffer externalCommandBuffer) {
 	#ifdef use_validation
-	aspects.has(RectangleAspect::STAGING_TEXTURE, RectangleAspect::VULKAN_ENTITIES) >> ash("In this cave there is no STAGING_TEXTURE or no VULKAN_ENTITIES");
+	aspects.has(RectangleAspect::STAGING_TEXTURE, RectangleAspect::VULKAN_ENTITIES) >> ash("In this rectangle there is no STAGING_TEXTURE or no VULKAN_ENTITIES");
 	#endif
 
 	auto preferred8bitFormat = crater->USE_GAMMA_CORRECT ? VK_FORMAT_R8G8B8A8_SRGB : VK_FORMAT_R8G8B8A8_UNORM;

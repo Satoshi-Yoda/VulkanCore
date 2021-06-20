@@ -33,12 +33,12 @@ void Batcher::loadFolder(string folder) {
 
 				vector<Vertex> vertices = initQuad(width, height);
 
-				unique_ptr<Batch> cave = make_unique<Batch>(ash);
-				cave->setName(name);
-				cave->setWorkingData(vertices, width, height, pixels);
+				unique_ptr<Batch> batch = make_unique<Batch>(ash);
+				batch->setName(name);
+				batch->setWorkingData(vertices, width, height, pixels);
 
 				putMutex.lock();
-					caves[name] = move(cave);
+					batches[name] = move(batch);
 					indexes[name] = index;
 				putMutex.unlock();
 			});
@@ -86,18 +86,18 @@ vector<Vertex> Batcher::initQuad(uint32_t w, uint32_t h) {
 
 // 	auto start = chrono::high_resolution_clock::now();
 
-// 	for (auto& it : caves) {
-// 		auto& cave = it.second;
-// 		cave->setVulkanEntities(ash, mountain, rocks, crater);
-// 		cave->establish(BatchAspect::STAGING_VERTICES, BatchAspect::STAGING_INSTANCES, BatchAspect::STAGING_TEXTURE);
-// 		cave->establish(BatchAspect::LIVE_VERTICES, BatchAspect::LIVE_INSTANCES, BatchAspect::LIVE_TEXTURE); // TODO use sheduler worker with own commandBuffer as worker for this task
-// 		cave->free(BatchAspect::STAGING_VERTICES, BatchAspect::STAGING_TEXTURE); // TODO free working versices & texture also
-// 		cavesPtr[it.first] = it.second.get();
-// 		lava.addBatch(move(cave));
+// 	for (auto& it : batches) {
+// 		auto& batch = it.second;
+// 		batch->setVulkanEntities(ash, mountain, rocks, crater);
+// 		batch->establish(BatchAspect::STAGING_VERTICES, BatchAspect::STAGING_INSTANCES, BatchAspect::STAGING_TEXTURE);
+// 		batch->establish(BatchAspect::LIVE_VERTICES, BatchAspect::LIVE_INSTANCES, BatchAspect::LIVE_TEXTURE); // TODO use sheduler worker with own commandBuffer as worker for this task
+// 		batch->free(BatchAspect::STAGING_VERTICES, BatchAspect::STAGING_TEXTURE); // TODO free working versices & texture also
+// 		batchesPtr[it.first] = it.second.get();
+// 		lava.addBatch(move(batch));
 // 	}
 
 // 	auto time = chrono::duration_cast<chrono::duration<double>>(chrono::high_resolution_clock::now() - start).count();
-// 	printf("Established %lld caves (%lld Mb textures) in %.3fs (%.2f Gb/s)\n", caves.size(), texturesBytes / (1 << 20), time, texturesBytes / time / (1 << 30));
+// 	printf("Established %lld batches (%lld Mb textures) in %.3fs (%.2f Gb/s)\n", batches.size(), texturesBytes / (1 << 20), time, texturesBytes / time / (1 << 30));
 // }
 
 
@@ -114,17 +114,17 @@ vector<Vertex> Batcher::initQuad(uint32_t w, uint32_t h) {
 // 	});
 
 // 	set<shared_ptr<Task>> deps;
-// 	for (auto& it : caves) {
+// 	for (auto& it : batches) {
 // 		auto& key = it.first;
-// 		auto& cave = it.second;
+// 		auto& batch = it.second;
 
-// 		auto id1 = team.task(ST_CPU, [&cave, &mountain, &rocks, &crater, &lava, this]{
-// 			cave->setVulkanEntities(mountain, rocks, crater);
-// 			cave->establish(BatchAspect::STAGING_VERTICES, BatchAspect::STAGING_INSTANCES, BatchAspect::STAGING_TEXTURE);
+// 		auto id1 = team.task(ST_CPU, [&batch, &mountain, &rocks, &crater, &lava, this]{
+// 			batch->setVulkanEntities(mountain, rocks, crater);
+// 			batch->establish(BatchAspect::STAGING_VERTICES, BatchAspect::STAGING_INSTANCES, BatchAspect::STAGING_TEXTURE);
 // 		});
 
-// 		auto id2 = team.gpuTask([&key, &cave, &mountain, &rocks, &crater, &lava, this](VkCommandBuffer cb){
-// 			cave->establish(BatchAspect::LIVE_VERTICES, BatchAspect::LIVE_INSTANCES, BatchAspect::LIVE_TEXTURE);
+// 		auto id2 = team.gpuTask([&key, &batch, &mountain, &rocks, &crater, &lava, this](VkCommandBuffer cb){
+// 			batch->establish(BatchAspect::LIVE_VERTICES, BatchAspect::LIVE_INSTANCES, BatchAspect::LIVE_TEXTURE);
 // 		}, { id1 });
 // 		deps.insert(id2);
 // 	}
@@ -137,16 +137,16 @@ vector<Vertex> Batcher::initQuad(uint32_t w, uint32_t h) {
 // 	}, deps);
 
 // 	auto id4 = team.gpuTask([&rocks, &lava, this](VkCommandBuffer cb){
-// 		for (auto& it : caves) {
+// 		for (auto& it : batches) {
 // 			auto& key = it.first;
-// 			auto& cave = it.second;
-// 			cavesPtr[key] = cave.get();
-// 			lava.addBatch(move(cave));
+// 			auto& batch = it.second;
+// 			batchesPtr[key] = batch.get();
+// 			lava.addBatch(move(batch));
 // 		}
 // 	}, { id3 });
 
 // 	auto time = chrono::duration_cast<chrono::duration<double>>(chrono::high_resolution_clock::now() - start).count();
-// 	printf("Established %lld caves (%lld Mb textures) in %.3fs (%.2f Gb/s)\n", caves.size(), texturesBytes / (1 << 20), time, texturesBytes / time / (1 << 30));
+// 	printf("Established %lld batches (%lld Mb textures) in %.3fs (%.2f Gb/s)\n", batches.size(), texturesBytes / (1 << 20), time, texturesBytes / time / (1 << 30));
 // }
 
 
@@ -157,35 +157,35 @@ void Batcher::establish(Mountain& mountain, Rocks& rocks, Crater& crater, Lava& 
 	auto start = chrono::high_resolution_clock::now();
 
 	set<shared_ptr<Task>> deps;
-	for (auto& it : caves) {
-		auto& cave = it.second;
-		cave->setVulkanEntities(mountain, rocks, crater, lava);
+	for (auto& it : batches) {
+		auto& batch = it.second;
+		batch->setVulkanEntities(mountain, rocks, crater, lava);
 
-		deps.insert(team.task(ST_CPU, [&cave, this]{
-			cave->establish(BatchAspect::STAGING_VERTICES, BatchAspect::STAGING_INSTANCES, BatchAspect::STAGING_TEXTURE);
+		deps.insert(team.task(ST_CPU, [&batch, this]{
+			batch->establish(BatchAspect::STAGING_VERTICES, BatchAspect::STAGING_INSTANCES, BatchAspect::STAGING_TEXTURE);
 		}));
 	}
 
 	auto id = team.gpuTask([this](VkCommandBuffer cb){
-		for (auto& it : caves) {
-			auto& cave = it.second;
-			cave->establish(cb, BatchAspect::LIVE_VERTICES, BatchAspect::LIVE_INSTANCES, BatchAspect::LIVE_TEXTURE);
+		for (auto& it : batches) {
+			auto& batch = it.second;
+			batch->establish(cb, BatchAspect::LIVE_VERTICES, BatchAspect::LIVE_INSTANCES, BatchAspect::LIVE_TEXTURE);
 		}
 	}, deps);
 
 	team.gpuTask([&lava, this](VkCommandBuffer cb){
-		for (auto& it : caves) {
+		for (auto& it : batches) {
 			auto& key = it.first;
-			auto& cave = it.second;
-			cave->free(BatchAspect::STAGING_VERTICES, BatchAspect::STAGING_TEXTURE); // TODO free working versices & texture also
-			cave->createDescriptorSet();
-			cavesPtr[key] = cave.get();
-			lava.addBatch(move(cave));
+			auto& batch = it.second;
+			batch->free(BatchAspect::STAGING_VERTICES, BatchAspect::STAGING_TEXTURE); // TODO free working versices & texture also
+			batch->createDescriptorSet();
+			batchesPtr[key] = batch.get();
+			lava.addBatch(move(batch));
 		}
 	}, { id });
 
 	auto time = chrono::duration_cast<chrono::duration<double>>(chrono::high_resolution_clock::now() - start).count();
-	printf("Established %lld caves (%lld Mb textures) in %.3fs (%.2f Gb/s)\n", caves.size(), texturesBytes / (1 << 20), time, texturesBytes / time / (1 << 30));
+	printf("Established %lld batches (%lld Mb textures) in %.3fs (%.2f Gb/s)\n", batches.size(), texturesBytes / (1 << 20), time, texturesBytes / time / (1 << 30));
 }
 
 
@@ -193,27 +193,27 @@ void Batcher::establish(Mountain& mountain, Rocks& rocks, Crater& crater, Lava& 
 size_t Batcher::addInstance(string name, Instance instance) {
 	size_t result = 0;
 
-	if (cavesPtr[name]->vacuum.size() == 0) {
-		size_t oldSize = cavesPtr[name]->instances.size();
+	if (batchesPtr[name]->vacuum.size() == 0) {
+		size_t oldSize = batchesPtr[name]->instances.size();
 		size_t newSize = (oldSize == 0) ? 1 : oldSize * 2;
 
-		cavesPtr[name]->vacuum.reserve(newSize);
-		cavesPtr[name]->instances.reserve(newSize);
-		cavesPtr[name]->instances.push_back(instance);
+		batchesPtr[name]->vacuum.reserve(newSize);
+		batchesPtr[name]->instances.reserve(newSize);
+		batchesPtr[name]->instances.push_back(instance);
 
 		for (size_t i = oldSize + 1; i < newSize; i++) {
-			cavesPtr[name]->instances.push_back(VACUUM);
-			cavesPtr[name]->vacuum.push_back(i);
+			batchesPtr[name]->instances.push_back(VACUUM);
+			batchesPtr[name]->vacuum.push_back(i);
 		}
 
 		resizedNames.insert(name);
-		// printf("Batch '%s' marked for resize for %lld instances\n", name.data(), cavesPtr[name]->instances.size());
+		// printf("Batch '%s' marked for resize for %lld instances\n", name.data(), batchesPtr[name]->instances.size());
 		result = oldSize;
 
 	} else {
-		size_t freeSlot = cavesPtr[name]->vacuum.back();
-		cavesPtr[name]->vacuum.pop_back();
-		cavesPtr[name]->instances[freeSlot] = instance;
+		size_t freeSlot = batchesPtr[name]->vacuum.back();
+		batchesPtr[name]->vacuum.pop_back();
+		batchesPtr[name]->instances[freeSlot] = instance;
 		result = freeSlot;
 	}
 
@@ -226,11 +226,11 @@ void Batcher::removeInstance(string name, size_t index) {
 	#ifdef use_validation
 	char msg[100];
 	sprintf(msg, "Batcher::removeInstance(%s, %lld) => No such index!\n", name.data(), index);
-	(index < cavesPtr[name]->instances.size()) >> ash(msg);
+	(index < batchesPtr[name]->instances.size()) >> ash(msg);
 	#endif
 
-	cavesPtr[name]->instances[index] = VACUUM;
-	cavesPtr[name]->vacuum.push_back(index);
+	batchesPtr[name]->instances[index] = VACUUM;
+	batchesPtr[name]->vacuum.push_back(index);
 	touchedIndexes[name].push_back(index);
 }
 
@@ -238,19 +238,19 @@ void Batcher::updateInstance(string name, size_t index, Instance instance) {
 	#ifdef use_validation
 	char msg[100];
 	sprintf(msg, "Batcher::updateInstance(%s, %lld) => No such index!\n", name.data(), index);
-	(index < cavesPtr[name]->instances.size()) >> ash(msg);
+	(index < batchesPtr[name]->instances.size()) >> ash(msg);
 	#endif
 
-	cavesPtr[name]->instances[index] = instance;
+	batchesPtr[name]->instances[index] = instance;
 	touchedIndexes[name].push_back(index);
 }
 
 void Batcher::update(double t, double dt) {
 	for (auto& [name, value] : touchedIndexes) {
-		if (resizedNames.find(name) != resizedNames.end() || value.size() * 100 > cavesPtr[name]->instanceCount) {
-			cavesPtr[name]->refresh(BatchAspect::STAGING_INSTANCES, BatchAspect::LIVE_INSTANCES);
+		if (resizedNames.find(name) != resizedNames.end() || value.size() * 100 > batchesPtr[name]->instanceCount) {
+			batchesPtr[name]->refresh(BatchAspect::STAGING_INSTANCES, BatchAspect::LIVE_INSTANCES);
 		} else if (value.size() > 0) {
-			cavesPtr[name]->updateInstances(value);
+			batchesPtr[name]->updateInstances(value);
 		}
 		value.clear();
 	}

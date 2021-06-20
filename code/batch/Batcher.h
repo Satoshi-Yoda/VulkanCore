@@ -38,8 +38,8 @@ private:
 
 	const Instance VACUUM { { 1e16f, 1e16f } };
 
-	map<string, unique_ptr<Batch>> caves;
-	map<string, Batch*> cavesPtr;
+	map<string, unique_ptr<Batch>> batches;
+	map<string, Batch*> batchesPtr;
 	map<string, size_t> indexes;
 	set<string> resizedNames;
 	map<string, vector<size_t>> touchedIndexes;
