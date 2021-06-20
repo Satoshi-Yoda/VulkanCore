@@ -66,6 +66,39 @@ void Scene::init() {
 	// printf("Lava: fillrate: %.0f Mpixels/frame\n", (instances.size()) * width * height * scale * scale / 1000000);
 }
 
+void Scene::initRectangle() {
+	// void* pixels;
+	// int width, height;
+	// loadTexture("_crops_harvester\solar-panel.2.png", pixels, &width, &height);
+
+	// vector<Vertex> vertices = initQuad(width, height);
+
+	// unique_ptr<Rectangle> rectangle = make_unique<Rectangle>(ash);
+	// rectangle->setName("rectangle_name");
+	// rectangle->setWorkingData(vertices, width, height, pixels);
+}
+
+vector<Vertex> Scene::initQuad(uint32_t w, uint32_t h) {
+	float scale = 1.0f;
+
+	int x_min = 0 - w * scale / 2;
+	int x_max = x_min + w * scale;
+	int y_min = 0 - h * scale / 2;
+	int y_max = y_min + h * scale;
+
+	vector<Vertex> result;
+
+	result.push_back({ { x_min, y_max }, { 0.0f, 1.0f } });
+	result.push_back({ { x_max, y_max }, { 1.0f, 1.0f } });
+	result.push_back({ { x_min, y_min }, { 0.0f, 0.0f } });
+
+	result.push_back({ { x_max, y_max }, { 1.0f, 1.0f } });
+	result.push_back({ { x_max, y_min }, { 1.0f, 0.0f } });
+	result.push_back({ { x_min, y_min }, { 0.0f, 0.0f } });
+
+	return result;
+}
+
 void Scene::update(double t, double dt) {
 	for (auto i : updatableIndexes) {
 		float add = 40 * cos(t) * dt;

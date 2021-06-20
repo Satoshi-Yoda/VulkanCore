@@ -14,6 +14,8 @@
 
 #include "../batch/Batch.h"
 #include "../batch/BatchLayout.h"
+#include "../rectangle/Rectangle.h"
+#include "../rectangle/RectangleLayout.h"
 #include "Crater.h"
 #include "Mountain.h"
 #include "Rocks.h"
@@ -33,6 +35,7 @@ struct UniformBufferObject {
 };
 
 class Batch;
+class Rectangle;
 
 // TODO now lava contains all possible drawable objects in engine. But scene contains only used ones. Maybe it can be merged to single entity.
 class Lava {
@@ -45,8 +48,10 @@ public:
 	VmaAllocationInfo uniformBuffersAllocationInfo;
 
 	vector<unique_ptr<Batch>> batches;
+	vector<unique_ptr<Rectangle>> rectangles;
 
 	void addBatch(unique_ptr<Batch> batch);
+	void addRectangle(unique_ptr<Rectangle> rectangle);
 
 private:
 	Ash& ash;
@@ -56,6 +61,7 @@ private:
 
 public:
 	BatchLayout batchLayout { ash, mountain, rocks, crater };
+	RectangleLayout rectangleLayout { ash, mountain, rocks, crater };
 
 private:
 	void createUniformBuffers();

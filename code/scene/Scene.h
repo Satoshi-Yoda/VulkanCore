@@ -9,9 +9,11 @@
 #include <glm/glm.hpp>
 
 #include "../batch/Batcher.h"
+#include "../batch/BatchLayout.h"
 #include "../core/Lava.h"
 #include "../core/Tectonic.h"
-#include "Rectangle.hpp"
+#include "../rectangle/Rectangle.h"
+#include "../rectangle/RectangleLayout.h"
 
 using std::string;
 using std::unordered_map;
@@ -41,5 +43,6 @@ private:
 	int extent_w, extent_h;
 	double nextChange = 0.0f;
 
-	Rectangle rectangle;
+	void initRectangle();
+	vector<Vertex> initQuad(uint32_t w, uint32_t h);
 };
