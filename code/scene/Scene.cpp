@@ -91,7 +91,7 @@ unique_ptr<Rectangle> Scene::initRectangle() {
 }
 
 vector<Vertex> Scene::initQuad(uint32_t w, uint32_t h) {
-	float scale = 1.0f;
+	float scale = 4.0f;
 
 	int x_min = 0 - w * scale / 2;
 	int x_max = x_min + w * scale;
