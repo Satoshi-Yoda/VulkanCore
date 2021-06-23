@@ -17,10 +17,8 @@ Rectangle::Rectangle(Ash& ash) : ash(ash) { }
 Rectangle::~Rectangle() {
 	freeTexture(pixels);
 	if (this->aspects.has(RectangleAspect::STAGING_VERTICES))  freeStagingVertices();
-	if (this->aspects.has(RectangleAspect::STAGING_INSTANCES)) freeStagingInstances();
 	if (this->aspects.has(RectangleAspect::STAGING_TEXTURE))   freeStagingTexture();
 	if (this->aspects.has(RectangleAspect::LIVE_VERTICES))     freeLiveVertices();
-	if (this->aspects.has(RectangleAspect::LIVE_INSTANCES))    freeLiveInstances();
 	if (this->aspects.has(RectangleAspect::LIVE_TEXTURE))      freeLiveTexture();
 }
 
@@ -33,7 +31,7 @@ void Rectangle::setWorkingData(vector<Vertex> vertices, int width, int height, v
 	this->width = width;
 	this->height = height;
 	this->pixels = pixels;
-	aspects.raise(RectangleAspect::WORKING_VERTICES, RectangleAspect::WORKING_INSTANCES, RectangleAspect::WORKING_TEXTURE);
+	aspects.raise(RectangleAspect::WORKING_VERTICES, RectangleAspect::WORKING_TEXTURE);
 }
 
 void Rectangle::setVulkanEntities(Mountain& mountain, Rocks& rocks, Crater& crater, Lava& lava) {
@@ -46,66 +44,17 @@ void Rectangle::setVulkanEntities(Mountain& mountain, Rocks& rocks, Crater& crat
 
 void Rectangle::establish(RectangleAspect aspect) {
 	if (aspect == RectangleAspect::STAGING_VERTICES)  establishStagingVertices();
-	if (aspect == RectangleAspect::STAGING_INSTANCES) establishStagingInstances();
 	if (aspect == RectangleAspect::STAGING_TEXTURE)   establishStagingTexture();
 	if (aspect == RectangleAspect::LIVE_VERTICES)     establishLiveVertices();
-	if (aspect == RectangleAspect::LIVE_INSTANCES)    establishLiveInstances();
 	if (aspect == RectangleAspect::LIVE_TEXTURE)      establishLiveTexture();
 }
 
 void Rectangle::establish(VkCommandBuffer cb, RectangleAspect aspect) {
 	if (aspect == RectangleAspect::LIVE_VERTICES)  establishLiveVertices(cb);
-	if (aspect == RectangleAspect::LIVE_INSTANCES) establishLiveInstances(cb);
 	if (aspect == RectangleAspect::LIVE_TEXTURE)   establishLiveTexture(cb);
 }
 
-void Rectangle::refresh(RectangleAspect aspect) {
-	if (aspect == RectangleAspect::STAGING_INSTANCES) {
-		if (instances.size() != stagingInstanceCount) {
-			if (this->aspects.has(RectangleAspect::STAGING_INSTANCES)) {
-				freeStagingInstances();
-			}
-			establishStagingInstances();
-		} else {
-			refreshStagingInstances();
-		}
-	}
-
-	if (aspect == RectangleAspect::LIVE_INSTANCES) {
-		if (stagingInstanceCount != instanceCount) {
-			if (this->aspects.has(RectangleAspect::LIVE_INSTANCES)) {
-				freeLiveInstances();
-			}
-			establishLiveInstances();
-		} else {
-			refreshLiveInstances();
-		}
-	}
-}
-
-void Rectangle::updateInstances(vector<size_t> indexes) {
-	assert(indexes.size() > 0);
-
-	Instance* stagingVector = reinterpret_cast<Instance*>(stagingInstanceInfo.pMappedData);
-	for (auto& index : indexes) {
-		stagingVector[index] = instances[index];
-	}
-
-	vector<VkBufferCopy> regions;
-	regions.resize(indexes.size());
-
-	for (size_t i = 0; i < indexes.size(); i++) {
-		VkDeviceSize offset = indexes[i] * sizeof(Instance);
-		regions[i].srcOffset = offset;
-		regions[i].dstOffset = offset;
-		regions[i].size = sizeof(Instance);
-	}
-
-	VkBuffer& buffer = instanceBuffer;
-	VkBuffer& stagingBuffer = stagingInstanceBuffer;
-
-	rocks->copyBufferToBuffer(stagingBuffer, buffer, regions, VK_ACCESS_VERTEX_ATTRIBUTE_READ_BIT);
-}
+void Rectangle::refresh(RectangleAspect aspect) { }
 
 void Rectangle::createDescriptorSet() {
 	assert(mountain != nullptr);
@@ -150,10 +99,8 @@ void Rectangle::createDescriptorSet() {
 
 void Rectangle::free(RectangleAspect aspect) {
 	if (aspect == RectangleAspect::STAGING_VERTICES  && this->aspects.has(aspect)) freeStagingVertices();
-	if (aspect == RectangleAspect::STAGING_INSTANCES && this->aspects.has(aspect)) freeStagingInstances();
 	if (aspect == RectangleAspect::STAGING_TEXTURE   && this->aspects.has(aspect)) freeStagingTexture();
 	if (aspect == RectangleAspect::LIVE_VERTICES     && this->aspects.has(aspect)) freeLiveVertices();
-	if (aspect == RectangleAspect::LIVE_INSTANCES    && this->aspects.has(aspect)) freeLiveInstances();
 	if (aspect == RectangleAspect::LIVE_TEXTURE      && this->aspects.has(aspect)) freeLiveTexture();
 }
 
@@ -169,33 +116,6 @@ void Rectangle::establishStagingVertices() {
 	memcpy(stagingVertexInfo.pMappedData, vertices.data(), static_cast<size_t>(bufferSize));
 
 	aspects.raise(RectangleAspect::STAGING_VERTICES);
-}
-
-void Rectangle::establishStagingInstances() {
-	#ifdef use_validation
-	aspects.has(RectangleAspect::WORKING_INSTANCES, RectangleAspect::VULKAN_ENTITIES) >> ash("In this rectangle there is no WORKING_INSTANCES or no VULKAN_ENTITIES");
-	#endif
-
-	stagingInstanceCount = static_cast<uint32_t>(instances.size());
-	if (stagingInstanceCount == 0) return;
-	VkDeviceSize bufferSize = sizeof(Instance) * stagingInstanceCount;
-
-	rocks->createBufferVMA(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VMA_MEMORY_USAGE_CPU_ONLY, stagingInstanceBuffer, stagingInstanceAllocation, stagingInstanceInfo);
-	memcpy(stagingInstanceInfo.pMappedData, instances.data(), static_cast<size_t>(bufferSize));
-
-	aspects.raise(RectangleAspect::STAGING_INSTANCES);
-}
-
-void Rectangle::refreshStagingInstances() {
-	#ifdef use_validation
-	aspects.has(RectangleAspect::WORKING_INSTANCES, RectangleAspect::VULKAN_ENTITIES) >> ash("In this rectangle there is no WORKING_INSTANCES or no VULKAN_ENTITIES");
-	(stagingInstanceCount == static_cast<uint32_t>(instances.size()))       >> ash("copyStagingInstances() called when stagingInstanceCount != instances.size()");
-	#endif
-
-	if (stagingInstanceCount == 0 || instances.size() == 0) return;
-	VkDeviceSize bufferSize = sizeof(Instance) * min(static_cast<size_t>(stagingInstanceCount), instances.size());
-
-	memcpy(stagingInstanceInfo.pMappedData, instances.data(), static_cast<size_t>(bufferSize));
 }
 
 void Rectangle::establishStagingTexture() {
@@ -231,49 +151,6 @@ void Rectangle::establishLiveVertices(VkCommandBuffer externalCommandBuffer) {
 	}
 
 	aspects.raise(RectangleAspect::LIVE_VERTICES);
-}
-
-void Rectangle::establishLiveInstances(VkCommandBuffer externalCommandBuffer) {
-	if (stagingInstanceCount == 0) return;
-
-	#ifdef use_validation
-	aspects.has(RectangleAspect::STAGING_INSTANCES, RectangleAspect::VULKAN_ENTITIES) >> ash("In this rectangle there is no STAGING_INSTANCES or no VULKAN_ENTITIES");
-	#endif
-
-	VkDeviceSize bufferSize = sizeof(Instance) * stagingInstanceCount;
-	instanceCount = stagingInstanceCount;
-
-	rocks->createBufferVMA(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VMA_MEMORY_USAGE_GPU_ONLY, instanceBuffer, instanceAllocation, instanceInfo);
-
-	bool useExternalCommandBuffer = (externalCommandBuffer != nullptr);
-	VkCommandBuffer commandBuffer = useExternalCommandBuffer ? externalCommandBuffer : rocks->beginSingleTimeCommands();
-
-	rocks->copyBufferToBuffer(stagingInstanceBuffer, instanceBuffer, bufferSize, VK_ACCESS_VERTEX_ATTRIBUTE_READ_BIT, commandBuffer);
-
-	if (useExternalCommandBuffer == false) {
-		rocks->endSingleTimeCommands(commandBuffer);
-	}
-
-	aspects.raise(RectangleAspect::LIVE_INSTANCES);
-}
-
-void Rectangle::refreshLiveInstances(VkCommandBuffer externalCommandBuffer) {
-	if (instanceCount == 0) return;
-
-	#ifdef use_validation
-	aspects.has(RectangleAspect::STAGING_INSTANCES, RectangleAspect::VULKAN_ENTITIES) >> ash("In this rectangle there is no STAGING_INSTANCES or no VULKAN_ENTITIES");
-	#endif
-
-	VkDeviceSize bufferSize = sizeof(Instance) * instanceCount;
-
-	bool useExternalCommandBuffer = (externalCommandBuffer != nullptr);
-	VkCommandBuffer commandBuffer = useExternalCommandBuffer ? externalCommandBuffer : rocks->beginSingleTimeCommands();
-
-	rocks->copyBufferToBuffer(stagingInstanceBuffer, instanceBuffer, bufferSize, VK_ACCESS_VERTEX_ATTRIBUTE_READ_BIT, commandBuffer);
-
-	if (useExternalCommandBuffer == false) {
-		rocks->endSingleTimeCommands(commandBuffer);
-	}
 }
 
 void Rectangle::establishLiveTexture(VkCommandBuffer externalCommandBuffer) {
@@ -313,12 +190,6 @@ void Rectangle::freeStagingVertices() {
 	aspects.drop(RectangleAspect::STAGING_VERTICES);
 }
 
-void Rectangle::freeStagingInstances() {
-	vkQueueWaitIdle(mountain->queue);
-	vmaDestroyBuffer(mountain->allocator, stagingInstanceBuffer, stagingInstanceAllocation);
-	aspects.drop(RectangleAspect::STAGING_INSTANCES);
-}
-
 void Rectangle::freeStagingTexture() {
 	vkQueueWaitIdle(mountain->queue);
 	vmaDestroyBuffer(mountain->allocator, stagingTextureBuffer, stagingTextureAllocation);
@@ -329,12 +200,6 @@ void Rectangle::freeLiveVertices() {
 	vkQueueWaitIdle(mountain->queue);
 	vmaDestroyBuffer(mountain->allocator, vertexBuffer, vertexAllocation);
 	aspects.drop(RectangleAspect::LIVE_VERTICES);
-}
-
-void Rectangle::freeLiveInstances() {
-	vkQueueWaitIdle(mountain->queue);
-	vmaDestroyBuffer(mountain->allocator, instanceBuffer, instanceAllocation);
-	aspects.drop(RectangleAspect::LIVE_INSTANCES);
 }
 
 void Rectangle::freeLiveTexture() {

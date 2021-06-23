@@ -31,13 +31,10 @@ class Lava;
 
 enum class RectangleAspect {
 	WORKING_VERTICES,
-	WORKING_INSTANCES,
 	WORKING_TEXTURE,
 	STAGING_VERTICES,
-	STAGING_INSTANCES,
 	STAGING_TEXTURE,
 	LIVE_VERTICES,
-	LIVE_INSTANCES,
 	LIVE_TEXTURE,
 	VULKAN_ENTITIES,
 };
@@ -76,15 +73,6 @@ public:
 	VmaAllocation stagingVertexAllocation;
 	VmaAllocationInfo stagingVertexInfo;
 
-	uint32_t instanceCount = 0;
-	VkBuffer instanceBuffer;
-	VmaAllocation instanceAllocation;
-	VmaAllocationInfo instanceInfo;
-	uint32_t stagingInstanceCount = 0;
-	VkBuffer stagingInstanceBuffer;
-	VmaAllocation stagingInstanceAllocation;
-	VmaAllocationInfo stagingInstanceInfo;
-
 	VkImage textureImage;
 	VmaAllocation textureAllocation;
 	VkImageView textureView;
@@ -115,8 +103,6 @@ public:
 		refresh(args...);
 	}
 
-	void updateInstances(vector<size_t> indexes);
-
 	void createDescriptorSet();
 
 	void free(RectangleAspect aspect);
@@ -134,18 +120,14 @@ private:
 	Lava* lava         = nullptr;
 
 	void establishStagingVertices();
-	void establishStagingInstances();
 	void refreshStagingInstances();
 	void establishStagingTexture();
 	void establishLiveVertices (VkCommandBuffer externalCommandBuffer = nullptr);
-	void establishLiveInstances(VkCommandBuffer externalCommandBuffer = nullptr);
 	void refreshLiveInstances  (VkCommandBuffer externalCommandBuffer = nullptr);
 	void establishLiveTexture  (VkCommandBuffer externalCommandBuffer = nullptr);
 
 	void freeStagingVertices();
-	void freeStagingInstances();
 	void freeStagingTexture();
 	void freeLiveVertices();
-	void freeLiveInstances();
 	void freeLiveTexture();
 };

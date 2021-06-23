@@ -93,15 +93,12 @@ void RectangleLayout::createPipeline() {
 
 	vector<VkPipelineShaderStageCreateInfo> shaderStages { vertShaderStageInfo, fragShaderStageInfo };
 
-	array<VkVertexInputBindingDescription, 2> bindingDescriptions {};
+	array<VkVertexInputBindingDescription, 1> bindingDescriptions {};
 	bindingDescriptions[0].binding = 0;
 	bindingDescriptions[0].stride = sizeof(Vertex);
 	bindingDescriptions[0].inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
-	bindingDescriptions[1].binding = 1;
-	bindingDescriptions[1].stride = sizeof(Instance);
-	bindingDescriptions[1].inputRate = VK_VERTEX_INPUT_RATE_INSTANCE;
 
-	array<VkVertexInputAttributeDescription, 3> attributeDescriptions {};
+	array<VkVertexInputAttributeDescription, 2> attributeDescriptions {};
 	attributeDescriptions[0].binding = 0;
 	attributeDescriptions[0].location = 0;
 	attributeDescriptions[0].format = VK_FORMAT_R32G32_SFLOAT;
@@ -110,10 +107,6 @@ void RectangleLayout::createPipeline() {
 	attributeDescriptions[1].location = 1;
 	attributeDescriptions[1].format = VK_FORMAT_R32G32_SFLOAT;
 	attributeDescriptions[1].offset = offsetof(Vertex, texCoord);
-	attributeDescriptions[2].binding = 1; 			// TODO figure out why this is not presented in shader?
-	attributeDescriptions[2].location = 2;
-	attributeDescriptions[2].format = VK_FORMAT_R32G32_SFLOAT;
-	attributeDescriptions[2].offset = offsetof(Instance, pos);
 
 	VkPipelineVertexInputStateCreateInfo vertexInputInfo { VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO };
 	vertexInputInfo.vertexBindingDescriptionCount = static_cast<uint32_t>(bindingDescriptions.size());

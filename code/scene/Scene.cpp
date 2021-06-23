@@ -82,8 +82,8 @@ unique_ptr<Rectangle> Scene::initRectangle() {
 	rectangle->instances.push_back(instance);
 
 	rectangle->setVulkanEntities(mountain, rocks, crater, lava);
-	rectangle->establish(RectangleAspect::STAGING_VERTICES, RectangleAspect::STAGING_INSTANCES, RectangleAspect::STAGING_TEXTURE);
-	rectangle->establish(RectangleAspect::LIVE_VERTICES, RectangleAspect::LIVE_INSTANCES, RectangleAspect::LIVE_TEXTURE);
+	rectangle->establish(RectangleAspect::STAGING_VERTICES, RectangleAspect::STAGING_TEXTURE);
+	rectangle->establish(RectangleAspect::LIVE_VERTICES, RectangleAspect::LIVE_TEXTURE);
 	rectangle->free(RectangleAspect::STAGING_VERTICES, RectangleAspect::STAGING_TEXTURE); // TODO free working versices & texture also
 	rectangle->createDescriptorSet();
 

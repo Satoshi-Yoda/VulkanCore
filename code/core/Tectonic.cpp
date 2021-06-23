@@ -129,13 +129,10 @@ void Tectonic::prepareFrame(uint32_t craterIndex) {
 
 			vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, lava.rectangleLayout.pipeline);
 			for (auto& rectangle : lava.rectangles) {
-				if (rectangle->instanceCount == 0) continue;
-
 				VkDeviceSize offsets[] { 0 };
 				vkCmdBindVertexBuffers(commandBuffer, 0, 1, &rectangle->vertexBuffer, offsets);
-				vkCmdBindVertexBuffers(commandBuffer, 1, 1, &rectangle->instanceBuffer, offsets);
 				vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, lava.rectangleLayout.pipelineLayout, 0, 1, &rectangle->descriptorSet, 0, nullptr);
-				vkCmdDraw(commandBuffer, rectangle->vertexCount, rectangle->instanceCount, 0, 0);
+				vkCmdDraw(commandBuffer, rectangle->vertexCount, 1, 0, 0);
 			}
 		vkCmdEndRenderPass(commandBuffer);
 

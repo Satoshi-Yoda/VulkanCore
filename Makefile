@@ -20,11 +20,11 @@ GLFW_LIB   = ${GLFW_HOME}/lib-mingw-w64
 ifdef tests_here
 	INCLUDE = -I${VULKAN_INCLUDE} -I${GLFW_INCLUDE} -I${GLM_INCLUDE} -I${STB_INCLUDE} -I${VMA_INCLUDE} -I${MAGIC_ENUM_INCLUDE} -I${CATCH_INCLUDE}
 	LINK = ${VULKAN_LIB}/vulkan-1.lib ${GLFW_LIB}/glfw3.dll ${CATCH_HOME}/catch_amalgamated.o
-	COMPILE = -std=c++20 -O3 -msse2 ${gcc_params} -Dtests_here
+	COMPILE = -std=c++20 -O3 -mavx ${gcc_params} -Dtests_here
 else
 	INCLUDE = -I${VULKAN_INCLUDE} -I${GLFW_INCLUDE} -I${GLM_INCLUDE} -I${STB_INCLUDE} -I${VMA_INCLUDE} -I${MAGIC_ENUM_INCLUDE}
 	LINK = ${VULKAN_LIB}/vulkan-1.lib ${GLFW_LIB}/glfw3.dll
-	COMPILE = -std=c++20 -O3 -msse2 ${gcc_params}
+	COMPILE = -std=c++20 -O3 -mavx ${gcc_params}
 endif
 
 CPP_FILES = $(wildcard */*.cpp) $(wildcard */*/*.cpp)
