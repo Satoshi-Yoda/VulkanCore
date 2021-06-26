@@ -17,8 +17,6 @@
 #include "../core/Mountain.h"
 #include "../core/Rocks.h"
 
-#include "../batch/BatchLayout.h" // TODO only used for Vertex class, maybe move it somewhere
-
 using std::bitset;
 using std::set;
 using std::string;
@@ -28,6 +26,11 @@ using glm::vec2;
 using glm::vec3;
 
 class Lava;
+
+struct RectangleVertex {
+	vec2 pos;
+	vec2 texCoord;
+};
 
 class RectangleLayout {
 public:

@@ -19,7 +19,7 @@ RectangleMaker::~RectangleMaker() {}
 void RectangleMaker::initRectangle() {
 	int width = 100;
 	int height = 100;
-	vector<Vertex> vertices = initQuad(width, height);
+	vector<RectangleVertex> vertices = initQuad(width, height);
 
 	unique_ptr<Rectangle> rectangle = make_unique<Rectangle>(ash);
 	rectangle->setName("rectangle_name");
@@ -34,7 +34,7 @@ void RectangleMaker::initRectangle() {
 	lava.addRectangle(move(rectangle));
 }
 
-vector<Vertex> RectangleMaker::initQuad(uint32_t w, uint32_t h) {
+vector<RectangleVertex> RectangleMaker::initQuad(uint32_t w, uint32_t h) {
 	float scale = 1.0f;
 
 	int x_min = 0 - w * scale / 2;
@@ -42,7 +42,7 @@ vector<Vertex> RectangleMaker::initQuad(uint32_t w, uint32_t h) {
 	int y_min = 0 - h * scale / 2;
 	int y_max = y_min + h * scale;
 
-	vector<Vertex> result;
+	vector<RectangleVertex> result;
 
 	result.push_back({ { x_min, y_max }, { 0.0f, 1.0f } });
 	result.push_back({ { x_max, y_max }, { 1.0f, 1.0f } });

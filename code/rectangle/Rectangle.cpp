@@ -23,7 +23,7 @@ void Rectangle::setName(string name) {
 	this->name = name;
 }
 
-void Rectangle::setWorkingData(vector<Vertex> vertices) {
+void Rectangle::setWorkingData(vector<RectangleVertex> vertices) {
 	this->vertices = vertices;
 	aspects.raise(RectangleAspect::WORKING_VERTICES);
 }
@@ -87,7 +87,7 @@ void Rectangle::establishStagingVertices() {
 	#endif
 
 	stagingVertexCount = static_cast<uint32_t>(vertices.size());
-	VkDeviceSize bufferSize = sizeof(Vertex) * vertices.size();
+	VkDeviceSize bufferSize = sizeof(RectangleVertex) * vertices.size();
 
 	rocks->createBufferVMA(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VMA_MEMORY_USAGE_CPU_ONLY, stagingVertexBuffer, stagingVertexAllocation, stagingVertexInfo);
 	memcpy(stagingVertexInfo.pMappedData, vertices.data(), static_cast<size_t>(bufferSize));
@@ -100,7 +100,7 @@ void Rectangle::establishLiveVertices(VkCommandBuffer externalCommandBuffer) {
 	aspects.has(RectangleAspect::STAGING_VERTICES, RectangleAspect::VULKAN_ENTITIES) >> ash("In this rectangle there is no STAGING_VERTICES or no VULKAN_ENTITIES");
 	#endif
 
-	VkDeviceSize bufferSize = sizeof(Vertex) * stagingVertexCount;
+	VkDeviceSize bufferSize = sizeof(RectangleVertex) * stagingVertexCount;
 	vertexCount = stagingVertexCount;
 
 	rocks->createBufferVMA(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VMA_MEMORY_USAGE_GPU_ONLY, vertexBuffer, vertexAllocation, vertexInfo);
