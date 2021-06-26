@@ -60,55 +60,12 @@ void Scene::init() {
 		batcher.addInstance("asteroid-s3.2", instance);
 	}
 
-	lava.addRectangle(initRectangle());
+	rectangleMaker.initRectangle();
 
 	// printf("Lava: %lld sprites\n", instances.size());
 	// printf("Lava: stream: %.2f Mb/frame\n", static_cast<float>(instances.size() * sizeof(Instance)) / (1 << 20));
 	// printf("Lava: stream: %.2f Mb/second (for 60 fps)\n", 60 * static_cast<float>(instances.size() * sizeof(Instance)) / (1 << 20));
 	// printf("Lava: fillrate: %.0f Mpixels/frame\n", (instances.size()) * width * height * scale * scale / 1000000);
-}
-
-unique_ptr<Rectangle> Scene::initRectangle() {
-	void* pixels;
-	int width, height;
-	loadTexture("_crops_harvester/solar-panel.2.png", pixels, &width, &height);
-
-	vector<Vertex> vertices = initQuad(width, height);
-	Instance instance { { 0, 0 } };
-
-	unique_ptr<Rectangle> rectangle = make_unique<Rectangle>(ash);
-	rectangle->setName("rectangle_name");
-	rectangle->setWorkingData(vertices, width, height, pixels);
-	rectangle->instances.push_back(instance);
-
-	rectangle->setVulkanEntities(mountain, rocks, crater, lava);
-	rectangle->establish(RectangleAspect::STAGING_VERTICES);
-	rectangle->establish(RectangleAspect::LIVE_VERTICES);
-	rectangle->free(RectangleAspect::STAGING_VERTICES); // TODO free working versices & texture also
-	rectangle->createDescriptorSet();
-
-	return rectangle;
-}
-
-vector<Vertex> Scene::initQuad(uint32_t w, uint32_t h) {
-	float scale = 4.0f;
-
-	int x_min = 0 - w * scale / 2;
-	int x_max = x_min + w * scale;
-	int y_min = 0 - h * scale / 2;
-	int y_max = y_min + h * scale;
-
-	vector<Vertex> result;
-
-	result.push_back({ { x_min, y_max }, { 0.0f, 1.0f } });
-	result.push_back({ { x_max, y_max }, { 1.0f, 1.0f } });
-	result.push_back({ { x_min, y_min }, { 0.0f, 0.0f } });
-
-	result.push_back({ { x_max, y_max }, { 1.0f, 1.0f } });
-	result.push_back({ { x_max, y_min }, { 1.0f, 0.0f } });
-	result.push_back({ { x_min, y_min }, { 0.0f, 0.0f } });
-
-	return result;
 }
 
 void Scene::update(double t, double dt) {

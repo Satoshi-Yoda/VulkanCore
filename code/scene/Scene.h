@@ -14,6 +14,7 @@
 #include "../core/Tectonic.h"
 #include "../rectangle/Rectangle.h"
 #include "../rectangle/RectangleLayout.h"
+#include "../rectangle/RectangleMaker.h"
 
 using glm::vec2;
 using std::mt19937_64;
@@ -39,6 +40,8 @@ private:
 	Rocks& rocks;
 	Crater& crater;
 	Lava& lava;
+
+	RectangleMaker rectangleMaker { ash, mountain, rocks, crater, lava };
 
 	unordered_map<size_t, Instance> instances;
 	vector<size_t> updatableIndexes;

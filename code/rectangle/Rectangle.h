@@ -47,19 +47,13 @@ public:
 	Rectangle& operator=(Rectangle&&)      = delete;
 
 	void setName(string name);
-	void setWorkingData(vector<Vertex> vertices, int width, int height, void* pixels);
+	void setWorkingData(vector<Vertex> vertices);
 	void setVulkanEntities(Mountain& mountain, Rocks& rocks, Crater& crater, Lava& lava);
 
 	flag_group<RectangleAspect> aspects;
 
 	string name;
-
 	vector<Vertex> vertices;
-	vector<Instance> instances;
-	int width;
-	int height;
-	void* pixels;
-	vector<size_t> vacuum;
 
 	uint32_t vertexCount = 0;
 	VkBuffer vertexBuffer;

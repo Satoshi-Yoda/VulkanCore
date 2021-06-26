@@ -15,20 +15,16 @@ using namespace std;
 Rectangle::Rectangle(Ash& ash) : ash(ash) { }
 
 Rectangle::~Rectangle() {
-	freeTexture(pixels);
-	if (this->aspects.has(RectangleAspect::STAGING_VERTICES))  freeStagingVertices();
-	if (this->aspects.has(RectangleAspect::LIVE_VERTICES))     freeLiveVertices();
+	if (this->aspects.has(RectangleAspect::STAGING_VERTICES)) freeStagingVertices();
+	if (this->aspects.has(RectangleAspect::LIVE_VERTICES))    freeLiveVertices();
 }
 
 void Rectangle::setName(string name) {
 	this->name = name;
 }
 
-void Rectangle::setWorkingData(vector<Vertex> vertices, int width, int height, void* pixels) {
+void Rectangle::setWorkingData(vector<Vertex> vertices) {
 	this->vertices = vertices;
-	this->width = width;
-	this->height = height;
-	this->pixels = pixels;
 	aspects.raise(RectangleAspect::WORKING_VERTICES);
 }
 
@@ -41,12 +37,12 @@ void Rectangle::setVulkanEntities(Mountain& mountain, Rocks& rocks, Crater& crat
 }
 
 void Rectangle::establish(RectangleAspect aspect) {
-	if (aspect == RectangleAspect::STAGING_VERTICES)  establishStagingVertices();
-	if (aspect == RectangleAspect::LIVE_VERTICES)     establishLiveVertices();
+	if (aspect == RectangleAspect::STAGING_VERTICES) establishStagingVertices();
+	if (aspect == RectangleAspect::LIVE_VERTICES)    establishLiveVertices();
 }
 
 void Rectangle::establish(VkCommandBuffer cb, RectangleAspect aspect) {
-	if (aspect == RectangleAspect::LIVE_VERTICES)  establishLiveVertices(cb);
+	if (aspect == RectangleAspect::LIVE_VERTICES) establishLiveVertices(cb);
 }
 
 void Rectangle::refresh(RectangleAspect aspect) { }
@@ -81,8 +77,8 @@ void Rectangle::createDescriptorSet() {
 }
 
 void Rectangle::free(RectangleAspect aspect) {
-	if (aspect == RectangleAspect::STAGING_VERTICES  && this->aspects.has(aspect)) freeStagingVertices();
-	if (aspect == RectangleAspect::LIVE_VERTICES     && this->aspects.has(aspect)) freeLiveVertices();
+	if (aspect == RectangleAspect::STAGING_VERTICES && this->aspects.has(aspect)) freeStagingVertices();
+	if (aspect == RectangleAspect::LIVE_VERTICES    && this->aspects.has(aspect)) freeLiveVertices();
 }
 
 void Rectangle::establishStagingVertices() {
