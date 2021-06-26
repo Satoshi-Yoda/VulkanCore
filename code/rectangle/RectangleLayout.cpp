@@ -33,7 +33,14 @@ void RectangleLayout::createDescriptorSetLayout() {
 	uniformLayoutBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
 	uniformLayoutBinding.pImmutableSamplers = nullptr;
 
-	array<VkDescriptorSetLayoutBinding, 1> bindings = { uniformLayoutBinding };
+	VkDescriptorSetLayoutBinding dataLayoutBinding {};
+	dataLayoutBinding.binding = 1;
+	dataLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+	dataLayoutBinding.descriptorCount = 1;
+	dataLayoutBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+	dataLayoutBinding.pImmutableSamplers = nullptr;
+
+	array<VkDescriptorSetLayoutBinding, 2> bindings = { uniformLayoutBinding, dataLayoutBinding };
 
 	VkDescriptorSetLayoutCreateInfo createInfo { VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO };
 	createInfo.bindingCount = static_cast<uint32_t>(bindings.size());

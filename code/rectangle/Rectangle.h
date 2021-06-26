@@ -31,8 +31,11 @@ class Lava;
 
 enum class RectangleAspect {
 	WORKING_VERTICES,
+	WORKING_DATA,
 	STAGING_VERTICES,
+	STAGING_DATA,
 	LIVE_VERTICES,
+	LIVE_DATA,
 	VULKAN_ENTITIES,
 };
 
@@ -47,7 +50,7 @@ public:
 	Rectangle& operator=(Rectangle&&)      = delete;
 
 	void setName(string name);
-	void setWorkingData(vector<RectangleVertex> vertices);
+	void setWorkingData(vector<RectangleVertex> vertices, RectangleData rectangleData);
 	void setVulkanEntities(Mountain& mountain, Rocks& rocks, Crater& crater, Lava& lava);
 
 	flag_group<RectangleAspect> aspects;
@@ -63,6 +66,14 @@ public:
 	VkBuffer stagingVertexBuffer;
 	VmaAllocation stagingVertexAllocation;
 	VmaAllocationInfo stagingVertexInfo;
+
+	RectangleData data;
+	VkBuffer dataBuffer;
+	VmaAllocation dataAllocation;
+	VmaAllocationInfo dataInfo;
+	VkBuffer stagingDataBuffer;
+	VmaAllocation stagingDataAllocation;
+	VmaAllocationInfo stagingDataInfo;
 
 	VkDescriptorSet descriptorSet;
 
@@ -104,11 +115,14 @@ private:
 	Lava* lava         = nullptr;
 
 	void establishStagingVertices();
+	void establishStagingData();
 	void refreshStagingInstances();
 	void establishLiveVertices (VkCommandBuffer externalCommandBuffer = nullptr);
+	void establishLiveData     (VkCommandBuffer externalCommandBuffer = nullptr);
 	void refreshLiveInstances  (VkCommandBuffer externalCommandBuffer = nullptr);
 
 	void freeStagingVertices();
+	void freeStagingData();
 	void freeLiveVertices();
-	void freeLiveTexture();
+	void freeLiveData();
 };

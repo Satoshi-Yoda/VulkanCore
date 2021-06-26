@@ -23,12 +23,14 @@ void RectangleMaker::initRectangle() {
 
 	unique_ptr<Rectangle> rectangle = make_unique<Rectangle>(ash);
 	rectangle->setName("rectangle_name");
-	rectangle->setWorkingData(vertices);
+	RectangleData rectangleData;
+	rectangleData.color = { 0.9f, 0.7f, 0.5f, 0.5f };
+	rectangle->setWorkingData(vertices, rectangleData);
 
 	rectangle->setVulkanEntities(mountain, rocks, crater, lava);
-	rectangle->establish(RectangleAspect::STAGING_VERTICES);
-	rectangle->establish(RectangleAspect::LIVE_VERTICES);
-	rectangle->free(RectangleAspect::STAGING_VERTICES);
+	rectangle->establish(RectangleAspect::STAGING_VERTICES, RectangleAspect::STAGING_DATA);
+	rectangle->establish(RectangleAspect::LIVE_VERTICES, RectangleAspect::LIVE_DATA);
+	rectangle->free(RectangleAspect::STAGING_VERTICES, RectangleAspect::STAGING_DATA);
 	rectangle->createDescriptorSet();
 
 	lava.addRectangle(move(rectangle));
