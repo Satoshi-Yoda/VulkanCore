@@ -62,12 +62,12 @@ void Rectangle::createDescriptorSet() {
 	VkDescriptorSetAllocateInfo allocInfo { VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO };
 	allocInfo.descriptorPool = mountain->descriptorPool;
 	allocInfo.descriptorSetCount = 1;
-	allocInfo.pSetLayouts = &lava->batchLayout.descriptorSetLayout;
+	allocInfo.pSetLayouts = &lava->rectangleLayout.descriptorSetLayout;
 
 	vkAllocateDescriptorSets(mountain->device, &allocInfo, &descriptorSet) >> ash("Failed to allocate descriptor set!");
 
 	VkDescriptorImageInfo imageInfo {};
-	imageInfo.sampler = lava->batchLayout.textureSampler;
+	imageInfo.sampler = lava->rectangleLayout.textureSampler;
 	imageInfo.imageView = textureView;
 	imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
 
@@ -94,6 +94,7 @@ void Rectangle::createDescriptorSet() {
 
 	array<VkWriteDescriptorSet, 2> descriptorWrites { imageWrite, uniformWrite };
 
+	// can be used to update several descriptor sets at once
 	vkUpdateDescriptorSets(mountain->device, static_cast<uint32_t>(descriptorWrites.size()), descriptorWrites.data(), 0, nullptr);
 }
 
@@ -158,7 +159,7 @@ void Rectangle::establishLiveTexture(VkCommandBuffer externalCommandBuffer) {
 	aspects.has(RectangleAspect::STAGING_TEXTURE, RectangleAspect::VULKAN_ENTITIES) >> ash("In this rectangle there is no STAGING_TEXTURE or no VULKAN_ENTITIES");
 	#endif
 
-	auto preferred8bitFormat = crater->USE_GAMMA_CORRECT ? VK_FORMAT_R8G8B8A8_SRGB : VK_FORMAT_R8G8B8A8_UNORM;
+	auto preferred8bitFormat = crater->USE_GAMMA_CORRECT ? VK_FORMAT_R8G8B8A8_SRGB : VK_FORMAT_R8G8B8A8_UNORM; // VK_FORMAT_R32_SFLOAT 
 	uint32_t mipLevels = 1;
 	// mipLevels = static_cast<uint32_t>(floor(log2(max(width, height)))) + 1;
 
