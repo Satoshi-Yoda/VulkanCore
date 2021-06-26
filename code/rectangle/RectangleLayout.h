@@ -39,7 +39,6 @@ public:
 	RectangleLayout& operator=(const RectangleLayout&) = delete;
 	RectangleLayout& operator=(RectangleLayout&&)      = delete;
 
-	VkSampler textureSampler;
 	VkDescriptorSetLayout descriptorSetLayout;
 	VkPipelineLayout pipelineLayout;
 	VkPipeline pipeline;
@@ -50,7 +49,6 @@ private:
 	Rocks& rocks;
 	Crater& crater;
 
-	void createTextureSampler();
 	void createDescriptorSetLayout();
 	void createPipeline();
 };

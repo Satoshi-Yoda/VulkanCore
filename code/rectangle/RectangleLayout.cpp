@@ -11,7 +11,6 @@ using glm::vec3;
 using namespace std;
 
 RectangleLayout::RectangleLayout(Ash& ash, Mountain& mountain, Rocks& rocks, Crater& crater) : ash(ash), mountain(mountain), rocks(rocks), crater(crater) {
-	createTextureSampler();
 	createDescriptorSetLayout();
 	createPipeline();
 }
@@ -20,41 +19,13 @@ RectangleLayout::~RectangleLayout() {
 	if (mountain.device != VK_NULL_HANDLE) {
 		vkDeviceWaitIdle(mountain.device);
 
-		if (textureSampler      != VK_NULL_HANDLE) vkDestroySampler(mountain.device, textureSampler, nullptr);
 		if (descriptorSetLayout != VK_NULL_HANDLE) vkDestroyDescriptorSetLayout(mountain.device, descriptorSetLayout, nullptr);
 	 	if (pipelineLayout      != VK_NULL_HANDLE) vkDestroyPipelineLayout(mountain.device, pipelineLayout, nullptr);
 		if (pipeline            != VK_NULL_HANDLE) vkDestroyPipeline(mountain.device, pipeline, nullptr);
 	}
 }
 
-void RectangleLayout::createTextureSampler() {
-	VkSamplerCreateInfo samplerInfo { VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO };
-	samplerInfo.magFilter = VK_FILTER_NEAREST;
-	samplerInfo.minFilter = VK_FILTER_NEAREST;
-	samplerInfo.addressModeU = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
-	samplerInfo.addressModeV = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
-	samplerInfo.addressModeW = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
-	samplerInfo.anisotropyEnable = VK_FALSE;
-	samplerInfo.maxAnisotropy = 1.0f;
-	samplerInfo.borderColor = VK_BORDER_COLOR_INT_OPAQUE_BLACK;
-	samplerInfo.unnormalizedCoordinates = VK_FALSE; // TODO with true it is possible to use [0..width) instead of [0..1) !!
-	samplerInfo.compareEnable = VK_FALSE;
-	samplerInfo.compareOp = VK_COMPARE_OP_ALWAYS;
-	samplerInfo.mipmapMode = VK_SAMPLER_MIPMAP_MODE_NEAREST;
-	samplerInfo.minLod = 0.0f;
-	samplerInfo.maxLod = static_cast<float>(1);
-	samplerInfo.mipLodBias = 0.0f;
-
-	vkCreateSampler(mountain.device, &samplerInfo, nullptr, &textureSampler) >> ash("Failed to create texture sampler!");
-}
-
 void RectangleLayout::createDescriptorSetLayout() {
-	VkDescriptorSetLayoutBinding samplerLayoutBinding {};
-	samplerLayoutBinding.binding = 0;
-	samplerLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-	samplerLayoutBinding.descriptorCount = 1;
-	samplerLayoutBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
-
 	VkDescriptorSetLayoutBinding uniformLayoutBinding {};
 	uniformLayoutBinding.binding = 1;
 	uniformLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
@@ -62,7 +33,7 @@ void RectangleLayout::createDescriptorSetLayout() {
 	uniformLayoutBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
 	uniformLayoutBinding.pImmutableSamplers = nullptr;
 
-	array<VkDescriptorSetLayoutBinding, 2> bindings = { samplerLayoutBinding, uniformLayoutBinding };
+	array<VkDescriptorSetLayoutBinding, 1> bindings = { uniformLayoutBinding };
 
 	VkDescriptorSetLayoutCreateInfo createInfo { VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO };
 	createInfo.bindingCount = static_cast<uint32_t>(bindings.size());

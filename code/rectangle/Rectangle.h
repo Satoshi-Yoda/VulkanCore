@@ -31,11 +31,8 @@ class Lava;
 
 enum class RectangleAspect {
 	WORKING_VERTICES,
-	WORKING_TEXTURE,
 	STAGING_VERTICES,
-	STAGING_TEXTURE,
 	LIVE_VERTICES,
-	LIVE_TEXTURE,
 	VULKAN_ENTITIES,
 };
 
@@ -72,13 +69,6 @@ public:
 	VkBuffer stagingVertexBuffer;
 	VmaAllocation stagingVertexAllocation;
 	VmaAllocationInfo stagingVertexInfo;
-
-	VkImage textureImage;
-	VmaAllocation textureAllocation;
-	VkImageView textureView;
-	VkBuffer stagingTextureBuffer;
-	VmaAllocation stagingTextureAllocation;
-	VmaAllocationInfo stagingTextureInfo;
 
 	VkDescriptorSet descriptorSet;
 
@@ -121,13 +111,10 @@ private:
 
 	void establishStagingVertices();
 	void refreshStagingInstances();
-	void establishStagingTexture();
 	void establishLiveVertices (VkCommandBuffer externalCommandBuffer = nullptr);
 	void refreshLiveInstances  (VkCommandBuffer externalCommandBuffer = nullptr);
-	void establishLiveTexture  (VkCommandBuffer externalCommandBuffer = nullptr);
 
 	void freeStagingVertices();
-	void freeStagingTexture();
 	void freeLiveVertices();
 	void freeLiveTexture();
 };
