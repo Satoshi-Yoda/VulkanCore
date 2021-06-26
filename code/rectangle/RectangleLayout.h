@@ -24,12 +24,17 @@ using std::vector;
 
 using glm::vec2;
 using glm::vec3;
+using glm::vec4;
 
 class Lava;
 
 struct RectangleVertex {
 	vec2 pos;
 	vec2 texCoord;
+};
+
+struct RectangleData {
+	vec4 color;
 };
 
 class RectangleLayout {

@@ -64,7 +64,7 @@ void Rectangle::createDescriptorSet() {
 
 	VkWriteDescriptorSet uniformWrite { VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET };
 	uniformWrite.dstSet = descriptorSet;
-	uniformWrite.dstBinding = 1;
+	uniformWrite.dstBinding = 0;
 	uniformWrite.dstArrayElement = 0;
 	uniformWrite.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
 	uniformWrite.descriptorCount = 1;

@@ -4,7 +4,7 @@
 layout(location = 0) in vec2 inPosition;
 layout(location = 1) in vec2 inTexCoord;
 
-layout(binding = 1) uniform UniformBufferObject {
+layout(binding = 0) uniform UniformBufferObject {
 	vec2 scale;
 	vec2 shift;
 } ubo;
