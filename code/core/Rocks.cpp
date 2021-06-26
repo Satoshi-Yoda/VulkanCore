@@ -252,7 +252,7 @@ void Rocks::createBufferVMA(VkDeviceSize size, VkBufferUsageFlags usage, VmaMemo
 	vmaCreateBuffer(mountain.allocator, &bufferInfo, &allocationCreateInfo, &buffer, &bufferAllocation, &bufferAllocationInfo) >> ash("Failed to create VMA buffer!");
 }
 
-void Rocks::copyBufferToBuffer(VkBuffer& srcBuffer, VkBuffer& dstBuffer, VkDeviceSize size, VkAccessFlags resultAccessFlags, VkCommandBuffer externalCommandBuffer) {
+void Rocks::copyBufferToBuffer(VkBuffer& srcBuffer, VkBuffer& dstBuffer, VkDeviceSize size, VkAccessFlags resultAccessFlags, VkPipelineStageFlagBits resultPipelineFlags, VkCommandBuffer externalCommandBuffer) {
 	// auto start = chrono::high_resolution_clock::now();
 
 	// VkCommandBuffer commandBuffer = beginSingleTimeCommands();
@@ -274,7 +274,7 @@ void Rocks::copyBufferToBuffer(VkBuffer& srcBuffer, VkBuffer& dstBuffer, VkDevic
 	barrier.offset = 0;
 	barrier.size = VK_WHOLE_SIZE;
 
-	vkCmdPipelineBarrier(commandBuffer, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_VERTEX_INPUT_BIT, 0, 0, nullptr, 1, &barrier, 0, nullptr);
+	vkCmdPipelineBarrier(commandBuffer, VK_PIPELINE_STAGE_TRANSFER_BIT, resultPipelineFlags, 0, 0, nullptr, 1, &barrier, 0, nullptr);
 
 	if (useExternalCommandBuffer == false) {
 		endSingleTimeCommands(commandBuffer);
@@ -286,7 +286,7 @@ void Rocks::copyBufferToBuffer(VkBuffer& srcBuffer, VkBuffer& dstBuffer, VkDevic
 	// printf("Copied b2b %d MB in %.3fs at %.2f GB/s\n", size / (1 << 20), delay, speed);
 }
 
-void Rocks::copyBufferToBuffer(VkBuffer& srcBuffer, VkBuffer& dstBuffer, vector<VkBufferCopy> regions, VkAccessFlags resultAccessFlags, VkCommandBuffer externalCommandBuffer) {
+void Rocks::copyBufferToBuffer(VkBuffer& srcBuffer, VkBuffer& dstBuffer, vector<VkBufferCopy> regions, VkAccessFlags resultAccessFlags, VkPipelineStageFlagBits resultPipelineFlags, VkCommandBuffer externalCommandBuffer) {
 	// auto start = chrono::high_resolution_clock::now();
 
 	assert(regions.size() > 0);
@@ -306,7 +306,7 @@ void Rocks::copyBufferToBuffer(VkBuffer& srcBuffer, VkBuffer& dstBuffer, vector<
 	barrier.offset = 0;
 	barrier.size = VK_WHOLE_SIZE;
 
-	vkCmdPipelineBarrier(commandBuffer, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_VERTEX_INPUT_BIT, 0, 0, nullptr, 1, &barrier, 0, nullptr);
+	vkCmdPipelineBarrier(commandBuffer, VK_PIPELINE_STAGE_TRANSFER_BIT, resultPipelineFlags, 0, 0, nullptr, 1, &barrier, 0, nullptr);
 
 	if (useExternalCommandBuffer == false) {
 		endSingleTimeCommands(commandBuffer);

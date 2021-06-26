@@ -35,8 +35,8 @@ public:
 	VkCommandBuffer beginSingleTimeCommands();
 	void endSingleTimeCommands(VkCommandBuffer commandBuffer);
 
-	void copyBufferToBuffer(VkBuffer& srcBuffer, VkBuffer& dstBuffer, VkDeviceSize size, VkAccessFlags resultAccessFlags, VkCommandBuffer externalCommandBuffer = nullptr);
-	void copyBufferToBuffer(VkBuffer& srcBuffer, VkBuffer& dstBuffer, vector<VkBufferCopy> regions, VkAccessFlags resultAccessFlags, VkCommandBuffer externalCommandBuffer = nullptr);
+	void copyBufferToBuffer(VkBuffer& srcBuffer, VkBuffer& dstBuffer, VkDeviceSize size, VkAccessFlags resultAccessFlags, VkPipelineStageFlagBits resultPipelineFlags, VkCommandBuffer externalCommandBuffer = nullptr);
+	void copyBufferToBuffer(VkBuffer& srcBuffer, VkBuffer& dstBuffer, vector<VkBufferCopy> regions, VkAccessFlags resultAccessFlags, VkPipelineStageFlagBits resultPipelineFlags, VkCommandBuffer externalCommandBuffer = nullptr);
 	void copyDataToBuffer(const void* srcPointer, VkDeviceMemory& bufferMemory, size_t size);
 	void copyBufferToImage(VkBuffer& buffer, VkImage& image, uint32_t width, uint32_t height, VkCommandBuffer externalCommandBuffer = nullptr);
 

@@ -466,7 +466,7 @@ void Mountain::createCommandPool() {
 }
 
 void Mountain::createDescriptorPool() {
-	array<VkDescriptorPoolSize, 2> poolSizes {};
+	array<VkDescriptorPoolSize, 3> poolSizes {};
 
 	uint32_t size = 2 * 9000; // about ~ texture count
 
@@ -474,6 +474,8 @@ void Mountain::createDescriptorPool() {
 	poolSizes[0].descriptorCount = size;
 	poolSizes[1].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
 	poolSizes[1].descriptorCount = size;
+	poolSizes[2].type = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+	poolSizes[2].descriptorCount = size;
 
 	VkDescriptorPoolCreateInfo poolInfo { VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO };
 	poolInfo.poolSizeCount = static_cast<uint32_t>(poolSizes.size());

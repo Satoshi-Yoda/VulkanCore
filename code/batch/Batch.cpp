@@ -104,7 +104,7 @@ void Batch::updateInstances(vector<size_t> indexes) {
 	VkBuffer& buffer = instanceBuffer;
 	VkBuffer& stagingBuffer = stagingInstanceBuffer;
 
-	rocks->copyBufferToBuffer(stagingBuffer, buffer, regions, VK_ACCESS_VERTEX_ATTRIBUTE_READ_BIT);
+	rocks->copyBufferToBuffer(stagingBuffer, buffer, regions, VK_ACCESS_VERTEX_ATTRIBUTE_READ_BIT, VK_PIPELINE_STAGE_VERTEX_INPUT_BIT);
 }
 
 void Batch::createDescriptorSet() {
@@ -224,7 +224,7 @@ void Batch::establishLiveVertices(VkCommandBuffer externalCommandBuffer) {
 	bool useExternalCommandBuffer = (externalCommandBuffer != nullptr);
 	VkCommandBuffer commandBuffer = useExternalCommandBuffer ? externalCommandBuffer : rocks->beginSingleTimeCommands();
 
-	rocks->copyBufferToBuffer(stagingVertexBuffer, vertexBuffer, bufferSize, VK_ACCESS_VERTEX_ATTRIBUTE_READ_BIT, commandBuffer);
+	rocks->copyBufferToBuffer(stagingVertexBuffer, vertexBuffer, bufferSize, VK_ACCESS_VERTEX_ATTRIBUTE_READ_BIT, VK_PIPELINE_STAGE_VERTEX_INPUT_BIT, commandBuffer);
 
 	if (useExternalCommandBuffer == false) {
 		rocks->endSingleTimeCommands(commandBuffer);
@@ -248,7 +248,7 @@ void Batch::establishLiveInstances(VkCommandBuffer externalCommandBuffer) {
 	bool useExternalCommandBuffer = (externalCommandBuffer != nullptr);
 	VkCommandBuffer commandBuffer = useExternalCommandBuffer ? externalCommandBuffer : rocks->beginSingleTimeCommands();
 
-	rocks->copyBufferToBuffer(stagingInstanceBuffer, instanceBuffer, bufferSize, VK_ACCESS_VERTEX_ATTRIBUTE_READ_BIT, commandBuffer);
+	rocks->copyBufferToBuffer(stagingInstanceBuffer, instanceBuffer, bufferSize, VK_ACCESS_VERTEX_ATTRIBUTE_READ_BIT, VK_PIPELINE_STAGE_VERTEX_INPUT_BIT, commandBuffer);
 
 	if (useExternalCommandBuffer == false) {
 		rocks->endSingleTimeCommands(commandBuffer);
@@ -269,7 +269,7 @@ void Batch::refreshLiveInstances(VkCommandBuffer externalCommandBuffer) {
 	bool useExternalCommandBuffer = (externalCommandBuffer != nullptr);
 	VkCommandBuffer commandBuffer = useExternalCommandBuffer ? externalCommandBuffer : rocks->beginSingleTimeCommands();
 
-	rocks->copyBufferToBuffer(stagingInstanceBuffer, instanceBuffer, bufferSize, VK_ACCESS_VERTEX_ATTRIBUTE_READ_BIT, commandBuffer);
+	rocks->copyBufferToBuffer(stagingInstanceBuffer, instanceBuffer, bufferSize, VK_ACCESS_VERTEX_ATTRIBUTE_READ_BIT, VK_PIPELINE_STAGE_VERTEX_INPUT_BIT, commandBuffer);
 
 	if (useExternalCommandBuffer == false) {
 		rocks->endSingleTimeCommands(commandBuffer);
