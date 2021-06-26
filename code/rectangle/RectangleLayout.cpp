@@ -35,7 +35,7 @@ void RectangleLayout::createDescriptorSetLayout() {
 
 	VkDescriptorSetLayoutBinding dataLayoutBinding {};
 	dataLayoutBinding.binding = 1;
-	dataLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+	dataLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
 	dataLayoutBinding.descriptorCount = 1;
 	dataLayoutBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
 	dataLayoutBinding.pImmutableSamplers = nullptr;

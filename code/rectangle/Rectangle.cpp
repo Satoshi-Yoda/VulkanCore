@@ -86,7 +86,7 @@ void Rectangle::createDescriptorSet() {
 	dataWrite.dstSet = descriptorSet;
 	dataWrite.dstBinding = 1;
 	dataWrite.dstArrayElement = 0;
-	dataWrite.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+	dataWrite.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
 	dataWrite.descriptorCount = 1;
 	dataWrite.pBufferInfo = &dataInfo;
 
@@ -159,12 +159,12 @@ void Rectangle::establishLiveData(VkCommandBuffer externalCommandBuffer) {
 
 	VkDeviceSize bufferSize = sizeof(RectangleData);
 
-	rocks->createBufferVMA(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VMA_MEMORY_USAGE_GPU_ONLY, dataBuffer, dataAllocation, dataInfo);
+	rocks->createBufferVMA(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_STORAGE_BUFFER_BIT, VMA_MEMORY_USAGE_GPU_ONLY, dataBuffer, dataAllocation, dataInfo);
 
 	bool useExternalCommandBuffer = (externalCommandBuffer != nullptr);
 	VkCommandBuffer commandBuffer = useExternalCommandBuffer ? externalCommandBuffer : rocks->beginSingleTimeCommands();
 
-	rocks->copyBufferToBuffer(stagingDataBuffer, dataBuffer, bufferSize, VK_ACCESS_UNIFORM_READ_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, commandBuffer);
+	rocks->copyBufferToBuffer(stagingDataBuffer, dataBuffer, bufferSize, VK_ACCESS_SHADER_READ_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, commandBuffer);
 
 	if (useExternalCommandBuffer == false) {
 		rocks->endSingleTimeCommands(commandBuffer);
