@@ -13,6 +13,9 @@ out gl_PerVertex {
 	vec4 gl_Position;
 };
 
+layout(location = 0) out vec2 fragTexCoord;
+
 void main() {
 	gl_Position = vec4((inPosition + ubo.shift) * ubo.scale, 0.0, 1.0);
+	fragTexCoord = inTexCoord;
 }

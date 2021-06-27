@@ -35,6 +35,8 @@ struct RectangleVertex {
 
 struct RectangleData {
 	vec4 color;
+	vec2 size;
+	float radius;
 };
 
 class RectangleLayout {
