@@ -40,9 +40,6 @@ vector<RectangleVertex> RectangleMaker::initQuad(int x, int y, uint32_t w, uint3
 
 	vector<RectangleVertex> result;
 
-	// h--;
-	// w--;
-
 	result.push_back({ { x_min, y_max }, { 0 - 0.5, h + 0.5 } });
 	result.push_back({ { x_max, y_max }, { w + 0.5, h + 0.5 } });
 	result.push_back({ { x_min, y_min }, { 0 - 0.5, 0 - 0.5 } });
