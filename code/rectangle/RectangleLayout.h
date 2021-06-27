@@ -37,7 +37,7 @@ struct RectangleData {
 	vec4 color;
 	vec2 size;
 	float radius = 0.0f;
-	float step = 0.5f;
+	float step = 0.8f;
 };
 
 class RectangleLayout {

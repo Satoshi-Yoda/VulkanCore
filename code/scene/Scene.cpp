@@ -18,15 +18,15 @@ Scene::~Scene() {}
 
 void Scene::init() {
 	vec4 color { 0.9f, 0.7f, 0.5f, 0.5f };
-	vec2 size { 50, 300 };
-	float radius = 10.0f;
+	vec2 size { 20, 300 };
+	float radius = 4.0f;
 
 	RectangleData rect1;
 	rect1.color = color;
 	rect1.size = size;
 	rect1.radius = radius;
 	rect1.step = 0.0f;
-	rectangleMaker.initRectangle(-400, 0, rect1);
+	rectangleMaker.initRectangle(-size.x * 1.5, 0, rect1);
 
 	RectangleData rect2;
 	rect2.color = color;
@@ -39,8 +39,22 @@ void Scene::init() {
 	rect3.color = color;
 	rect3.size = size;
 	rect3.radius = radius;
-	rect3.step = 1.0f;
-	rectangleMaker.initRectangle(400, 0, rect3);
+	rect3.step = 0.8f;
+	rectangleMaker.initRectangle(+size.x * 1.5, 0, rect3);
+
+	RectangleData rect4;
+	rect4.color = color;
+	rect4.size = size;
+	rect4.radius = radius;
+	rect4.step = 1.0f;
+	rectangleMaker.initRectangle(+size.x * 1.5 * 2, 0, rect4);
+
+	RectangleData rect5;
+	rect5.color = color;
+	rect5.size = size;
+	rect5.radius = radius;
+	rect5.step = 1.5f;
+	rectangleMaker.initRectangle(+size.x * 1.5 * 3, 0, rect5);
 
 	return;
 

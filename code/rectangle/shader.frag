@@ -13,13 +13,14 @@ layout(location = 0) in vec2 fragTexCoord;
 layout(location = 0) out vec4 outColor;
 
 void main() {
-	vec2 halfSize = data.size / 2.0f;
-	//vec2 fromCorner = halfSize - abs(fragTexCoord - halfSize);
-	vec2 fromCorner = fragTexCoord;
-	vec2 cornerPoint = vec2(data.radius, data.radius);
+	vec2 texCoordRounded = round(fragTexCoord);
+	vec2 halfSize = data.size * 0.5f;
+	vec2 fromCorner = halfSize - abs(texCoordRounded - halfSize);
+	vec2 cornerPoint = vec2(data.radius);
 	float fromCornerPoint = length(cornerPoint - fromCorner);
-	float halfStep = data.step / 2.0f;
-	float alpha = smoothstep(data.radius - halfStep, data.radius + halfStep, fromCornerPoint);
-	float inCorner = float(all(lessThan(fromCorner, cornerPoint)));
+	float halfStep    = data.step * 0.5f;
+	float quarterStep = data.step * 0.25f;
+	float alpha = smoothstep(data.radius + quarterStep - halfStep, data.radius + quarterStep + halfStep, fromCornerPoint);
+	float inCorner = float(all(lessThan(fromCorner, cornerPoint + vec2(1.0f))));
 	outColor = vec4(data.color.rgb, 1.0f - inCorner * alpha);
 }
