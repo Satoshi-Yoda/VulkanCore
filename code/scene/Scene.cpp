@@ -17,6 +17,33 @@ Scene::Scene(Ash& ash, Batcher& batcher, Mountain& mountain, Rocks& rocks, Crate
 Scene::~Scene() {}
 
 void Scene::init() {
+	vec4 color { 0.9f, 0.7f, 0.5f, 0.5f };
+	vec2 size { 50, 300 };
+	float radius = 10.0f;
+
+	RectangleData rect1;
+	rect1.color = color;
+	rect1.size = size;
+	rect1.radius = radius;
+	rect1.step = 0.0f;
+	rectangleMaker.initRectangle(-400, 0, rect1);
+
+	RectangleData rect2;
+	rect2.color = color;
+	rect2.size = size;
+	rect2.radius = radius;
+	rect2.step = 0.5f;
+	rectangleMaker.initRectangle(0, 0, rect2);
+
+	RectangleData rect3;
+	rect3.color = color;
+	rect3.size = size;
+	rect3.radius = radius;
+	rect3.step = 1.0f;
+	rectangleMaker.initRectangle(400, 0, rect3);
+
+	return;
+
 	// "asteroid-s1.1"
 	// printf("Lava: sprite %.0fx%.0f\n", round(width * scale), round(height * scale));
 
@@ -59,8 +86,6 @@ void Scene::init() {
 		Instance instance { { x + step / 2, y + step / 2 } };
 		batcher.addInstance("asteroid-s3.2", instance);
 	}
-
-	rectangleMaker.initRectangle();
 
 	// printf("Lava: %lld sprites\n", instances.size());
 	// printf("Lava: stream: %.2f Mb/frame\n", static_cast<float>(instances.size() * sizeof(Instance)) / (1 << 20));

@@ -14,18 +14,19 @@ RectangleMaker::RectangleMaker(Ash& ash, Mountain& mountain, Rocks& rocks, Crate
 
 RectangleMaker::~RectangleMaker() {}
 
-void RectangleMaker::initRectangle() {
-	int width = 250;
-	int height = 250;
-	vector<RectangleVertex> vertices = initQuad(width, height);
+void RectangleMaker::initRectangle(int x, int y, RectangleData data) {
+	int width  = round(data.size.x);
+	int height = round(data.size.y);
+	vector<RectangleVertex> vertices = initQuad(x, y, width, height);
 
 	unique_ptr<Rectangle> rectangle = make_unique<Rectangle>(ash);
 	rectangle->setName("rectangle_name");
-	RectangleData rectangleData;
-	rectangleData.color = { 0.9f, 0.7f, 0.5f, 0.5f };
-	rectangleData.size = { width, height };
-	rectangleData.radius = 50.0f;
-	rectangle->setWorkingData(vertices, rectangleData);
+	// RectangleData data;
+	// sata.color = { 0.9f, 0.7f, 0.5f, 0.5f };
+	// sata.size = { width, height };
+	// sata.radius = 5.0f;
+	// sata.step = 0.0f;
+	rectangle->setWorkingData(vertices, data);
 
 	rectangle->setVulkanEntities(mountain, rocks, crater, lava);
 	rectangle->establish(RectangleAspect::STAGING_VERTICES, RectangleAspect::STAGING_DATA);
@@ -36,12 +37,12 @@ void RectangleMaker::initRectangle() {
 	lava.addRectangle(move(rectangle));
 }
 
-vector<RectangleVertex> RectangleMaker::initQuad(uint32_t w, uint32_t h) {
+vector<RectangleVertex> RectangleMaker::initQuad(int x, int y, uint32_t w, uint32_t h) {
 	float scale = 1.0f;
 
-	int x_min = 0 - w * scale / 2;
+	int x_min = x - w * scale / 2;
 	int x_max = x_min + w * scale;
-	int y_min = 0 - h * scale / 2;
+	int y_min = y - h * scale / 2;
 	int y_max = y_min + h * scale;
 
 	vector<RectangleVertex> result;

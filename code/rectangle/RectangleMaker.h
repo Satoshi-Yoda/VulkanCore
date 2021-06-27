@@ -24,7 +24,7 @@ public:
 	RectangleMaker& operator=(const RectangleMaker&) = delete;
 	RectangleMaker& operator=(RectangleMaker&&)      = delete;
 
-	void initRectangle();
+	void initRectangle(int x, int y, RectangleData data);
 
 private:
 	Ash& ash;
@@ -33,5 +33,5 @@ private:
 	Crater& crater;
 	Lava& lava;
 
-	vector<RectangleVertex> initQuad(uint32_t w, uint32_t h);
+	vector<RectangleVertex> initQuad(int x, int y, uint32_t w, uint32_t h);
 };
