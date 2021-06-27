@@ -18,7 +18,7 @@ Scene::~Scene() {}
 
 void Scene::init() {
 	vec4 color { 0.9f, 0.7f, 0.5f, 0.5f };
-	vec2 size { 20, 300 };
+	vec2 size { 32, 240 };
 	float radius = 4.0f;
 
 	RectangleData rect1;
@@ -55,8 +55,6 @@ void Scene::init() {
 	rect5.radius = radius;
 	rect5.step = 1.5f;
 	rectangleMaker.initRectangle(+size.x * 1.5 * 3, 0, rect5);
-
-	return;
 
 	// "asteroid-s1.1"
 	// printf("Lava: sprite %.0fx%.0f\n", round(width * scale), round(height * scale));

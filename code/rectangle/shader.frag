@@ -22,5 +22,5 @@ void main() {
 	float quarterStep = data.step * 0.25f;
 	float alpha = smoothstep(data.radius + quarterStep - halfStep, data.radius + quarterStep + halfStep, fromCornerPoint);
 	float inCorner = float(all(lessThan(fromCorner, cornerPoint + vec2(1.0f))));
-	outColor = vec4(data.color.rgb, 1.0f - inCorner * alpha);
+	outColor = vec4(data.color.rgb, (1.0f - inCorner * alpha) * data.color.a);
 }
