@@ -56,6 +56,12 @@ void Scene::init() {
 	rect5.step = 1.5f;
 	rectangleMaker.initRectangle(+size.x * 1.5 * 3, 0, rect5);
 
+	GraphicData gr;
+	gr.color = color;
+	gr.size = { 800, 400 };
+	gr.radius = radius;
+	graphicMaker.initGraphic(-350, -200, gr);
+
 	// "asteroid-s1.1"
 	// printf("Lava: sprite %.0fx%.0f\n", round(width * scale), round(height * scale));
 

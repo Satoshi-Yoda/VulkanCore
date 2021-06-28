@@ -29,3 +29,7 @@ void Lava::addBatch(unique_ptr<Batch> batch) {
 void Lava::addRectangle(unique_ptr<Rectangle> rectangle) {
 	this->rectangles.push_back(move(rectangle));
 }
+
+void Lava::addGraphic(unique_ptr<Graphic> graphic) {
+	this->graphics.push_back(move(graphic));
+}

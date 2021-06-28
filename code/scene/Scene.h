@@ -12,6 +12,9 @@
 #include "../batch/BatchLayout.h"
 #include "../core/Lava.h"
 #include "../core/Tectonic.h"
+#include "../graphic/Graphic.h"
+#include "../graphic/GraphicLayout.h"
+#include "../graphic/GraphicMaker.h"
 #include "../rectangle/Rectangle.h"
 #include "../rectangle/RectangleLayout.h"
 #include "../rectangle/RectangleMaker.h"
@@ -42,6 +45,7 @@ private:
 	Lava& lava;
 
 	RectangleMaker rectangleMaker { ash, mountain, rocks, crater, lava };
+	GraphicMaker graphicMaker { ash, mountain, rocks, crater, lava };
 
 	unordered_map<size_t, Instance> instances;
 	vector<size_t> updatableIndexes;
