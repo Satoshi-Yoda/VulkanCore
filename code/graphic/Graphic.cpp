@@ -80,7 +80,7 @@ void Graphic::createDescriptorSet() {
 	VkDescriptorBufferInfo dataInfo {};
 	dataInfo.buffer = dataBuffer;
 	dataInfo.offset = 0;
-	dataInfo.range = sizeof(GraphicData);
+	dataInfo.range = sizeof(GraphicData) + sizeof(GraphicElement) * data.points.size() - sizeof(vector<GraphicElement>);
 
 	VkWriteDescriptorSet dataWrite { VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET };
 	dataWrite.dstSet = descriptorSet;
@@ -122,10 +122,16 @@ void Graphic::establishStagingData() {
 	aspects.has(GraphicAspect::WORKING_DATA, GraphicAspect::VULKAN_ENTITIES) >> ash("In this graphic there is no WORKING_DATA or no VULKAN_ENTITIES");
 	#endif
 
-	VkDeviceSize bufferSize = sizeof(GraphicData);
+	VkDeviceSize bufferSize = sizeof(GraphicData) + sizeof(GraphicElement) * data.points.size() - sizeof(vector<GraphicElement>);
 
 	rocks->createBufferVMA(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VMA_MEMORY_USAGE_CPU_ONLY, stagingDataBuffer, stagingDataAllocation, stagingDataInfo);
-	memcpy(stagingDataInfo.pMappedData, &data, static_cast<size_t>(bufferSize));
+	memcpy(stagingDataInfo.pMappedData, &data, sizeof(GraphicData) - sizeof(vector<GraphicElement>));
+	if (data.points.size() > 0) {
+		void* pArray = static_cast<int8_t*>(stagingDataInfo.pMappedData) + sizeof(GraphicElement) * data.points.size();
+		memcpy(pArray, data.points.data(), sizeof(GraphicElement) * data.points.size());
+	}
+
+	cout << "data header " << sizeof(GraphicData) - sizeof(vector<GraphicElement>) << " data " << sizeof(GraphicElement) * data.points.size() << endl;
 
 	aspects.raise(GraphicAspect::STAGING_DATA);
 }
@@ -157,7 +163,7 @@ void Graphic::establishLiveData(VkCommandBuffer externalCommandBuffer) {
 	aspects.has(GraphicAspect::STAGING_DATA, GraphicAspect::VULKAN_ENTITIES) >> ash("In this graphic there is no STAGING_DATA or no VULKAN_ENTITIES");
 	#endif
 
-	VkDeviceSize bufferSize = sizeof(GraphicData);
+	VkDeviceSize bufferSize = sizeof(GraphicData) + sizeof(GraphicElement) * data.points.size() - sizeof(vector<GraphicElement>);
 
 	rocks->createBufferVMA(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_STORAGE_BUFFER_BIT, VMA_MEMORY_USAGE_GPU_ONLY, dataBuffer, dataAllocation, dataInfo);
 

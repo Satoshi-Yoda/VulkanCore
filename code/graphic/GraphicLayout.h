@@ -33,11 +33,14 @@ struct GraphicVertex {
 	vec2 texCoord;
 };
 
+typedef float GraphicElement;
+
 struct GraphicData {
 	vec4 color;
 	vec2 size;
 	float radius = 0.0f;
 	float step = 0.8f;
+	vector<GraphicElement> points;
 };
 
 class GraphicLayout {
