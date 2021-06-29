@@ -127,7 +127,7 @@ void Graphic::establishStagingData() {
 	rocks->createBufferVMA(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VMA_MEMORY_USAGE_CPU_ONLY, stagingDataBuffer, stagingDataAllocation, stagingDataInfo);
 	memcpy(stagingDataInfo.pMappedData, &data, sizeof(GraphicData) - sizeof(vector<GraphicElement>));
 	if (data.points.size() > 0) {
-		void* pArray = static_cast<int8_t*>(stagingDataInfo.pMappedData) + sizeof(GraphicElement) * data.points.size();
+		void* pArray = static_cast<int8_t*>(stagingDataInfo.pMappedData) + sizeof(GraphicData) - sizeof(vector<GraphicElement>);
 		memcpy(pArray, data.points.data(), sizeof(GraphicElement) * data.points.size());
 	}
 

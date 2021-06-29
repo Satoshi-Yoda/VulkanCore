@@ -5,7 +5,7 @@ struct GraphicElement {
 	float value;
 };
 
-layout(std140, binding = 1) readonly buffer GraphicData {
+layout(binding = 1) readonly buffer GraphicData {
 	vec4 color;
 	vec2 size;
 	float radius;
@@ -19,7 +19,7 @@ layout(location = 0) out vec4 outColor;
 
 void main() {
 	float radius = data.radius;
-	//float radius = data.points[1].value * 50.0f;
+	//float radius = data.points.length();
 
 	vec2 texCoordRounded = round(fragTexCoord);
 	vec2 halfSize = data.size * 0.5f;
@@ -30,5 +30,6 @@ void main() {
 	float quarterStep = data.step * 0.25f;
 	float alpha = smoothstep(radius + quarterStep - halfStep, radius + quarterStep + halfStep, fromCornerPoint);
 	float inCorner = float(all(lessThan(fromCorner, cornerPoint + vec2(1.0f))));
-	outColor = vec4(data.color.rgb, (1.0f - inCorner * alpha) * data.color.a);
+	float outAlpha = (1.0f - inCorner * alpha) * data.color.a;
+	outColor = vec4(data.color.rgb, outAlpha);
 }

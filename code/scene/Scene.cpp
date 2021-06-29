@@ -20,48 +20,49 @@ void Scene::init() {
 	vec4 color { 0.9f, 0.7f, 0.5f, 0.5f };
 	vec2 size { 32, 240 };
 	float radius = 4.0f;
+	float y = 200;
 
 	RectangleData rect1;
 	rect1.color = color;
 	rect1.size = size;
 	rect1.radius = radius;
 	rect1.step = 0.0f;
-	rectangleMaker.initRectangle(-size.x * 1.5, 0, rect1);
+	rectangleMaker.initRectangle(-size.x * 1.5, y, rect1);
 
 	RectangleData rect2;
 	rect2.color = color;
 	rect2.size = size;
 	rect2.radius = radius;
 	rect2.step = 0.5f;
-	rectangleMaker.initRectangle(0, 0, rect2);
+	rectangleMaker.initRectangle(0, y, rect2);
 
 	RectangleData rect3;
 	rect3.color = color;
 	rect3.size = size;
 	rect3.radius = radius;
 	rect3.step = 0.8f;
-	rectangleMaker.initRectangle(+size.x * 1.5, 0, rect3);
+	rectangleMaker.initRectangle(+size.x * 1.5, y, rect3);
 
 	RectangleData rect4;
 	rect4.color = color;
 	rect4.size = size;
 	rect4.radius = radius;
 	rect4.step = 1.0f;
-	rectangleMaker.initRectangle(+size.x * 1.5 * 2, 0, rect4);
+	rectangleMaker.initRectangle(+size.x * 1.5 * 2, y, rect4);
 
 	RectangleData rect5;
 	rect5.color = color;
 	rect5.size = size;
 	rect5.radius = radius;
 	rect5.step = 1.5f;
-	rectangleMaker.initRectangle(+size.x * 1.5 * 3, 0, rect5);
+	rectangleMaker.initRectangle(+size.x * 1.5 * 3, y, rect5);
 
 	GraphicData gr;
 	gr.color = color;
 	gr.size = { 800, 400 };
 	gr.radius = 20.0f;
-	gr.step = 2.0f;
-	gr.points = { 0.1f, 0.3f, 0.2f, 0.9f, 0.5f, 0.5f, 0.1f };
+	gr.step = 1.0f;
+	gr.points = { 10.0f, 32.0f, 16.0f, 10.0f, 32.0f, 16.0f, 10.0f, 32.0f, 16.0f, 10.0f, 32.0f, 16.0f, 10.0f, 32.0f, 16.0f };
 	graphicMaker.initGraphic(-350, -200, gr);
 
 	RectangleData pr;
