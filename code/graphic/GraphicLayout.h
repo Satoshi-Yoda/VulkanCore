@@ -39,7 +39,7 @@ struct GraphicData {
 	vec4 color;
 	vec2 size;
 	float radius = 0.0f;
-	float step = 0.8f;
+	float step = 1.0f;
 	vector<GraphicElement> points;
 };
 
