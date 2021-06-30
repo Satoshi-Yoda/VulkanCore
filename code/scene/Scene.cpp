@@ -62,7 +62,7 @@ void Scene::init() {
 	gr.size = { 800, 400 };
 	gr.radius = 20.0f;
 	gr.step = 1.0f;
-	gr.points = { 10.0f, 32.0f, 16.0f, 10.0f, 32.0f, 16.0f, 10.0f, 32.0f, 16.0f, 10.0f, 32.0f, 16.0f, 10.0f, 32.0f, 16.0f };
+	gr.points = { 0.1f, 0.4f, 0.2f, 0.5f, 0.4f };
 	graphicMaker.initGraphic(-350, -200, gr);
 
 	RectangleData pr;
