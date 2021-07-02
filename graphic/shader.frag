@@ -17,7 +17,37 @@ layout(location = 0) in vec2 fragTexCoord;
 
 layout(location = 0) out vec4 outColor;
 
+float capsule(vec2 A, vec2 B) {
+	float inverse_width = 1.0f / (B.x - A.x);
+
+	float a_x = fragTexCoord.x - 0.5f;
+	float part_a = (a_x - A.x) * inverse_width;
+	vec2 a = vec2(a_x, A.y + part_a * (B.y - A.y));
+
+	float b_x = fragTexCoord.x + 0.5f;
+	float part_b = (b_x - A.x) * inverse_width;
+	vec2 b = vec2(b_x, A.y + part_b * (B.y - A.y));
+
+	vec2 ba = b - a;
+	vec2 o = fragTexCoord;
+	float distance_line = abs(ba.y * o.x - ba.x * o.y + b.x * a.y - a.x * b.y) / length(ba);
+	float distance_A = length(A - o);
+	float distance_B = length(B - o);
+
+	float dot_A = step(0.0f, dot(B - A, o - A));
+	float dot_B = step(0.0f, dot(A - B, o - B));
+
+	float distance = mix(distance_B, mix(distance_A, distance_line, dot_A), dot_B);
+
+	float line  = 8.0f;
+	float delta = 1.0f;
+	float onLine = smoothstep(line, line + delta, distance);
+
+	return distance / 100;
+}
+
 void main() {
+	/*
 	vec2 delta_x = vec2(0.5f, 0.0f);
 
 	vec2 coord1 = (fragTexCoord + delta_x) / data.size;
@@ -51,6 +81,10 @@ void main() {
 	float delta = 1.0f;
 	float onLine = smoothstep(line, line + delta, distance);
 	vec4 result = mix(vec4(1.0f), data.color, onLine);
+	*/
+
+	float caps = capsule(vec2(200, 200), data.size - vec2(200, 200));
+	vec4 result = mix(vec4(1.0f), data.color, caps);
 
 	//vec4 result = vec4(vec3(log(distance) / 5.0f), 1.0f);
 	//vec4 result = vec4(vec3(0.5 + dot(B - A, o - A) / 10000), 1.0f);
