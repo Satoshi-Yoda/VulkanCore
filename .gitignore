@@ -4,5 +4,3 @@
 *.spv
 *.sublime-project
 *.sublime-workspace
-build/*
-temp/*
