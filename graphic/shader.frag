@@ -23,14 +23,14 @@ void main() {
 	vec2 coord1 = (fragTexCoord + delta_x) / data.size;
 	float arrayCoord1 = coord1.x * (data.points.length() - 1);
 	int index1 = int(floor(arrayCoord1));
-	float part1 = fract(arrayCoord1);
+	float part1 = arrayCoord1 - index1;
 	float value1 = data.points[index1 + 1].value * part1 + data.points[index1].value * (1.0f - part1);
 	vec2 A = vec2(coord1.x, value1) * data.size;
 
 	vec2 coord2 = (fragTexCoord - delta_x) / data.size;
 	float arrayCoord2 = coord2.x * (data.points.length() - 1);
-	int index2 = int(floor(arrayCoord2));
-	float part2 = fract(arrayCoord2);
+	int index2 = index1;
+	float part2 = arrayCoord2 - index2;
 	float value2 = data.points[index2 + 1].value * part2 + data.points[index2].value * (1.0f - part2);
 	vec2 B = vec2(coord2.x, value2) * data.size;
 
@@ -38,10 +38,12 @@ void main() {
 	vec2 O = fragTexCoord;
 	float distance = abs(BA.y * O.x - BA.x * O.y + B.x * A.y - A.x * B.y) / length(BA);
 
-	float line  = 0.0f;
+	float line  = 4.0f;
 	float delta = 1.0f;
 	float onLine = smoothstep(line, line + delta, distance);
-	vec4 result = mix(vec4(1.0f), data.color, onLine);
+	//vec4 result = mix(vec4(1.0f), data.color, onLine);
+
+	vec4 result = vec4(vec3(log(distance) / 5.0f), 1.0f);
 
 	vec2 texCoordRounded = round(fragTexCoord);
 	vec2 halfSize = data.size * 0.5f;
