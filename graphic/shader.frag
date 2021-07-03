@@ -19,36 +19,6 @@ layout(location = 0) in vec2 fragTexCoord;
 layout(location = 0) out vec4 outColor;
 
 float capsule(vec2 A, vec2 B) {
-	float inverse_width = 1.0f / (B.x - A.x);
-
-	float a_x = fragTexCoord.x - 0.5f;
-	float part_a = (a_x - A.x) * inverse_width;
-	vec2 a = vec2(a_x, A.y + part_a * (B.y - A.y));
-
-	float b_x = fragTexCoord.x + 0.5f;
-	float part_b = (b_x - A.x) * inverse_width;
-	vec2 b = vec2(b_x, A.y + part_b * (B.y - A.y));
-
-	vec2 ba = b - a;
-	vec2 o = fragTexCoord;
-	float distance_line = abs(ba.y * o.x - ba.x * o.y + b.x * a.y - a.x * b.y) / length(ba);
-	float distance_A = length(A - o);
-	float distance_B = length(B - o);
-
-	float dot_A = step(0.0f, dot(B - A, o - A));
-	float dot_B = step(0.0f, dot(A - B, o - B));
-
-	float distance = mix(distance_B, mix(distance_A, distance_line, dot_A), dot_B);
-
-	//return 0.333f / pow(distance, 0.8f);
-
-	float line  = data.line * 0.5f;
-	float delta = data.aa;
-	float onLine = 1.0f - smoothstep(line, line + delta, distance);
-	return onLine;
-}
-
-float capsule_if(vec2 A, vec2 B) {
 	vec2 o = fragTexCoord;
 	float distance_A = length(A - o);
 	float thr = length(A - B) + data.line + data.aa;
@@ -82,19 +52,24 @@ float capsule_if(vec2 A, vec2 B) {
 
 	float line  = data.line * 0.5f;
 	float onLine = 1.0f - smoothstep(line, line + data.aa, distance);
+
 	return onLine;
 }
 
 void main() {
-	float total = 0.0f;
-	//total += capsule(vec2(200, 200), data.size - vec2(200, 200));
-	//total += capsule(vec2(400, 200), data.size - vec2(200, 400));
+	float delta = 0.5f + data.line * 0.5f + data.aa;
+	float min_x = fragTexCoord.x - delta;
+	float max_x = fragTexCoord.x + delta;
+	int first_i = 1;
+	int last_i = data.points.length() - 1;
+	int min_i = max(first_i + int(floor((last_i - first_i) * min_x / data.size.x)), first_i);
+	int max_i = min(first_i + int( ceil((last_i - first_i) * max_x / data.size.x)), last_i);
 
-	// TODO optimize, cals only nearest data points
-	for (int i = 0; i <= data.points.length() - 2; i++) {
-		vec2 A = vec2(float(i    ) / (data.points.length() - 1.0f), data.points[i    ].value) * data.size;
-		vec2 B = vec2(float(i + 1) / (data.points.length() - 1.0f), data.points[i + 1].value) * data.size;
-		total = max(total, capsule_if(A, B));
+	float total = 0.0f;
+	for (int i = min_i; i < max_i; i++) {
+		vec2 A = vec2((float(i    ) - first_i) / (last_i - first_i), data.points[i    ].value) * data.size;
+		vec2 B = vec2((float(i + 1) - first_i) / (last_i - first_i), data.points[i + 1].value) * data.size;
+		total = max(total, capsule(A, B));
 	}
 
 	vec4 result = mix(data.color, vec4(1.0f), clamp(total, 0.0f, 1.0f));
