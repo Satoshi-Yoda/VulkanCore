@@ -59,7 +59,7 @@ void main() {
 		total += capsule(A, B);
 	}
 
-	vec4 result = mix(data.color, vec4(1.0f), total);
+	vec4 result = mix(data.color, vec4(1.0f), clamp(total, 0.0f, 1.0f));
 
 	vec2 texCoordRounded = round(fragTexCoord);
 	vec2 halfSize = data.size * 0.5f;
