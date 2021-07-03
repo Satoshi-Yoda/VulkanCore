@@ -39,55 +39,27 @@ float capsule(vec2 A, vec2 B) {
 
 	float distance = mix(distance_B, mix(distance_A, distance_line, dot_A), dot_B);
 
-	float line  = 8.0f;
-	float delta = 1.0f;
-	float onLine = smoothstep(line, line + delta, distance);
+	return 0.333f / pow(distance, 1.2f);
 
-	return distance / 100;
+	//float line  = 0.0f;
+	//float delta = 1.0f;
+	//float onLine = 1.0f - smoothstep(line, line + delta, distance);
+	//return onLine;
 }
 
 void main() {
-	/*
-	vec2 delta_x = vec2(0.5f, 0.0f);
+	float total = 0.0f;
+	//total += capsule(vec2(200, 200), data.size - vec2(200, 200));
+	//total += capsule(vec2(400, 200), data.size - vec2(200, 400));
 
-	vec2 coord1 = (fragTexCoord + delta_x) / data.size;
-	float arrayCoord1 = coord1.x * (data.points.length() - 1);
-	int index1 = int(floor(arrayCoord1));
-	float part1 = arrayCoord1 - index1;
-	float value1 = data.points[index1 + 1].value * part1 + data.points[index1].value * (1.0f - part1);
-	vec2 a = vec2(coord1.x, value1) * data.size;
-	vec2 A = vec2(index1 / (data.points.length() - 1.0f), data.points[index1].value) * data.size;
+	// TODO optimize, cals only nearest data points
+	for (int i = 0; i <= data.points.length() - 2; i++) {
+		vec2 A = vec2(float(i    ) / (data.points.length() - 1.0f), data.points[i    ].value) * data.size;
+		vec2 B = vec2(float(i + 1) / (data.points.length() - 1.0f), data.points[i + 1].value) * data.size;
+		total += capsule(A, B);
+	}
 
-	vec2 coord2 = (fragTexCoord - delta_x) / data.size;
-	float arrayCoord2 = coord2.x * (data.points.length() - 1);
-	int index2 = index1;
-	float part2 = arrayCoord2 - index2;
-	float value2 = data.points[index2 + 1].value * part2 + data.points[index2].value * (1.0f - part2);
-	vec2 b = vec2(coord2.x, value2) * data.size;
-	vec2 B = vec2((index1 + 1) / (data.points.length() - 1.0f), data.points[index1 + 1].value) * data.size;
-
-	vec2 ba = b - a;
-	vec2 o = fragTexCoord;
-	float distance_line = abs(ba.y * o.x - ba.x * o.y + b.x * a.y - a.x * b.y) / length(ba);
-	float distance_A = length(A - o);
-	float distance_B = length(B - o);
-
-	float dot_A = step(0.0f, dot(B - A, o - A));
-	float dot_B = step(0.0f, dot(A - B, o - B));
-
-	float distance = mix(distance_B, mix(distance_A, distance_line, dot_A), dot_B);
-
-	float line  = 8.0f;
-	float delta = 1.0f;
-	float onLine = smoothstep(line, line + delta, distance);
-	vec4 result = mix(vec4(1.0f), data.color, onLine);
-	*/
-
-	float caps = capsule(vec2(200, 200), data.size - vec2(200, 200));
-	vec4 result = mix(vec4(1.0f), data.color, caps);
-
-	//vec4 result = vec4(vec3(log(distance) / 5.0f), 1.0f);
-	//vec4 result = vec4(vec3(0.5 + dot(B - A, o - A) / 10000), 1.0f);
+	vec4 result = mix(data.color, vec4(1.0f), total);
 
 	vec2 texCoordRounded = round(fragTexCoord);
 	vec2 halfSize = data.size * 0.5f;
