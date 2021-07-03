@@ -131,8 +131,6 @@ void Graphic::establishStagingData() {
 		memcpy(pArray, data.points.data(), sizeof(GraphicElement) * data.points.size());
 	}
 
-	cout << "data header " << sizeof(GraphicData) - sizeof(vector<GraphicElement>) << " data " << sizeof(GraphicElement) * data.points.size() << endl;
-
 	aspects.raise(GraphicAspect::STAGING_DATA);
 }
 

@@ -36,7 +36,8 @@ struct GraphicVertex {
 typedef float GraphicElement;
 
 struct GraphicData {
-	vec4 color;
+	vec4 bgColor;
+	vec4 lineColor;
 	vec2 size;
 	float radius = 0.0f;
 	float aa = 1.0f;

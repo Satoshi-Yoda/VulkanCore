@@ -6,7 +6,8 @@ struct GraphicElement {
 };
 
 layout(binding = 1) readonly buffer GraphicData {
-	vec4 color;
+	vec4 bgColor;
+	vec4 lineColor;
 	vec2 size;
 	float radius;
 	float aa;
@@ -72,7 +73,7 @@ void main() {
 		total = max(total, capsule(A, B));
 	}
 
-	vec4 result = mix(data.color, vec4(1.0f), clamp(total, 0.0f, 1.0f));
+	vec4 result = mix(data.bgColor, data.lineColor, clamp(total, 0.0f, 1.0f));
 
 	vec2 texCoordRounded = round(fragTexCoord);
 	vec2 halfSize = data.size * 0.5f;
@@ -83,7 +84,8 @@ void main() {
 	float quarterStep = data.aa * 0.25f;
 	float alpha = smoothstep(data.radius + quarterStep - halfStep, data.radius + quarterStep + halfStep, fromCornerPoint);
 	float inCorner = float(all(lessThan(fromCorner, cornerPoint + vec2(1.0f))));
-	float outAlpha = (1.0f - inCorner * alpha) * data.color.a;
+	float outAlpha = (1.0f - inCorner * alpha) * data.bgColor.a;
 
-	outColor = vec4(result.rgb, outAlpha);
+	result.a *= (1.0f - inCorner * alpha);
+	outColor = result;
 }
