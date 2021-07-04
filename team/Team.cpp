@@ -11,7 +11,7 @@ using namespace std::ranges::views;
 Team::Team() {
 	start = chrono::steady_clock::now();
 
-	for (size_t i = 0; i < 6; i++) {
+	for (size_t i = 0; i < 12; i++) {
 		specialists.emplace_back(ST_CPU, i + 101, *this);
 	}
 	// for (size_t i = 0; i < 1; i++) {
