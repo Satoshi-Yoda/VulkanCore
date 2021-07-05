@@ -48,7 +48,7 @@ void framebufferResizeCallback(GLFWwindow* window, int width, int height) {
 	app->framebufferResized = true;
 }
 
-Mountain::Mountain(Ash &ash) : ash(ash) {
+Mountain::Mountain(Ash &ash, uint32_t windowWidth, uint32_t windowHeight) : ash(ash), windowWidth(windowWidth), windowHeight(windowHeight) {
 	initWindow();
 	createInstance();
 	setupDebugMessenger();

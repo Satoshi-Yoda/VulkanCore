@@ -45,7 +45,7 @@ public:
 	const bool USE_VALIDATION_LAYERS = false;
 #endif
 
-	Mountain(Ash &ash);
+	Mountain(Ash &ash, uint32_t windowWidth, uint32_t windowHeight);
 	Mountain(const Mountain&) = delete;
 	Mountain& operator=(const Mountain&) = delete;
 	~Mountain();
@@ -55,8 +55,8 @@ public:
 private:
 	Ash& ash;
 
-	uint32_t windowWidth  = 2560;
-	uint32_t windowHeight = 1440;
+	uint32_t windowWidth;
+	uint32_t windowHeight;
 	uint32_t queueFamilyIndex;
 	VkDebugUtilsMessengerEXT debugMessenger;
 
