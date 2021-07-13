@@ -44,8 +44,14 @@ VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(
 }
 
 void framebufferResizeCallback(GLFWwindow* window, int width, int height) {
-	auto app = reinterpret_cast<Mountain*>(glfwGetWindowUserPointer(window));
-	app->framebufferResized = true;
+	auto mountain = reinterpret_cast<Mountain*>(glfwGetWindowUserPointer(window));
+	mountain->framebufferResized = true;
+}
+
+void mousePositionCallback(GLFWwindow* window, double x, double y) {
+	auto mountain = reinterpret_cast<Mountain*>(glfwGetWindowUserPointer(window));
+	mountain->mouse_x = x;
+	mountain->mouse_y = y;
 }
 
 Mountain::Mountain(Ash &ash, uint32_t windowWidth, uint32_t windowHeight) : ash(ash), windowWidth(windowWidth), windowHeight(windowHeight) {
@@ -94,6 +100,7 @@ void Mountain::initWindow() {
 	glfwSetWindowPos(window, (mode->width - windowWidth) / 3, (mode->height - windowHeight) / 2);
 	glfwSetWindowUserPointer(window, this);
 	glfwSetFramebufferSizeCallback(window, framebufferResizeCallback);
+	glfwSetCursorPosCallback(window, mousePositionCallback);
 }
 
 void Mountain::showWindow() {
@@ -150,7 +157,7 @@ void Mountain::createInstance() {
 	appInfo.pApplicationName = "VulkanCore";
 	appInfo.applicationVersion = VK_MAKE_VERSION(0, 0, 0);
 	appInfo.pEngineName = "Engine";
-	appInfo.engineVersion = VK_MAKE_VERSION(0, 2, 77);
+	appInfo.engineVersion = VK_MAKE_VERSION(0, 2, 78);
 	appInfo.apiVersion = VK_API_VERSION_1_0;
 
 	auto requiredExtensions = getRequiredExtensions();

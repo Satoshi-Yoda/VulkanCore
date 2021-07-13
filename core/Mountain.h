@@ -29,6 +29,9 @@ public:
 	// public for now, not used here!
 	bool framebufferResized = false;
 
+	double mouse_x = 0.0;
+	double mouse_y = 0.0;
+
 	const bool DISPLAY_LAYERS              = false;
 	const bool DISPLAY_INSTANCE_EXTENSIONS = false;
 	const bool DISPLAY_DEVICE_EXTENSIONS   = false;
