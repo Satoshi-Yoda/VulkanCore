@@ -50,8 +50,8 @@ public:
 	Rectangle& operator=(Rectangle&&)      = delete;
 
 	void setName(string name);
-	void setWorkingData(vector<RectangleVertex> vertices, RectangleData rectangleData);
-	void setVulkanEntities(Mountain& mountain, Rocks& rocks, Crater& crater, Lava& lava);
+	void setWorkingData(vector<RectangleVertex> vertices, RectangleData rectangleData);   // TODO maybe move this to constructor?
+	void setVulkanEntities(Mountain& mountain, Rocks& rocks, Crater& crater, Lava& lava); // TODO maybe move this to constructor?
 
 	flag_group<RectangleAspect> aspects;
 
