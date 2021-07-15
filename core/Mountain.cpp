@@ -157,7 +157,7 @@ void Mountain::createInstance() {
 	appInfo.pApplicationName = "VulkanCore";
 	appInfo.applicationVersion = VK_MAKE_VERSION(0, 0, 0);
 	appInfo.pEngineName = "Engine";
-	appInfo.engineVersion = VK_MAKE_VERSION(0, 2, 78);
+	appInfo.engineVersion = VK_MAKE_VERSION(0, 2, 79);
 	appInfo.apiVersion = VK_API_VERSION_1_0;
 
 	auto requiredExtensions = getRequiredExtensions();

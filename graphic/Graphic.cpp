@@ -12,7 +12,8 @@ using glm::vec3;
 
 using namespace std;
 
-Graphic::Graphic(Ash& ash) : ash(ash) { }
+// TODO crater isn't used
+Graphic::Graphic(Ash& ash, Mountain& mountain, Rocks& rocks, Crater& crater, Lava& lava) : ash(ash), mountain(mountain), rocks(rocks), crater(crater), lava(lava) { }
 
 Graphic::~Graphic() {
 	if (this->aspects.has(GraphicAspect::STAGING_VERTICES)) freeStagingVertices();
@@ -32,14 +33,6 @@ void Graphic::setWorkingData(vector<GraphicVertex> vertices, GraphicData graphic
 	aspects.raise(GraphicAspect::WORKING_DATA);
 }
 
-void Graphic::setVulkanEntities(Mountain& mountain, Rocks& rocks, Crater& crater, Lava& lava) {
-	this->mountain = &mountain;
-	this->rocks = &rocks;
-	this->crater = &crater;
-	this->lava = &lava;
-	aspects.raise(GraphicAspect::VULKAN_ENTITIES);
-}
-
 void Graphic::establish(GraphicAspect aspect) {
 	if (aspect == GraphicAspect::STAGING_VERTICES) establishStagingVertices();
 	if (aspect == GraphicAspect::STAGING_DATA)     establishStagingData();
@@ -55,17 +48,15 @@ void Graphic::establish(VkCommandBuffer cb, GraphicAspect aspect) {
 void Graphic::refresh(GraphicAspect aspect) { }
 
 void Graphic::createDescriptorSet() {
-	assert(mountain != nullptr);
-
 	VkDescriptorSetAllocateInfo allocInfo { VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO };
-	allocInfo.descriptorPool = mountain->descriptorPool;
+	allocInfo.descriptorPool = mountain.descriptorPool;
 	allocInfo.descriptorSetCount = 1;
-	allocInfo.pSetLayouts = &lava->graphicLayout.descriptorSetLayout;
+	allocInfo.pSetLayouts = &lava.graphicLayout.descriptorSetLayout;
 
-	vkAllocateDescriptorSets(mountain->device, &allocInfo, &descriptorSet) >> ash("Failed to allocate descriptor set!");
+	vkAllocateDescriptorSets(mountain.device, &allocInfo, &descriptorSet) >> ash("Failed to allocate descriptor set!");
 
 	VkDescriptorBufferInfo uniformInfo {};
-	uniformInfo.buffer = lava->uniformBuffer;
+	uniformInfo.buffer = lava.uniformBuffer;
 	uniformInfo.offset = 0;
 	uniformInfo.range = sizeof(UniformBufferObject);
 
@@ -93,7 +84,7 @@ void Graphic::createDescriptorSet() {
 	array<VkWriteDescriptorSet, 2> descriptorWrites { uniformWrite, dataWrite };
 
 	// can be used to update several descriptor sets at once
-	vkUpdateDescriptorSets(mountain->device, static_cast<uint32_t>(descriptorWrites.size()), descriptorWrites.data(), 0, nullptr);
+	vkUpdateDescriptorSets(mountain.device, static_cast<uint32_t>(descriptorWrites.size()), descriptorWrites.data(), 0, nullptr);
 }
 
 void Graphic::free(GraphicAspect aspect) {
@@ -105,13 +96,13 @@ void Graphic::free(GraphicAspect aspect) {
 
 void Graphic::establishStagingVertices() {
 	#ifdef use_validation
-	aspects.has(GraphicAspect::WORKING_VERTICES, GraphicAspect::VULKAN_ENTITIES) >> ash("In this graphic there is no WORKING_VERTICES or no VULKAN_ENTITIES");
+	aspects.has(GraphicAspect::WORKING_VERTICES) >> ash("In this graphic there is no WORKING_VERTICES");
 	#endif
 
 	stagingVertexCount = static_cast<uint32_t>(vertices.size());
 	VkDeviceSize bufferSize = sizeof(GraphicVertex) * vertices.size();
 
-	rocks->createBufferVMA(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VMA_MEMORY_USAGE_CPU_ONLY, stagingVertexBuffer, stagingVertexAllocation, stagingVertexInfo);
+	rocks.createBufferVMA(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VMA_MEMORY_USAGE_CPU_ONLY, stagingVertexBuffer, stagingVertexAllocation, stagingVertexInfo);
 	memcpy(stagingVertexInfo.pMappedData, vertices.data(), static_cast<size_t>(bufferSize));
 
 	aspects.raise(GraphicAspect::STAGING_VERTICES);
@@ -119,12 +110,12 @@ void Graphic::establishStagingVertices() {
 
 void Graphic::establishStagingData() {
 	#ifdef use_validation
-	aspects.has(GraphicAspect::WORKING_DATA, GraphicAspect::VULKAN_ENTITIES) >> ash("In this graphic there is no WORKING_DATA or no VULKAN_ENTITIES");
+	aspects.has(GraphicAspect::WORKING_DATA) >> ash("In this graphic there is no WORKING_DATA");
 	#endif
 
 	VkDeviceSize bufferSize = sizeof(GraphicData) + sizeof(GraphicElement) * data.points.size() - sizeof(vector<GraphicElement>);
 
-	rocks->createBufferVMA(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VMA_MEMORY_USAGE_CPU_ONLY, stagingDataBuffer, stagingDataAllocation, stagingDataInfo);
+	rocks.createBufferVMA(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VMA_MEMORY_USAGE_CPU_ONLY, stagingDataBuffer, stagingDataAllocation, stagingDataInfo);
 	memcpy(stagingDataInfo.pMappedData, &data, sizeof(GraphicData) - sizeof(vector<GraphicElement>));
 	if (data.points.size() > 0) {
 		void* pArray = static_cast<int8_t*>(stagingDataInfo.pMappedData) + sizeof(GraphicData) - sizeof(vector<GraphicElement>);
@@ -136,21 +127,21 @@ void Graphic::establishStagingData() {
 
 void Graphic::establishLiveVertices(VkCommandBuffer externalCommandBuffer) {
 	#ifdef use_validation
-	aspects.has(GraphicAspect::STAGING_VERTICES, GraphicAspect::VULKAN_ENTITIES) >> ash("In this graphic there is no STAGING_VERTICES or no VULKAN_ENTITIES");
+	aspects.has(GraphicAspect::STAGING_VERTICES) >> ash("In this graphic there is no STAGING_VERTICES");
 	#endif
 
 	VkDeviceSize bufferSize = sizeof(GraphicVertex) * stagingVertexCount;
 	vertexCount = stagingVertexCount;
 
-	rocks->createBufferVMA(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VMA_MEMORY_USAGE_GPU_ONLY, vertexBuffer, vertexAllocation, vertexInfo);
+	rocks.createBufferVMA(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VMA_MEMORY_USAGE_GPU_ONLY, vertexBuffer, vertexAllocation, vertexInfo);
 
 	bool useExternalCommandBuffer = (externalCommandBuffer != nullptr);
-	VkCommandBuffer commandBuffer = useExternalCommandBuffer ? externalCommandBuffer : rocks->beginSingleTimeCommands();
+	VkCommandBuffer commandBuffer = useExternalCommandBuffer ? externalCommandBuffer : rocks.beginSingleTimeCommands();
 
-	rocks->copyBufferToBuffer(stagingVertexBuffer, vertexBuffer, bufferSize, VK_ACCESS_VERTEX_ATTRIBUTE_READ_BIT, VK_PIPELINE_STAGE_VERTEX_INPUT_BIT, commandBuffer);
+	rocks.copyBufferToBuffer(stagingVertexBuffer, vertexBuffer, bufferSize, VK_ACCESS_VERTEX_ATTRIBUTE_READ_BIT, VK_PIPELINE_STAGE_VERTEX_INPUT_BIT, commandBuffer);
 
 	if (useExternalCommandBuffer == false) {
-		rocks->endSingleTimeCommands(commandBuffer);
+		rocks.endSingleTimeCommands(commandBuffer);
 	}
 
 	aspects.raise(GraphicAspect::LIVE_VERTICES);
@@ -158,20 +149,20 @@ void Graphic::establishLiveVertices(VkCommandBuffer externalCommandBuffer) {
 
 void Graphic::establishLiveData(VkCommandBuffer externalCommandBuffer) {
 	#ifdef use_validation
-	aspects.has(GraphicAspect::STAGING_DATA, GraphicAspect::VULKAN_ENTITIES) >> ash("In this graphic there is no STAGING_DATA or no VULKAN_ENTITIES");
+	aspects.has(GraphicAspect::STAGING_DATA) >> ash("In this graphic there is no STAGING_DATA");
 	#endif
 
 	VkDeviceSize bufferSize = sizeof(GraphicData) + sizeof(GraphicElement) * data.points.size() - sizeof(vector<GraphicElement>);
 
-	rocks->createBufferVMA(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_STORAGE_BUFFER_BIT, VMA_MEMORY_USAGE_GPU_ONLY, dataBuffer, dataAllocation, dataInfo);
+	rocks.createBufferVMA(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_STORAGE_BUFFER_BIT, VMA_MEMORY_USAGE_GPU_ONLY, dataBuffer, dataAllocation, dataInfo);
 
 	bool useExternalCommandBuffer = (externalCommandBuffer != nullptr);
-	VkCommandBuffer commandBuffer = useExternalCommandBuffer ? externalCommandBuffer : rocks->beginSingleTimeCommands();
+	VkCommandBuffer commandBuffer = useExternalCommandBuffer ? externalCommandBuffer : rocks.beginSingleTimeCommands();
 
-	rocks->copyBufferToBuffer(stagingDataBuffer, dataBuffer, bufferSize, VK_ACCESS_SHADER_READ_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, commandBuffer);
+	rocks.copyBufferToBuffer(stagingDataBuffer, dataBuffer, bufferSize, VK_ACCESS_SHADER_READ_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, commandBuffer);
 
 	if (useExternalCommandBuffer == false) {
-		rocks->endSingleTimeCommands(commandBuffer);
+		rocks.endSingleTimeCommands(commandBuffer);
 	}
 
 	aspects.raise(GraphicAspect::LIVE_DATA);
@@ -179,25 +170,56 @@ void Graphic::establishLiveData(VkCommandBuffer externalCommandBuffer) {
 
 void Graphic::freeStagingVertices() {
 	// TODO can be optimized by calling this later in future frames, without wait, or something
-	vkQueueWaitIdle(mountain->queue); // TODO do I need this for staging resources?
-	vmaDestroyBuffer(mountain->allocator, stagingVertexBuffer, stagingVertexAllocation);
+	vkQueueWaitIdle(mountain.queue); // TODO do I need this for staging resources?
+	vmaDestroyBuffer(mountain.allocator, stagingVertexBuffer, stagingVertexAllocation);
 	aspects.drop(GraphicAspect::STAGING_VERTICES);
 }
 
 void Graphic::freeStagingData() {
-	vkQueueWaitIdle(mountain->queue);
-	vmaDestroyBuffer(mountain->allocator, stagingDataBuffer, stagingDataAllocation);
+	vkQueueWaitIdle(mountain.queue);
+	vmaDestroyBuffer(mountain.allocator, stagingDataBuffer, stagingDataAllocation);
 	aspects.drop(GraphicAspect::STAGING_DATA);
 }
 
 void Graphic::freeLiveVertices() {
-	vkQueueWaitIdle(mountain->queue);
-	vmaDestroyBuffer(mountain->allocator, vertexBuffer, vertexAllocation);
+	vkQueueWaitIdle(mountain.queue);
+	vmaDestroyBuffer(mountain.allocator, vertexBuffer, vertexAllocation);
 	aspects.drop(GraphicAspect::LIVE_VERTICES);
 }
 
 void Graphic::freeLiveData() {
-	vkQueueWaitIdle(mountain->queue);
-	vmaDestroyBuffer(mountain->allocator, dataBuffer, dataAllocation);
+	vkQueueWaitIdle(mountain.queue);
+	vmaDestroyBuffer(mountain.allocator, dataBuffer, dataAllocation);
 	aspects.drop(GraphicAspect::LIVE_DATA);
+}
+
+void Graphic::paint() {
+	int x = round(position.x);
+	int y = round(position.y);
+	int w = round(data.size.x);
+	int h = round(data.size.y);
+	vector<GraphicVertex> vertices;
+
+	int x_min = x - w / 2;
+	int x_max = x_min + w;
+	int y_min = y - h / 2;
+	int y_max = y_min + h;
+
+	vertices.push_back({ { x_min, y_max }, { 0 - 0.5, h + 0.5 } });
+	vertices.push_back({ { x_max, y_max }, { w + 0.5, h + 0.5 } });
+	vertices.push_back({ { x_min, y_min }, { 0 - 0.5, 0 - 0.5 } });
+
+	vertices.push_back({ { x_max, y_max }, { w + 0.5, h + 0.5 } });
+	vertices.push_back({ { x_max, y_min }, { w + 0.5, 0 - 0.5 } });
+	vertices.push_back({ { x_min, y_min }, { 0 - 0.5, 0 - 0.5 } });
+
+	setName("graphic_name");
+	setWorkingData(vertices, data);
+
+	establish(GraphicAspect::STAGING_VERTICES, GraphicAspect::STAGING_DATA);
+	establish(GraphicAspect::LIVE_VERTICES, GraphicAspect::LIVE_DATA);
+	free(GraphicAspect::STAGING_VERTICES, GraphicAspect::STAGING_DATA);
+	createDescriptorSet();
+
+	lava.addGraphic(shared_from_this());
 }

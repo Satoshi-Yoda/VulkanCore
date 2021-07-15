@@ -36,12 +36,11 @@ enum class GraphicAspect {
 	STAGING_DATA,
 	LIVE_VERTICES,
 	LIVE_DATA,
-	VULKAN_ENTITIES,
 };
 
-class Graphic {
+class Graphic : public std::enable_shared_from_this<Graphic> {
 public:
-	Graphic(Ash& ash);
+	Graphic(Ash& ash, Mountain& mountain, Rocks& rocks, Crater& crater, Lava& lava);
 	~Graphic();
 
 	Graphic(const Graphic&)            = delete;
@@ -51,12 +50,12 @@ public:
 
 	void setName(string name);
 	void setWorkingData(vector<GraphicVertex> vertices, GraphicData graphicData);
-	void setVulkanEntities(Mountain& mountain, Rocks& rocks, Crater& crater, Lava& lava);
 
 	flag_group<GraphicAspect> aspects;
 
 	string name;
 	vector<GraphicVertex> vertices;
+	vec2 position { 0, 0 };
 
 	uint32_t vertexCount = 0;
 	VkBuffer vertexBuffer;
@@ -107,12 +106,14 @@ public:
 		free(args...);
 	}
 
+	void paint();
+
 private:
 	Ash& ash;
-	Mountain* mountain = nullptr;
-	Rocks* rocks       = nullptr;
-	Crater* crater     = nullptr;
-	Lava* lava         = nullptr;
+	Mountain& mountain;
+	Rocks& rocks;
+	Crater& crater;
+	Lava& lava;
 
 	void establishStagingVertices();
 	void establishStagingData();

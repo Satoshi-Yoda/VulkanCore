@@ -22,6 +22,7 @@
 #include "Mountain.h"
 #include "Rocks.h"
 
+using std::shared_ptr;
 using std::unique_ptr;
 using std::vector;
 
@@ -52,11 +53,11 @@ public:
 
 	vector<unique_ptr<Batch>> batches;
 	vector<unique_ptr<Rectangle>> rectangles;
-	vector<unique_ptr<Graphic>> graphics;
+	vector<shared_ptr<Graphic>> graphics;
 
 	void addBatch(unique_ptr<Batch> batch);
 	void addRectangle(unique_ptr<Rectangle> rectangle);
-	void addGraphic(unique_ptr<Graphic> graphic);
+	void addGraphic(shared_ptr<Graphic> graphic);
 
 private:
 	Ash& ash;
