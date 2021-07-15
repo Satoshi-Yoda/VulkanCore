@@ -209,13 +209,14 @@ void Rectangle::paint() {
 
 	establish(RectangleAspect::STAGING_VERTICES, RectangleAspect::STAGING_DATA);
 	establish(RectangleAspect::LIVE_VERTICES, RectangleAspect::LIVE_DATA);
-	free(RectangleAspect::STAGING_VERTICES, RectangleAspect::STAGING_DATA);
+	free(RectangleAspect::STAGING_VERTICES, RectangleAspect::STAGING_DATA); // TODO remove
 	createDescriptorSet();
 
 	lava.addRectangle(shared_from_this());
 }
 
 void Rectangle::refresh() {
+	// TODO implement & use refresh(aspects)
 	free(RectangleAspect::LIVE_VERTICES, RectangleAspect::LIVE_DATA);
 
 	int x = round(position.x);
