@@ -54,7 +54,9 @@ void mousePositionCallback(GLFWwindow* window, double x, double y) {
 	mountain->mouse_y = y;
 }
 
-Mountain::Mountain(Ash &ash, uint32_t windowWidth, uint32_t windowHeight) : ash(ash), windowWidth(windowWidth), windowHeight(windowHeight) {
+Mountain::Mountain(Ash &ash, uint32_t windowWidth, uint32_t windowHeight) : ash(ash) {
+	this->windowWidth = windowWidth;
+	this->windowHeight = windowHeight;
 	initWindow();
 	createInstance();
 	setupDebugMessenger();

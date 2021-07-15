@@ -48,12 +48,10 @@ public:
 	Rectangle& operator=(const Rectangle&) = delete;
 	Rectangle& operator=(Rectangle&&)      = delete;
 
-	void setName(string name);
 	void setWorkingData(vector<RectangleVertex> vertices, RectangleData rectangleData);   // TODO maybe move this to constructor?
 
 	flag_group<RectangleAspect> aspects;
 
-	string name;
 	vector<RectangleVertex> vertices;
 	vec2 position { 0, 0 };
 
@@ -107,6 +105,7 @@ public:
 	}
 
 	void paint();
+	void refresh();
 
 private:
 	Ash& ash;

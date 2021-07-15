@@ -48,12 +48,10 @@ public:
 	Graphic& operator=(const Graphic&) = delete;
 	Graphic& operator=(Graphic&&)      = delete;
 
-	void setName(string name);
 	void setWorkingData(vector<GraphicVertex> vertices, GraphicData graphicData);
 
 	flag_group<GraphicAspect> aspects;
 
-	string name;
 	vector<GraphicVertex> vertices;
 	vec2 position { 0, 0 };
 

@@ -32,6 +32,9 @@ public:
 	double mouse_x = 0.0;
 	double mouse_y = 0.0;
 
+	uint32_t windowWidth;
+	uint32_t windowHeight;
+
 	const bool DISPLAY_LAYERS              = false;
 	const bool DISPLAY_INSTANCE_EXTENSIONS = false;
 	const bool DISPLAY_DEVICE_EXTENSIONS   = false;
@@ -58,8 +61,6 @@ public:
 private:
 	Ash& ash;
 
-	uint32_t windowWidth;
-	uint32_t windowHeight;
 	uint32_t queueFamilyIndex;
 	VkDebugUtilsMessengerEXT debugMessenger;
 

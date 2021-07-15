@@ -22,10 +22,6 @@ Graphic::~Graphic() {
 	if (this->aspects.has(GraphicAspect::LIVE_DATA))        freeLiveData();
 }
 
-void Graphic::setName(string name) {
-	this->name = name;
-}
-
 void Graphic::setWorkingData(vector<GraphicVertex> vertices, GraphicData graphicData) {
 	this->vertices = vertices;
 	this->data = graphicData;
@@ -213,7 +209,6 @@ void Graphic::paint() {
 	vertices.push_back({ { x_max, y_min }, { w + 0.5, 0 - 0.5 } });
 	vertices.push_back({ { x_min, y_min }, { 0 - 0.5, 0 - 0.5 } });
 
-	setName("graphic_name");
 	setWorkingData(vertices, data);
 
 	establish(GraphicAspect::STAGING_VERTICES, GraphicAspect::STAGING_DATA);

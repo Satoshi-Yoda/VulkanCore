@@ -22,10 +22,6 @@ Rectangle::~Rectangle() {
 	if (this->aspects.has(RectangleAspect::LIVE_DATA))        freeLiveData();
 }
 
-void Rectangle::setName(string name) {
-	this->name = name;
-}
-
 void Rectangle::setWorkingData(vector<RectangleVertex> vertices, RectangleData rectangleData) {
 	this->vertices = vertices;
 	this->data = rectangleData;
@@ -209,7 +205,6 @@ void Rectangle::paint() {
 	vertices.push_back({ { x_max, y_min }, { w + 0.5, 0 - 0.5 } });
 	vertices.push_back({ { x_min, y_min }, { 0 - 0.5, 0 - 0.5 } });
 
-	setName("graphic_name");
 	setWorkingData(vertices, data);
 
 	establish(RectangleAspect::STAGING_VERTICES, RectangleAspect::STAGING_DATA);
@@ -218,4 +213,34 @@ void Rectangle::paint() {
 	createDescriptorSet();
 
 	lava.addRectangle(shared_from_this());
+}
+
+void Rectangle::refresh() {
+	free(RectangleAspect::LIVE_VERTICES, RectangleAspect::LIVE_DATA);
+
+	int x = round(position.x);
+	int y = round(position.y);
+	int w = round(data.size.x);
+	int h = round(data.size.y);
+	vector<RectangleVertex> vertices;
+
+	int x_min = x - w / 2;
+	int x_max = x_min + w;
+	int y_min = y - h / 2;
+	int y_max = y_min + h;
+
+	vertices.push_back({ { x_min, y_max }, { 0 - 0.5, h + 0.5 } });
+	vertices.push_back({ { x_max, y_max }, { w + 0.5, h + 0.5 } });
+	vertices.push_back({ { x_min, y_min }, { 0 - 0.5, 0 - 0.5 } });
+
+	vertices.push_back({ { x_max, y_max }, { w + 0.5, h + 0.5 } });
+	vertices.push_back({ { x_max, y_min }, { w + 0.5, 0 - 0.5 } });
+	vertices.push_back({ { x_min, y_min }, { 0 - 0.5, 0 - 0.5 } });
+
+	setWorkingData(vertices, data);
+
+	establish(RectangleAspect::STAGING_VERTICES, RectangleAspect::STAGING_DATA);
+	establish(RectangleAspect::LIVE_VERTICES, RectangleAspect::LIVE_DATA);
+	free(RectangleAspect::STAGING_VERTICES, RectangleAspect::STAGING_DATA);
+	createDescriptorSet();
 }
