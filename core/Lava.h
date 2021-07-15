@@ -52,11 +52,11 @@ public:
 	VmaAllocationInfo uniformBuffersAllocationInfo;
 
 	vector<unique_ptr<Batch>> batches;
-	vector<unique_ptr<Rectangle>> rectangles;
+	vector<shared_ptr<Rectangle>> rectangles;
 	vector<shared_ptr<Graphic>> graphics;
 
 	void addBatch(unique_ptr<Batch> batch);
-	void addRectangle(unique_ptr<Rectangle> rectangle);
+	void addRectangle(shared_ptr<Rectangle> rectangle);
 	void addGraphic(shared_ptr<Graphic> graphic);
 
 private:

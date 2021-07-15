@@ -26,8 +26,8 @@ void Lava::addBatch(unique_ptr<Batch> batch) {
 	this->batches.push_back(move(batch));
 }
 
-void Lava::addRectangle(unique_ptr<Rectangle> rectangle) {
-	this->rectangles.push_back(move(rectangle));
+void Lava::addRectangle(shared_ptr<Rectangle> rectangle) {
+	this->rectangles.push_back(rectangle);
 }
 
 void Lava::addGraphic(shared_ptr<Graphic> graphic) {

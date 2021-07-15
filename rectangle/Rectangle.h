@@ -36,12 +36,11 @@ enum class RectangleAspect {
 	STAGING_DATA,
 	LIVE_VERTICES,
 	LIVE_DATA,
-	VULKAN_ENTITIES,
 };
 
-class Rectangle {
+class Rectangle : public std::enable_shared_from_this<Rectangle> {
 public:
-	Rectangle(Ash& ash);
+	Rectangle(Ash& ash, Mountain& mountain, Rocks& rocks, Crater& crater, Lava& lava);
 	~Rectangle();
 
 	Rectangle(const Rectangle&)            = delete;
@@ -51,12 +50,12 @@ public:
 
 	void setName(string name);
 	void setWorkingData(vector<RectangleVertex> vertices, RectangleData rectangleData);   // TODO maybe move this to constructor?
-	void setVulkanEntities(Mountain& mountain, Rocks& rocks, Crater& crater, Lava& lava); // TODO maybe move this to constructor?
 
 	flag_group<RectangleAspect> aspects;
 
 	string name;
 	vector<RectangleVertex> vertices;
+	vec2 position { 0, 0 };
 
 	uint32_t vertexCount = 0;
 	VkBuffer vertexBuffer;
@@ -107,12 +106,14 @@ public:
 		free(args...);
 	}
 
+	void paint();
+
 private:
 	Ash& ash;
-	Mountain* mountain = nullptr;
-	Rocks* rocks       = nullptr;
-	Crater* crater     = nullptr;
-	Lava* lava         = nullptr;
+	Mountain& mountain;
+	Rocks& rocks;
+	Crater& crater;
+	Lava& lava;
 
 	void establishStagingVertices();
 	void establishStagingData();
