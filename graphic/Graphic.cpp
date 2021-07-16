@@ -164,6 +164,22 @@ void Graphic::establishLiveData(VkCommandBuffer externalCommandBuffer) {
 	aspects.raise(GraphicAspect::LIVE_DATA);
 }
 
+void Graphic::refreshStagingVertices() {
+
+}
+
+void Graphic::refreshStagingData() {
+
+}
+
+void Graphic::refreshLiveVertices(VkCommandBuffer externalCommandBuffer) {
+
+}
+
+void Graphic::refreshLiveData(VkCommandBuffer externalCommandBuffer) {
+
+}
+
 void Graphic::freeStagingVertices() {
 	// TODO can be optimized by calling this later in future frames, without wait, or something
 	vkQueueWaitIdle(mountain.queue); // TODO do I need this for staging resources?

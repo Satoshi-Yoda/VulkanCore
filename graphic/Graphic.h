@@ -105,6 +105,7 @@ public:
 	}
 
 	void paint();
+	void refresh();
 
 private:
 	Ash& ash;
@@ -115,10 +116,13 @@ private:
 
 	void establishStagingVertices();
 	void establishStagingData();
-	void refreshStagingInstances();
 	void establishLiveVertices (VkCommandBuffer externalCommandBuffer = nullptr);
 	void establishLiveData     (VkCommandBuffer externalCommandBuffer = nullptr);
-	void refreshLiveInstances  (VkCommandBuffer externalCommandBuffer = nullptr);
+
+	void refreshStagingVertices();
+	void refreshStagingData();
+	void refreshLiveVertices (VkCommandBuffer externalCommandBuffer = nullptr);
+	void refreshLiveData     (VkCommandBuffer externalCommandBuffer = nullptr);
 
 	void freeStagingVertices();
 	void freeStagingData();

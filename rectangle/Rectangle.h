@@ -48,8 +48,6 @@ public:
 	Rectangle& operator=(const Rectangle&) = delete;
 	Rectangle& operator=(Rectangle&&)      = delete;
 
-	void setWorkingData(vector<RectangleVertex> vertices, RectangleData rectangleData);   // TODO maybe move this to constructor?
-
 	flag_group<RectangleAspect> aspects;
 
 	vector<RectangleVertex> vertices;
@@ -116,10 +114,14 @@ private:
 
 	void establishStagingVertices();
 	void establishStagingData();
-	void refreshStagingInstances();
-	void establishLiveVertices (VkCommandBuffer externalCommandBuffer = nullptr);
-	void establishLiveData     (VkCommandBuffer externalCommandBuffer = nullptr);
-	void refreshLiveInstances  (VkCommandBuffer externalCommandBuffer = nullptr);
+	void establishLiveVertices(VkCommandBuffer externalCommandBuffer = nullptr);
+	void establishLiveData    (VkCommandBuffer externalCommandBuffer = nullptr);
+
+	void refreshWorkingData();
+	void refreshStagingVertices();
+	void refreshStagingData();
+	void refreshLiveVertices(VkCommandBuffer externalCommandBuffer = nullptr);
+	void refreshLiveData    (VkCommandBuffer externalCommandBuffer = nullptr);
 
 	void freeStagingVertices();
 	void freeStagingData();

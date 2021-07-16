@@ -22,13 +22,6 @@ Rectangle::~Rectangle() {
 	if (this->aspects.has(RectangleAspect::LIVE_DATA))        freeLiveData();
 }
 
-void Rectangle::setWorkingData(vector<RectangleVertex> vertices, RectangleData rectangleData) {
-	this->vertices = vertices;
-	this->data = rectangleData;
-	aspects.raise(RectangleAspect::WORKING_VERTICES);
-	aspects.raise(RectangleAspect::WORKING_DATA);
-}
-
 void Rectangle::establish(RectangleAspect aspect) {
 	if (aspect == RectangleAspect::STAGING_VERTICES) establishStagingVertices();
 	if (aspect == RectangleAspect::STAGING_DATA)     establishStagingData();
@@ -41,6 +34,7 @@ void Rectangle::establish(VkCommandBuffer cb, RectangleAspect aspect) {
 	if (aspect == RectangleAspect::LIVE_DATA)     establishLiveData(cb);
 }
 
+// TODO do I need this?
 void Rectangle::refresh(RectangleAspect aspect) { }
 
 void Rectangle::createDescriptorSet() {
@@ -160,6 +154,70 @@ void Rectangle::establishLiveData(VkCommandBuffer externalCommandBuffer) {
 	aspects.raise(RectangleAspect::LIVE_DATA);
 }
 
+void Rectangle::refreshWorkingData() {
+	int x = round(position.x);
+	int y = round(position.y);
+	int w = round(data.size.x);
+	int h = round(data.size.y);
+
+	int x_min = x - w / 2;
+	int x_max = x_min + w;
+	int y_min = y - h / 2;
+	int y_max = y_min + h;
+
+	this->vertices.clear();
+
+	this->vertices.push_back({ { x_min, y_max }, { 0 - 0.5, h + 0.5 } });
+	this->vertices.push_back({ { x_max, y_max }, { w + 0.5, h + 0.5 } });
+	this->vertices.push_back({ { x_min, y_min }, { 0 - 0.5, 0 - 0.5 } });
+
+	this->vertices.push_back({ { x_max, y_max }, { w + 0.5, h + 0.5 } });
+	this->vertices.push_back({ { x_max, y_min }, { w + 0.5, 0 - 0.5 } });
+	this->vertices.push_back({ { x_min, y_min }, { 0 - 0.5, 0 - 0.5 } });
+
+	aspects.raise(RectangleAspect::WORKING_VERTICES, RectangleAspect::WORKING_DATA);
+}
+
+void Rectangle::refreshStagingVertices() {
+	size_t bufferSize = sizeof(RectangleVertex) * vertices.size();
+	memcpy(stagingVertexInfo.pMappedData, vertices.data(), bufferSize);
+}
+
+void Rectangle::refreshStagingData() {
+	size_t bufferSize = sizeof(RectangleData);
+	memcpy(stagingDataInfo.pMappedData, &data, bufferSize);
+}
+
+void Rectangle::refreshLiveVertices(VkCommandBuffer externalCommandBuffer) {
+	assert(aspects.has(RectangleAspect::STAGING_VERTICES));
+
+	VkDeviceSize bufferSize = sizeof(RectangleVertex) * stagingVertexCount;
+
+	bool useExternalCommandBuffer = (externalCommandBuffer != nullptr);
+	VkCommandBuffer commandBuffer = useExternalCommandBuffer ? externalCommandBuffer : rocks.beginSingleTimeCommands();
+
+	rocks.copyBufferToBuffer(stagingVertexBuffer, vertexBuffer, bufferSize, VK_ACCESS_VERTEX_ATTRIBUTE_READ_BIT, VK_PIPELINE_STAGE_VERTEX_INPUT_BIT, commandBuffer);
+
+	if (useExternalCommandBuffer == false) {
+		rocks.endSingleTimeCommands(commandBuffer);
+	}
+}
+
+void Rectangle::refreshLiveData(VkCommandBuffer externalCommandBuffer) {
+	assert(aspects.has(RectangleAspect::STAGING_DATA));
+
+	VkDeviceSize bufferSize = sizeof(RectangleData);
+
+	bool useExternalCommandBuffer = (externalCommandBuffer != nullptr);
+	VkCommandBuffer commandBuffer = useExternalCommandBuffer ? externalCommandBuffer : rocks.beginSingleTimeCommands();
+
+	rocks.copyBufferToBuffer(stagingDataBuffer, dataBuffer, bufferSize, VK_ACCESS_SHADER_READ_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, commandBuffer);
+
+	if (useExternalCommandBuffer == false) {
+		rocks.endSingleTimeCommands(commandBuffer);
+	}
+}
+
 void Rectangle::freeStagingVertices() {
 	// TODO can be optimized by calling this later in future frames, without wait, or something
 	vkQueueWaitIdle(mountain.queue); // TODO do I need this for staging resources?
@@ -186,62 +244,19 @@ void Rectangle::freeLiveData() {
 }
 
 void Rectangle::paint() {
-	int x = round(position.x);
-	int y = round(position.y);
-	int w = round(data.size.x);
-	int h = round(data.size.y);
-	vector<RectangleVertex> vertices;
-
-	int x_min = x - w / 2;
-	int x_max = x_min + w;
-	int y_min = y - h / 2;
-	int y_max = y_min + h;
-
-	vertices.push_back({ { x_min, y_max }, { 0 - 0.5, h + 0.5 } });
-	vertices.push_back({ { x_max, y_max }, { w + 0.5, h + 0.5 } });
-	vertices.push_back({ { x_min, y_min }, { 0 - 0.5, 0 - 0.5 } });
-
-	vertices.push_back({ { x_max, y_max }, { w + 0.5, h + 0.5 } });
-	vertices.push_back({ { x_max, y_min }, { w + 0.5, 0 - 0.5 } });
-	vertices.push_back({ { x_min, y_min }, { 0 - 0.5, 0 - 0.5 } });
-
-	setWorkingData(vertices, data);
+	refreshWorkingData();
 
 	establish(RectangleAspect::STAGING_VERTICES, RectangleAspect::STAGING_DATA);
 	establish(RectangleAspect::LIVE_VERTICES, RectangleAspect::LIVE_DATA);
-	free(RectangleAspect::STAGING_VERTICES, RectangleAspect::STAGING_DATA); // TODO remove
 	createDescriptorSet();
 
 	lava.addRectangle(shared_from_this());
 }
 
 void Rectangle::refresh() {
-	// TODO implement & use refresh(aspects)
-	free(RectangleAspect::LIVE_VERTICES, RectangleAspect::LIVE_DATA);
-
-	int x = round(position.x);
-	int y = round(position.y);
-	int w = round(data.size.x);
-	int h = round(data.size.y);
-	vector<RectangleVertex> vertices;
-
-	int x_min = x - w / 2;
-	int x_max = x_min + w;
-	int y_min = y - h / 2;
-	int y_max = y_min + h;
-
-	vertices.push_back({ { x_min, y_max }, { 0 - 0.5, h + 0.5 } });
-	vertices.push_back({ { x_max, y_max }, { w + 0.5, h + 0.5 } });
-	vertices.push_back({ { x_min, y_min }, { 0 - 0.5, 0 - 0.5 } });
-
-	vertices.push_back({ { x_max, y_max }, { w + 0.5, h + 0.5 } });
-	vertices.push_back({ { x_max, y_min }, { w + 0.5, 0 - 0.5 } });
-	vertices.push_back({ { x_min, y_min }, { 0 - 0.5, 0 - 0.5 } });
-
-	setWorkingData(vertices, data);
-
-	establish(RectangleAspect::STAGING_VERTICES, RectangleAspect::STAGING_DATA);
-	establish(RectangleAspect::LIVE_VERTICES, RectangleAspect::LIVE_DATA);
-	free(RectangleAspect::STAGING_VERTICES, RectangleAspect::STAGING_DATA);
-	createDescriptorSet();
+	refreshWorkingData();
+	refreshStagingVertices();
+	refreshStagingData();
+	refreshLiveVertices();
+	refreshLiveData();
 }
