@@ -154,7 +154,7 @@ void Rectangle::establishLiveData(VkCommandBuffer externalCommandBuffer) {
 	aspects.raise(RectangleAspect::LIVE_DATA);
 }
 
-void Rectangle::refreshWorkingData() {
+void Rectangle::refreshWorkingVertices() {
 	int x = round(position.x);
 	int y = round(position.y);
 	int w = round(data.size.x);
@@ -175,7 +175,7 @@ void Rectangle::refreshWorkingData() {
 	vertices.push_back({ { x_max, y_min }, { w + 0.5, 0 - 0.5 } });
 	vertices.push_back({ { x_min, y_min }, { 0 - 0.5, 0 - 0.5 } });
 
-	aspects.raise(RectangleAspect::WORKING_VERTICES, RectangleAspect::WORKING_DATA);
+	aspects.raise(RectangleAspect::WORKING_VERTICES, RectangleAspect::WORKING_DATA); // TODO working data is not appropriate here
 }
 
 void Rectangle::refreshStagingVertices() {
@@ -244,7 +244,7 @@ void Rectangle::freeLiveData() {
 }
 
 void Rectangle::paint() {
-	refreshWorkingData();
+	refreshWorkingVertices();
 
 	establish(RectangleAspect::STAGING_VERTICES, RectangleAspect::STAGING_DATA);
 	establish(RectangleAspect::LIVE_VERTICES, RectangleAspect::LIVE_DATA);
@@ -254,9 +254,10 @@ void Rectangle::paint() {
 }
 
 void Rectangle::refresh() {
-	refreshWorkingData();
+	refreshWorkingVertices();
 	refreshStagingVertices();
-	refreshStagingData();
 	refreshLiveVertices();
+
+	refreshStagingData();
 	refreshLiveData();
 }

@@ -117,7 +117,7 @@ private:
 	void establishLiveVertices(VkCommandBuffer externalCommandBuffer = nullptr);
 	void establishLiveData    (VkCommandBuffer externalCommandBuffer = nullptr);
 
-	void refreshWorkingData();
+	void refreshWorkingVertices();
 	void refreshStagingVertices();
 	void refreshStagingData();
 	void refreshLiveVertices(VkCommandBuffer externalCommandBuffer = nullptr);

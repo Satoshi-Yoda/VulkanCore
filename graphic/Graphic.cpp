@@ -103,6 +103,7 @@ void Graphic::establishStagingData() {
 	#endif
 
 	VkDeviceSize bufferSize = sizeof(GraphicData) + sizeof(GraphicElement) * data.points.size() - sizeof(vector<GraphicElement>);
+	stagingDataCount = data.points.size();
 
 	rocks.createBufferVMA(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VMA_MEMORY_USAGE_CPU_ONLY, stagingDataBuffer, stagingDataAllocation, stagingDataInfo);
 	memcpy(stagingDataInfo.pMappedData, &data, sizeof(GraphicData) - sizeof(vector<GraphicElement>));
@@ -157,7 +158,7 @@ void Graphic::establishLiveData(VkCommandBuffer externalCommandBuffer) {
 	aspects.raise(GraphicAspect::LIVE_DATA);
 }
 
-void Graphic::refreshWorkingData() {
+void Graphic::refreshWorkingVertices() {
 	int x = round(position.x);
 	int y = round(position.y);
 	int w = round(data.size.x);
@@ -254,7 +255,7 @@ void Graphic::freeLiveData() {
 }
 
 void Graphic::paint() {
-	refreshWorkingData();
+	refreshWorkingVertices();
 
 	establish(GraphicAspect::STAGING_VERTICES, GraphicAspect::STAGING_DATA);
 	establish(GraphicAspect::LIVE_VERTICES, GraphicAspect::LIVE_DATA);
@@ -264,9 +265,18 @@ void Graphic::paint() {
 }
 
 void Graphic::refresh() {
-	refreshWorkingData();
+	refreshWorkingVertices();
 	refreshStagingVertices();
-	refreshStagingData();
 	refreshLiveVertices();
-	refreshLiveData();
+
+	if (stagingDataCount == data.points.size()) {
+		refreshStagingData();
+		refreshLiveData();
+	} else {
+		freeLiveData();
+		freeStagingData();
+		establishStagingData();
+		establishLiveData();
+		createDescriptorSet(); // TODO maybe there is some memory leak...
+	}
 }

@@ -67,6 +67,7 @@ public:
 	VmaAllocation dataAllocation;
 	VmaAllocationInfo dataInfo;
 	VkBuffer stagingDataBuffer;
+	size_t stagingDataCount = 0;
 	VmaAllocation stagingDataAllocation;
 	VmaAllocationInfo stagingDataInfo;
 
@@ -117,7 +118,7 @@ private:
 	void establishLiveVertices (VkCommandBuffer externalCommandBuffer = nullptr);
 	void establishLiveData     (VkCommandBuffer externalCommandBuffer = nullptr);
 
-	void refreshWorkingData();
+	void refreshWorkingVertices();
 	void refreshStagingVertices();
 	void refreshStagingData();
 	void refreshLiveVertices (VkCommandBuffer externalCommandBuffer = nullptr);
