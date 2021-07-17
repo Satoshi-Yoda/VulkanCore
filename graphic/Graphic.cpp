@@ -22,13 +22,6 @@ Graphic::~Graphic() {
 	if (this->aspects.has(GraphicAspect::LIVE_DATA))        freeLiveData();
 }
 
-void Graphic::setWorkingData(vector<GraphicVertex> vertices, GraphicData graphicData) {
-	this->vertices = vertices;
-	this->data = graphicData;
-	aspects.raise(GraphicAspect::WORKING_VERTICES);
-	aspects.raise(GraphicAspect::WORKING_DATA);
-}
-
 void Graphic::establish(GraphicAspect aspect) {
 	if (aspect == GraphicAspect::STAGING_VERTICES) establishStagingVertices();
 	if (aspect == GraphicAspect::STAGING_DATA)     establishStagingData();
@@ -164,20 +157,75 @@ void Graphic::establishLiveData(VkCommandBuffer externalCommandBuffer) {
 	aspects.raise(GraphicAspect::LIVE_DATA);
 }
 
-void Graphic::refreshStagingVertices() {
+void Graphic::refreshWorkingData() {
+	int x = round(position.x);
+	int y = round(position.y);
+	int w = round(data.size.x);
+	int h = round(data.size.y);
 
+	int x_min = x - w / 2;
+	int x_max = x_min + w;
+	int y_min = y - h / 2;
+	int y_max = y_min + h;
+
+	vertices.clear();
+
+	vertices.push_back({ { x_min, y_max }, { 0 - 0.5, h + 0.5 } });
+	vertices.push_back({ { x_max, y_max }, { w + 0.5, h + 0.5 } });
+	vertices.push_back({ { x_min, y_min }, { 0 - 0.5, 0 - 0.5 } });
+
+	vertices.push_back({ { x_max, y_max }, { w + 0.5, h + 0.5 } });
+	vertices.push_back({ { x_max, y_min }, { w + 0.5, 0 - 0.5 } });
+	vertices.push_back({ { x_min, y_min }, { 0 - 0.5, 0 - 0.5 } });
+
+	aspects.raise(GraphicAspect::WORKING_VERTICES, GraphicAspect::WORKING_DATA);
+}
+
+void Graphic::refreshStagingVertices() {
+	assert(aspects.has(GraphicAspect::WORKING_VERTICES, GraphicAspect::STAGING_VERTICES));
+
+	size_t bufferSize = sizeof(GraphicVertex) * vertices.size();
+	memcpy(stagingVertexInfo.pMappedData, vertices.data(), bufferSize);
 }
 
 void Graphic::refreshStagingData() {
+	assert(aspects.has(GraphicAspect::WORKING_DATA, GraphicAspect::STAGING_DATA));
 
+	memcpy(stagingDataInfo.pMappedData, &data, sizeof(GraphicData) - sizeof(vector<GraphicElement>));
+	if (data.points.size() > 0) {
+		void* pArray = static_cast<int8_t*>(stagingDataInfo.pMappedData) + sizeof(GraphicData) - sizeof(vector<GraphicElement>);
+		memcpy(pArray, data.points.data(), sizeof(GraphicElement) * data.points.size());
+	}
 }
 
 void Graphic::refreshLiveVertices(VkCommandBuffer externalCommandBuffer) {
+	assert(aspects.has(GraphicAspect::STAGING_VERTICES, GraphicAspect::LIVE_VERTICES));
 
+	VkDeviceSize bufferSize = sizeof(RectangleVertex) * stagingVertexCount;
+
+	bool useExternalCommandBuffer = (externalCommandBuffer != nullptr);
+	VkCommandBuffer commandBuffer = useExternalCommandBuffer ? externalCommandBuffer : rocks.beginSingleTimeCommands();
+
+	rocks.copyBufferToBuffer(stagingVertexBuffer, vertexBuffer, bufferSize, VK_ACCESS_VERTEX_ATTRIBUTE_READ_BIT, VK_PIPELINE_STAGE_VERTEX_INPUT_BIT, commandBuffer);
+
+	if (useExternalCommandBuffer == false) {
+		rocks.endSingleTimeCommands(commandBuffer);
+	}
 }
 
 void Graphic::refreshLiveData(VkCommandBuffer externalCommandBuffer) {
+	assert(aspects.has(GraphicAspect::STAGING_DATA, GraphicAspect::LIVE_DATA));
 
+	VkDeviceSize bufferSize = sizeof(GraphicData) + sizeof(GraphicElement) * data.points.size() - sizeof(vector<GraphicElement>);
+
+	bool useExternalCommandBuffer = (externalCommandBuffer != nullptr);
+	VkCommandBuffer commandBuffer = useExternalCommandBuffer ? externalCommandBuffer : rocks.beginSingleTimeCommands();
+
+	rocks.copyBufferToBuffer(stagingDataBuffer, dataBuffer, bufferSize, VK_ACCESS_SHADER_READ_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, commandBuffer);
+
+	if (useExternalCommandBuffer == false) {
+		rocks.endSingleTimeCommands(commandBuffer);
+	}
 }
 
 void Graphic::freeStagingVertices() {
@@ -206,31 +254,19 @@ void Graphic::freeLiveData() {
 }
 
 void Graphic::paint() {
-	int x = round(position.x);
-	int y = round(position.y);
-	int w = round(data.size.x);
-	int h = round(data.size.y);
-	vector<GraphicVertex> vertices;
-
-	int x_min = x - w / 2;
-	int x_max = x_min + w;
-	int y_min = y - h / 2;
-	int y_max = y_min + h;
-
-	vertices.push_back({ { x_min, y_max }, { 0 - 0.5, h + 0.5 } });
-	vertices.push_back({ { x_max, y_max }, { w + 0.5, h + 0.5 } });
-	vertices.push_back({ { x_min, y_min }, { 0 - 0.5, 0 - 0.5 } });
-
-	vertices.push_back({ { x_max, y_max }, { w + 0.5, h + 0.5 } });
-	vertices.push_back({ { x_max, y_min }, { w + 0.5, 0 - 0.5 } });
-	vertices.push_back({ { x_min, y_min }, { 0 - 0.5, 0 - 0.5 } });
-
-	setWorkingData(vertices, data);
+	refreshWorkingData();
 
 	establish(GraphicAspect::STAGING_VERTICES, GraphicAspect::STAGING_DATA);
 	establish(GraphicAspect::LIVE_VERTICES, GraphicAspect::LIVE_DATA);
-	free(GraphicAspect::STAGING_VERTICES, GraphicAspect::STAGING_DATA);
 	createDescriptorSet();
 
 	lava.addGraphic(shared_from_this());
+}
+
+void Graphic::refresh() {
+	refreshWorkingData();
+	refreshStagingVertices();
+	refreshStagingData();
+	refreshLiveVertices();
+	refreshLiveData();
 }

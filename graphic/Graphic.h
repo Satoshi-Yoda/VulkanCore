@@ -48,8 +48,6 @@ public:
 	Graphic& operator=(const Graphic&) = delete;
 	Graphic& operator=(Graphic&&)      = delete;
 
-	void setWorkingData(vector<GraphicVertex> vertices, GraphicData graphicData);
-
 	flag_group<GraphicAspect> aspects;
 
 	vector<GraphicVertex> vertices;
@@ -119,6 +117,7 @@ private:
 	void establishLiveVertices (VkCommandBuffer externalCommandBuffer = nullptr);
 	void establishLiveData     (VkCommandBuffer externalCommandBuffer = nullptr);
 
+	void refreshWorkingData();
 	void refreshStagingVertices();
 	void refreshStagingData();
 	void refreshLiveVertices (VkCommandBuffer externalCommandBuffer = nullptr);

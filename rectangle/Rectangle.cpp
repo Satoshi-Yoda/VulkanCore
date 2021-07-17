@@ -165,15 +165,15 @@ void Rectangle::refreshWorkingData() {
 	int y_min = y - h / 2;
 	int y_max = y_min + h;
 
-	this->vertices.clear();
+	vertices.clear();
 
-	this->vertices.push_back({ { x_min, y_max }, { 0 - 0.5, h + 0.5 } });
-	this->vertices.push_back({ { x_max, y_max }, { w + 0.5, h + 0.5 } });
-	this->vertices.push_back({ { x_min, y_min }, { 0 - 0.5, 0 - 0.5 } });
+	vertices.push_back({ { x_min, y_max }, { 0 - 0.5, h + 0.5 } });
+	vertices.push_back({ { x_max, y_max }, { w + 0.5, h + 0.5 } });
+	vertices.push_back({ { x_min, y_min }, { 0 - 0.5, 0 - 0.5 } });
 
-	this->vertices.push_back({ { x_max, y_max }, { w + 0.5, h + 0.5 } });
-	this->vertices.push_back({ { x_max, y_min }, { w + 0.5, 0 - 0.5 } });
-	this->vertices.push_back({ { x_min, y_min }, { 0 - 0.5, 0 - 0.5 } });
+	vertices.push_back({ { x_max, y_max }, { w + 0.5, h + 0.5 } });
+	vertices.push_back({ { x_max, y_min }, { w + 0.5, 0 - 0.5 } });
+	vertices.push_back({ { x_min, y_min }, { 0 - 0.5, 0 - 0.5 } });
 
 	aspects.raise(RectangleAspect::WORKING_VERTICES, RectangleAspect::WORKING_DATA);
 }
