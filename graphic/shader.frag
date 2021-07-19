@@ -20,6 +20,10 @@ layout(location = 0) in vec2 fragTexCoord;
 layout(location = 0) out vec4 outColor;
 
 float capsule(vec2 A, vec2 B) {
+	if (isnan(A.y) || isnan(B.y)) {
+		return 0.0f;
+	}
+
 	vec2 o = fragTexCoord;
 	float distance_A = length(A - o);
 	float thr = length(A - B) + data.line + data.aa;
