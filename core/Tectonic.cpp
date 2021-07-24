@@ -116,6 +116,7 @@ void Tectonic::prepareFrame(uint32_t craterIndex) {
 			vkCmdSetViewport(commandBuffer, 0, 1, &viewport);
 			vkCmdSetScissor (commandBuffer, 0, 1, &scissor);
 
+			// TODO make single drawables array with ordering, instead of batches + rectangles + graphics
 			vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, lava.batchLayout.pipeline);
 			for (auto& batch : lava.batches) {
 				if (batch->instanceCount == 0) continue;
@@ -127,20 +128,20 @@ void Tectonic::prepareFrame(uint32_t craterIndex) {
 				vkCmdDraw(commandBuffer, batch->vertexCount, batch->instanceCount, 0, 0);
 			}
 
-			vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, lava.rectangleLayout.pipeline);
-			for (auto& rectangle : lava.rectangles) {
-				VkDeviceSize offsets[] { 0 };
-				vkCmdBindVertexBuffers(commandBuffer, 0, 1, &rectangle->vertexBuffer, offsets);
-				vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, lava.rectangleLayout.pipelineLayout, 0, 1, &rectangle->descriptorSet, 0, nullptr);
-				vkCmdDraw(commandBuffer, rectangle->vertexCount, 1, 0, 0);
-			}
-
 			vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, lava.graphicLayout.pipeline);
 			for (auto& graphic : lava.graphics) {
 				VkDeviceSize offsets[] { 0 };
 				vkCmdBindVertexBuffers(commandBuffer, 0, 1, &graphic->vertexBuffer, offsets);
 				vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, lava.graphicLayout.pipelineLayout, 0, 1, &graphic->descriptorSet, 0, nullptr);
 				vkCmdDraw(commandBuffer, graphic->vertexCount, 1, 0, 0);
+			}
+
+			vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, lava.rectangleLayout.pipeline);
+			for (auto& rectangle : lava.rectangles) {
+				VkDeviceSize offsets[] { 0 };
+				vkCmdBindVertexBuffers(commandBuffer, 0, 1, &rectangle->vertexBuffer, offsets);
+				vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, lava.rectangleLayout.pipelineLayout, 0, 1, &rectangle->descriptorSet, 0, nullptr);
+				vkCmdDraw(commandBuffer, rectangle->vertexCount, 1, 0, 0);
 			}
 		vkCmdEndRenderPass(commandBuffer);
 
