@@ -30,5 +30,6 @@ struct Task {
 	function<void(VkCommandBuffer)> cbFunc;
 	set<shared_ptr<Task>> dependencies;
 	set<shared_ptr<Task>> dependants;
+	bool isIdle = false;
 	bool done = false;
 };

@@ -110,6 +110,7 @@ shared_ptr<Task> Team::idleTask(const Speciality speciality, const function<void
 	assert(speciality != ST_GPU); // TODO remove later
 
 	shared_ptr<Task> task = make_shared<Task>(speciality, func);
+	task->isIdle = true;
 
 	mutex.lock();
 		size_t index = static_cast<size_t>(speciality);
@@ -140,7 +141,9 @@ void Team::join() {
 		}
 
 		for (auto& specialist : specialists) {
-			done = done && !specialist.task.has_value();
+			bool busy = (specialist.task.has_value() && (specialist.task.value()->isIdle == false));
+			done = done && !busy;
+			// done = done && !specialist.task.has_value();
 		}
 
 		// cout << "catch done = " << (done ? "true" : "false") << endl;
