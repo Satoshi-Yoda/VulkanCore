@@ -27,6 +27,17 @@ Specialist::Specialist(Speciality _speciality, size_t _id, Team& _team, Rocks* _
 					// team.availableTasks[index].erase(team.availableTasks[index].begin());
 					// size_t sizeAfter = team.availableTasks[index].size();
 					// printf("Specialist %d-%d availableBucket.size(): %lld -> %lld\n", speciality, id, sizeBefore, sizeAfter);
+				} else if (team.idleTasks[index].empty() == false) {
+					auto candidate = team.idleTasks[index].front();
+					printf("Found idle task candidate\n");
+					team.idleTasks[index].pop();
+					if (team.stoppingIdleTasks[index].contains(candidate)) {
+						team.stoppingIdleTasks[index].erase(candidate);
+						printf("Idle task marked for stop\n");
+					} else {
+						task = candidate;
+						team.idleTasks[index].push(candidate);
+					}
 				}
 			}
 

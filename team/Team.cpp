@@ -107,11 +107,26 @@ shared_ptr<Task> Team::gpuTask(const function<void(VkCommandBuffer)> func, const
 }
 
 shared_ptr<Task> Team::idleTask(const Speciality speciality, const function<void()> func) {
+	assert(speciality != ST_GPU); // TODO remove later
 
+	shared_ptr<Task> task = make_shared<Task>(speciality, func);
+
+	mutex.lock();
+		size_t index = static_cast<size_t>(speciality);
+		idleTasks[index].push(task);
+		cvs[index].notify_one();
+	mutex.unlock();
+
+	return task;
 }
 
-void Team::stopIdleTask(const shared_ptr<Task> id) {
+void Team::stopIdleTask(const shared_ptr<Task> task) {
+	assert(task->speciality != ST_GPU); // TODO remove later
 
+	mutex.lock();
+		size_t index = static_cast<size_t>(task->speciality);
+		stoppingIdleTasks[index].insert(task);
+	mutex.unlock();
 }
 
 void Team::join() {

@@ -272,6 +272,9 @@ TEST_CASE("Test idle task") {
 	mutex mtx;
 	Team team {};
 
+	uint64_t startPoint = chrono::duration_cast<chrono::milliseconds>(chrono::system_clock::now().time_since_epoch()).count();
+	cout << "startPoint  \t= " << startPoint << endl;
+
 	for (size_t i = 0; i < COUNT; i++) {
 		auto task = team.task(ST_CPU, [&]{
 			std::this_thread::sleep_for(std::chrono::milliseconds(10));
@@ -283,23 +286,35 @@ TEST_CASE("Test idle task") {
 		std::this_thread::sleep_for(std::chrono::milliseconds(10));
 		mtx.lock();
 			m = 42;
+			printf("m = %d\n", m);
+			uint64_t assignPoint = chrono::duration_cast<chrono::milliseconds>(chrono::system_clock::now().time_since_epoch()).count();
+			cout << "assignPoint   \t= " << assignPoint << endl;
 		mtx.unlock();
 	});
+
+	uint64_t shedulePoint = chrono::duration_cast<chrono::milliseconds>(chrono::system_clock::now().time_since_epoch()).count();
+	cout << "shedulePoint \t= " << shedulePoint << endl;
 
 	team.join();
 	REQUIRE(k == 5 + COUNT);
 
-	std::this_thread::sleep_for(std::chrono::milliseconds(5));
+	uint64_t joinPoint = chrono::duration_cast<chrono::milliseconds>(chrono::system_clock::now().time_since_epoch()).count();
+	cout << "joinPoint   \t= " << joinPoint << endl;
+
+	std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+	uint64_t sleepPoint = chrono::duration_cast<chrono::milliseconds>(chrono::system_clock::now().time_since_epoch()).count();
+	cout << "sleepPoint  \t= " << sleepPoint << endl;
+	printf("After sleep m = %d\n", m);
 	REQUIRE(m == 42);
 
 	m = 100;
-	std::this_thread::sleep_for(std::chrono::milliseconds(15));
+	std::this_thread::sleep_for(std::chrono::milliseconds(20));
 	REQUIRE(m == 42);
 
 	team.stopIdleTask(id);
-	std::this_thread::sleep_for(std::chrono::milliseconds(15));
+	std::this_thread::sleep_for(std::chrono::milliseconds(20));
 	m = 100;
-	std::this_thread::sleep_for(std::chrono::milliseconds(15));
+	std::this_thread::sleep_for(std::chrono::milliseconds(20));
 	REQUIRE(m == 1000);
 }
 

@@ -36,7 +36,7 @@ public:
 	shared_ptr<Task> task(const Speciality speciality, const function<void()> func, const set<shared_ptr<Task>> dependencies = set<shared_ptr<Task>>()); // TODO make cpu_task(...), etc
 	shared_ptr<Task> gpuTask(const function<void(VkCommandBuffer)> func, const set<shared_ptr<Task>> dependencies = set<shared_ptr<Task>>());
 	shared_ptr<Task> idleTask(const Speciality speciality, const function<void()> func);
-	void stopIdleTask(const shared_ptr<Task> id);
+	void stopIdleTask(const shared_ptr<Task> task);
 	void join();
 	// TODO implement joinTasks(set<shared_ptr<Task>> tasks);
 	// bool wait(std::chrono::milliseconds time);
@@ -50,7 +50,8 @@ public:
 	array<condition_variable, SpecialityCount> cvs;
 	condition_variable ready_cv;
 
-	array<queue<shared_ptr<Task>>, SpecialityCount> infiniteTasks;
+	array<queue<shared_ptr<Task>>, SpecialityCount> idleTasks;
+	array<set<shared_ptr<Task>>, SpecialityCount> stoppingIdleTasks;
 	array<queue<shared_ptr<Task>>, SpecialityCount> availableTasks;
 	set<shared_ptr<Task>> blockedTasks;
 	bool quitFlag = false;
