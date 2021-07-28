@@ -4,14 +4,16 @@
 #include <cassert>
 #include <iostream>
 #include <ranges>
+#include <thread>
 
 using namespace std;
 using namespace std::ranges::views;
 
 Team::Team() {
 	start = chrono::steady_clock::now();
+	cpuThreads = thread::hardware_concurrency();
 
-	for (size_t i = 0; i < 12; i++) {
+	for (size_t i = 0; i < cpuThreads; i++) {
 		specialists.emplace_back(ST_CPU, i + 101, *this);
 	}
 	// for (size_t i = 0; i < 1; i++) {

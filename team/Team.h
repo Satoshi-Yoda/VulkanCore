@@ -44,6 +44,8 @@ public:
 	double initTime();
 	double workTime();
 
+	uint32_t cpuThreads;
+
 	mutex mutex;
 	array<condition_variable, SpecialityCount> cvs;
 	condition_variable ready_cv;

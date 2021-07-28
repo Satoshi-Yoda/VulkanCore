@@ -104,12 +104,16 @@ TEST_CASE("Test for finding assigned specialist") {
 	REQUIRE(specialist->id > 100);
 }
 
+TEST_CASE("12 threads for me") {
+	Team team {};
+	REQUIRE(team.cpuThreads == 12);
+}
+
 TEST_CASE("Test several specialists even distribution") {
 	set<size_t> ids;
-	const size_t COUNT = 6;
 	Team team {};
 
-	for (size_t i = 0; i < COUNT; i++) {
+	for (size_t i = 0; i < team.cpuThreads; i++) {
 		team.task(ST_CPU, [&]{
 			team.mutex.lock();
 				ids.insert(team.findCurrentSpecialist()->id);
@@ -120,9 +124,9 @@ TEST_CASE("Test several specialists even distribution") {
 
 	team.join();
 
-	REQUIRE(ids.size() == COUNT);
+	REQUIRE(ids.size() == team.cpuThreads);
 
-	for (size_t i = 0; i < COUNT; i++) {
+	for (size_t i = 0; i < team.cpuThreads; i++) {
 		if (ids.find(101 + i) == ids.end()) {
 			for (auto id : ids) cout << id << ' ';
 			cout << endl;
