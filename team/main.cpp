@@ -265,4 +265,42 @@ TEST_CASE("Test for work after join") {
 	REQUIRE(k == 5 + 2 * COUNT);
 }
 
+TEST_CASE("Test idle task") {
+	int k = 5;
+	int m = 100;
+	const size_t COUNT = 6;
+	mutex mtx;
+	Team team {};
+
+	for (size_t i = 0; i < COUNT; i++) {
+		auto task = team.task(ST_CPU, [&]{
+			std::this_thread::sleep_for(std::chrono::milliseconds(10));
+			k++;
+		});
+	}
+
+	auto id = team.idleTask(ST_CPU, [&]{
+		std::this_thread::sleep_for(std::chrono::milliseconds(10));
+		mtx.lock();
+			m = 42;
+		mtx.unlock();
+	});
+
+	team.join();
+	REQUIRE(k == 5 + COUNT);
+
+	std::this_thread::sleep_for(std::chrono::milliseconds(5));
+	REQUIRE(m == 42);
+
+	m = 100;
+	std::this_thread::sleep_for(std::chrono::milliseconds(15));
+	REQUIRE(m == 42);
+
+	team.stopIdleTask(id);
+	std::this_thread::sleep_for(std::chrono::milliseconds(15));
+	m = 100;
+	std::this_thread::sleep_for(std::chrono::milliseconds(15));
+	REQUIRE(m == 1000);
+}
+
 #endif

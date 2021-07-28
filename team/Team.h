@@ -35,8 +35,8 @@ public:
 	void initGpuSpecialists(Rocks& rocks);
 	shared_ptr<Task> task(const Speciality speciality, const function<void()> func, const set<shared_ptr<Task>> dependencies = set<shared_ptr<Task>>()); // TODO make cpu_task(...), etc
 	shared_ptr<Task> gpuTask(const function<void(VkCommandBuffer)> func, const set<shared_ptr<Task>> dependencies = set<shared_ptr<Task>>());
-	shared_ptr<Task> infiniteTask(const Speciality speciality, const function<void()> func);
-	void stopTask(const shared_ptr<Task> id);
+	shared_ptr<Task> idleTask(const Speciality speciality, const function<void()> func);
+	void stopIdleTask(const shared_ptr<Task> id);
 	void join();
 	// TODO implement joinTasks(set<shared_ptr<Task>> tasks);
 	// bool wait(std::chrono::milliseconds time);

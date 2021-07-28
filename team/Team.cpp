@@ -106,6 +106,14 @@ shared_ptr<Task> Team::gpuTask(const function<void(VkCommandBuffer)> func, const
 	return task;
 }
 
+shared_ptr<Task> Team::idleTask(const Speciality speciality, const function<void()> func) {
+
+}
+
+void Team::stopIdleTask(const shared_ptr<Task> id) {
+
+}
+
 void Team::join() {
 	unique_lock<std::mutex> lock { this->mutex };
 	ready_cv.wait(lock, [&]{
