@@ -15,28 +15,16 @@ Specialist::Specialist(Speciality _speciality, size_t _id, Team& _team, Rocks* _
 
 			{
 				unique_lock<mutex> lock { team.mutex };
-				// printf("Specialist %d-%d start waiting task\n", speciality, id);
 				team.cvs[index].wait(lock, [&]{ return (team.availableTasks[index].empty() == false) || (team.idleTasks[index].empty() == false) || team.quitFlag; });
 				quit = team.quitFlag;
-				// printf("Specialist %d-%d end waiting task\n", speciality, id);
 				if (team.availableTasks[index].empty() == false) {
-					// size_t sizeBefore = team.availableTasks[index].size();
 					task = team.availableTasks[index].front();
 					team.availableTasks[index].pop();
-					// task = *team.availableTasks[index].begin();
-					// team.availableTasks[index].erase(team.availableTasks[index].begin());
-					// size_t sizeAfter = team.availableTasks[index].size();
-					// printf("Specialist %d-%d availableBucket.size(): %lld -> %lld\n", speciality, id, sizeBefore, sizeAfter);
 				} else if (team.idleTasks[index].empty() == false) {
-					uint64_t run_out_of_tasks_at = chrono::duration_cast<chrono::milliseconds>(chrono::system_clock::now().time_since_epoch()).count();
-					cout << "sp" << id << " run_out_of_tasks_at = " << run_out_of_tasks_at << endl;
-
 					auto candidate = team.idleTasks[index].front();
-					// printf("Found idle task candidate\n");
 					team.idleTasks[index].pop();
-					if (team.stoppingIdleTasks[index].contains(candidate)) {
+					if (team.stoppingIdleTasks[index].contains(candidate) || quit) {
 						team.stoppingIdleTasks[index].erase(candidate);
-						// printf("Idle task marked for stop\n");
 					} else {
 						task = candidate;
 						team.idleTasks[index].push(candidate);
@@ -46,7 +34,6 @@ Specialist::Specialist(Speciality _speciality, size_t _id, Team& _team, Rocks* _
 
 			if (task.has_value()) {
 				auto& taskPtr = task.value();
-				// printf("Specialist %d-%d starting task: %lld\n", speciality, id, taskPtr.get());
 				if (taskPtr->func != nullptr) {
 					assert(speciality != ST_GPU);
 					taskPtr->func();
@@ -63,7 +50,6 @@ Specialist::Specialist(Speciality _speciality, size_t _id, Team& _team, Rocks* _
 				team.mutex.lock();
 					taskPtr->done = true;
 
-					// printf("Specialist %d-%d task %lld completed, found %lld dependants\n", speciality, id, taskPtr.get(), taskPtr->dependants.size());
 					for (auto& dependant : taskPtr->dependants) {
 						dependant->dependencies.erase(taskPtr);
 						if (dependant->dependencies.empty()) {
@@ -71,7 +57,6 @@ Specialist::Specialist(Speciality _speciality, size_t _id, Team& _team, Rocks* _
 							size_t dependantIndex = static_cast<size_t>(dependant->speciality);
 							team.availableTasks[dependantIndex].push(dependant);
 							team.cvs[dependantIndex].notify_one();
-							// printf("Specialist %d-%d moved task to availables: %lld\n", speciality, id, dependant.get());
 						}
 					}
 
@@ -82,7 +67,6 @@ Specialist::Specialist(Speciality _speciality, size_t _id, Team& _team, Rocks* _
 			team.ready_cv.notify_one();
 
 			if (quit) {
-				// printf("Specialist %d quit work\n", id);
 				break;
 			}
 		}

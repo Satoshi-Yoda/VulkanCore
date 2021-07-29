@@ -265,15 +265,12 @@ TEST_CASE("Test for work after join") {
 	REQUIRE(k == 5 + 2 * COUNT);
 }
 
-TEST_CASE("Test idle task") {
+TEST_CASE("Test idle task after regular tasks") {
 	int k = 5;
 	int m = 100;
 	const size_t COUNT = 6;
 	mutex mtx;
 	Team team {};
-
-	uint64_t startPoint = chrono::duration_cast<chrono::milliseconds>(chrono::system_clock::now().time_since_epoch()).count();
-	cout << "startPoint  \t= " << startPoint << endl;
 
 	for (size_t i = 0; i < COUNT; i++) {
 		auto task = team.task(ST_CPU, [&]{
@@ -286,36 +283,68 @@ TEST_CASE("Test idle task") {
 		std::this_thread::sleep_for(std::chrono::milliseconds(10));
 		mtx.lock();
 			m = 42;
-			printf("m = %d\n", m);
-			uint64_t assignPoint = chrono::duration_cast<chrono::milliseconds>(chrono::system_clock::now().time_since_epoch()).count();
-			cout << "assignPoint   \t= " << assignPoint << endl;
 		mtx.unlock();
 	});
-
-	uint64_t shedulePoint = chrono::duration_cast<chrono::milliseconds>(chrono::system_clock::now().time_since_epoch()).count();
-	cout << "shedulePoint \t= " << shedulePoint << endl;
 
 	team.join();
 	REQUIRE(k == 5 + COUNT);
 
-	uint64_t joinPoint = chrono::duration_cast<chrono::milliseconds>(chrono::system_clock::now().time_since_epoch()).count();
-	cout << "joinPoint   \t= " << joinPoint << endl;
+	std::this_thread::sleep_for(std::chrono::milliseconds(20));
+	REQUIRE(m == 42);
+}
+
+TEST_CASE("Test stopping idle task") {
+	int m = 100;
+	mutex mtx;
+	Team team {};
+
+	auto id = team.idleTask(ST_CPU, [&]{
+		std::this_thread::sleep_for(std::chrono::milliseconds(10));
+		mtx.lock();
+			m = 42;
+		mtx.unlock();
+	});
 
 	std::this_thread::sleep_for(std::chrono::milliseconds(20));
-	uint64_t sleepPoint = chrono::duration_cast<chrono::milliseconds>(chrono::system_clock::now().time_since_epoch()).count();
-	cout << "sleepPoint  \t= " << sleepPoint << endl;
-	printf("After sleep m = %d\n", m);
 	REQUIRE(m == 42);
 
-	// m = 100;
-	// std::this_thread::sleep_for(std::chrono::milliseconds(20));
-	// REQUIRE(m == 42);
+	m = 100;
+	std::this_thread::sleep_for(std::chrono::milliseconds(20));
+	REQUIRE(m == 42);
 
-	// team.stopIdleTask(id);
-	// std::this_thread::sleep_for(std::chrono::milliseconds(20));
-	// m = 100;
-	// std::this_thread::sleep_for(std::chrono::milliseconds(20));
-	// REQUIRE(m == 1000);
+	team.stopIdleTask(id);
+	std::this_thread::sleep_for(std::chrono::milliseconds(20));
+	m = 100;
+	std::this_thread::sleep_for(std::chrono::milliseconds(20));
+	REQUIRE(m == 100);
+}
+
+TEST_CASE("Test idle task to stop after team destroy") {
+	int m = 100;
+	mutex mtx;
+
+	{
+		Team team {};
+
+		auto id = team.idleTask(ST_CPU, [&]{
+			std::this_thread::sleep_for(std::chrono::milliseconds(10));
+			mtx.lock();
+				m = 42;
+			mtx.unlock();
+		});
+
+		std::this_thread::sleep_for(std::chrono::milliseconds(20));
+		REQUIRE(m == 42);
+
+		m = 100;
+		std::this_thread::sleep_for(std::chrono::milliseconds(20));
+		REQUIRE(m == 42);
+	}
+
+	std::this_thread::sleep_for(std::chrono::milliseconds(20));
+	m = 100;
+	std::this_thread::sleep_for(std::chrono::milliseconds(20));
+	REQUIRE(m == 100);
 }
 
 #endif

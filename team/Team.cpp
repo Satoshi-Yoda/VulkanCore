@@ -30,6 +30,14 @@ Team::Team() {
 }
 
 Team::~Team() {
+	mutex.lock();
+		for (size_t i = 0; i < SpecialityCount; i++) {
+			while (idleTasks[i].empty() == false) {
+				idleTasks[i].pop();
+			}
+		}
+	mutex.unlock();
+
 	join();
 
 	mutex.lock();
@@ -59,14 +67,12 @@ shared_ptr<Task> Team::task(const Speciality speciality, const function<void()> 
 
 		for (auto& dependency : task->dependencies) {
 			dependency->dependants.insert(task);
-			// printf("Add dependant %lld for task %lld\n", task.get(), )
 		}
 
 		if (task->dependencies.empty()) {
 			size_t index = static_cast<size_t>(speciality);
 			availableTasks[index].push(task);
 			cvs[index].notify_one();
-			// printf("Inserted available task, now have %lld tasks\n", availableTasks[static_cast<size_t>(speciality)].size());
 		} else {
 			blockedTasks.insert(task);
 		}
@@ -143,10 +149,8 @@ void Team::join() {
 		for (auto& specialist : specialists) {
 			bool busy = (specialist.task.has_value() && (specialist.task.value()->isIdle == false));
 			done = done && !busy;
-			// done = done && !specialist.task.has_value();
 		}
 
-		// cout << "catch done = " << (done ? "true" : "false") << endl;
 		return done;
 	});
 
@@ -203,10 +207,8 @@ void Team::join() {
 
 Specialist* Team::findCurrentSpecialist() {
 	auto id = std::this_thread::get_id();
-	// printf("Trying to find thread id == %lld\n", id);
 
 	for (auto& specialist : specialists) {
-		// printf("Specialist %d has thread id == %lld\n", specialist.id, specialist.thr->get_id());
 		if (specialist.thr->get_id() == id) {
 			return &specialist;
 		}
