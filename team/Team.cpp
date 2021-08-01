@@ -38,6 +38,8 @@ Team::~Team() {
 		}
 	mutex.unlock();
 
+	// TODO maybe wait for all in-progress idleTasks to finish
+
 	join();
 
 	mutex.lock();
