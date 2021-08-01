@@ -24,7 +24,8 @@ float capsule(vec2 A, vec2 B) {
 		return 0.0f;
 	}
 
-	vec2 o = fragTexCoord;
+	vec2 o = vec2(fragTexCoord.x, data.size.y - fragTexCoord.y);
+
 	float distance_A = length(A - o);
 	float thr = length(A - B) + data.line + data.aa;
 	if (distance_A > thr) {
@@ -42,11 +43,11 @@ float capsule(vec2 A, vec2 B) {
 	else {
 		float inverse_width = 1.0f / (B.x - A.x);
 
-		float a_x = fragTexCoord.x - 0.5f;
+		float a_x = o.x - 0.5f;
 		float part_a = (a_x - A.x) * inverse_width;
 		vec2 a = vec2(a_x, A.y + part_a * (B.y - A.y));
 
-		float b_x = fragTexCoord.x + 0.5f;
+		float b_x = o.x + 0.5f;
 		float part_b = (b_x - A.x) * inverse_width;
 		vec2 b = vec2(b_x, A.y + part_b * (B.y - A.y));
 
@@ -62,9 +63,11 @@ float capsule(vec2 A, vec2 B) {
 }
 
 void main() {
+	vec2 o = vec2(fragTexCoord.x, data.size.y - fragTexCoord.y);
+
 	float delta = 0.5f + data.line * 0.5f + data.aa;
-	float min_x = fragTexCoord.x - delta;
-	float max_x = fragTexCoord.x + delta;
+	float min_x = o.x - delta;
+	float max_x = o.x + delta;
 	int first_i = 1;
 	int last_i = data.points.length() - 1;
 	int min_i = max(first_i + int(floor((last_i - first_i) * min_x / data.size.x)), first_i);
@@ -79,7 +82,7 @@ void main() {
 
 	vec4 result = mix(data.bgColor, data.lineColor, clamp(total, 0.0f, 1.0f));
 
-	vec2 texCoordRounded = round(fragTexCoord);
+	vec2 texCoordRounded = round(o);
 	vec2 halfSize = data.size * 0.5f;
 	vec2 fromCorner = halfSize - abs(texCoordRounded - halfSize);
 	vec2 cornerPoint = vec2(data.radius);
