@@ -64,7 +64,8 @@ Specialist::Specialist(Speciality _speciality, size_t _id, Team& _team, Rocks* _
 				team.mutex.unlock();
 			}
 
-			team.ready_cv.notify_one();
+			team.join_cv.notify_one();
+			team.finish_cv.notify_one();
 
 			if (quit) {
 				break;

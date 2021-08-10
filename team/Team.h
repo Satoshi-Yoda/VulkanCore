@@ -38,6 +38,7 @@ public:
 	shared_ptr<Task> idleTask(const Speciality speciality, const function<void()> func);
 	void stopIdleTask(const shared_ptr<Task> task);
 	void join();
+	void finish();
 	// TODO implement joinTasks(set<shared_ptr<Task>> tasks);
 	// bool wait(std::chrono::milliseconds time);
 	Specialist* findCurrentSpecialist();
@@ -48,7 +49,8 @@ public:
 
 	mutex mutex;
 	array<condition_variable, SpecialityCount> cvs;
-	condition_variable ready_cv;
+	condition_variable join_cv;
+	condition_variable finish_cv;
 
 	array<queue<shared_ptr<Task>>, SpecialityCount> idleTasks;
 	array<set<shared_ptr<Task>>, SpecialityCount> stoppingIdleTasks;

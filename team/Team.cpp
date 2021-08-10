@@ -30,17 +30,7 @@ Team::Team() {
 }
 
 Team::~Team() {
-	mutex.lock();
-		for (size_t i = 0; i < SpecialityCount; i++) {
-			while (idleTasks[i].empty() == false) {
-				idleTasks[i].pop();
-			}
-		}
-	mutex.unlock();
-
-	// TODO maybe wait for all in-progress idleTasks to finish
-
-	join();
+	finish();
 
 	mutex.lock();
 		quitFlag = true;
@@ -140,7 +130,7 @@ void Team::stopIdleTask(const shared_ptr<Task> task) {
 
 void Team::join() {
 	unique_lock<std::mutex> lock { this->mutex };
-	ready_cv.wait(lock, [&]{
+	join_cv.wait(lock, [&]{
 		bool done = true;
 		done = done && blockedTasks.empty();
 
@@ -159,6 +149,32 @@ void Team::join() {
 	// for (auto& specialist : specialists | filter([](auto& s){ return s.speciality == ST_GPU; })) {
 	// 	specialist.flushCommandBuffer();
 	// }
+}
+
+void Team::finish() {
+	unique_lock<std::mutex> lock { this->mutex };
+
+	for (size_t i = 0; i < SpecialityCount; i++) {
+		while (idleTasks[i].empty() == false) {
+			idleTasks[i].pop();
+		}
+	}
+
+	join_cv.wait(lock, [&]{
+		bool done = true;
+		done = done && blockedTasks.empty();
+
+		for (size_t i = 0; i < SpecialityCount; i++) {
+			done = done && availableTasks[i].empty();
+		}
+
+		for (auto& specialist : specialists) {
+			bool busy = (specialist.task.has_value());
+			done = done && !busy;
+		}
+
+		return done;
+	});
 }
 
 // bool Team::wait(std::chrono::milliseconds time) {
