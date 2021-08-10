@@ -47,7 +47,7 @@ public:
 
 	uint32_t cpuThreads;
 
-	mutex mutex;
+	mutex mtx;
 	array<condition_variable, SpecialityCount> cvs;
 	condition_variable join_cv;
 	condition_variable finish_cv;

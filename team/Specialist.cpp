@@ -14,7 +14,7 @@ Specialist::Specialist(Speciality _speciality, size_t _id, Team& _team, Rocks* _
 			bool quit;
 
 			{
-				unique_lock<mutex> lock { team.mutex };
+				unique_lock<mutex> lock { team.mtx };
 				team.cvs[index].wait(lock, [&]{ return (team.availableTasks[index].empty() == false) || (team.idleTasks[index].empty() == false) || team.quitFlag; });
 				quit = team.quitFlag;
 				if (team.availableTasks[index].empty() == false) {
@@ -47,7 +47,7 @@ Specialist::Specialist(Speciality _speciality, size_t _id, Team& _team, Rocks* _
 					cb = nullptr;
 				}
 
-				team.mutex.lock();
+				team.mtx.lock();
 					taskPtr->done = true;
 
 					for (auto& dependant : taskPtr->dependants) {
@@ -61,7 +61,7 @@ Specialist::Specialist(Speciality _speciality, size_t _id, Team& _team, Rocks* _
 					}
 
 					task.reset();
-				team.mutex.unlock();
+				team.mtx.unlock();
 			}
 
 			team.join_cv.notify_one();

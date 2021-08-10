@@ -92,9 +92,9 @@ TEST_CASE("Test for finding assigned specialist") {
 	Specialist* specialist;
 	Team team {};
 	team.task(ST_HDD, [&]{
-		team.mutex.lock();
+		team.mtx.lock();
 			specialist = team.findCurrentSpecialist();
-		team.mutex.unlock();
+		team.mtx.unlock();
 	});
 
 	team.join();
@@ -115,9 +115,9 @@ TEST_CASE("Test several specialists even distribution") {
 
 	for (size_t i = 0; i < team.cpuThreads; i++) {
 		team.task(ST_CPU, [&]{
-			team.mutex.lock();
+			team.mtx.lock();
 				ids.insert(team.findCurrentSpecialist()->id);
-			team.mutex.unlock();
+			team.mtx.unlock();
 			std::this_thread::sleep_for(std::chrono::milliseconds(10));
 		});
 	}
@@ -188,27 +188,27 @@ TEST_CASE("Test for different specialities") {
 
 	auto task1 = team.task(ST_CPU, [&]{
 		k = (k == 5) ? 6 : 0;
-		team.mutex.lock();
+		team.mtx.lock();
 			specialist1 = team.findCurrentSpecialist();
-		team.mutex.unlock();
+		team.mtx.unlock();
 	});
 	auto task2 = team.task(ST_CPU, [&]{
 		k = (k == 6) ? 7 : 0;
-		team.mutex.lock();
+		team.mtx.lock();
 			specialist2 = team.findCurrentSpecialist();
-		team.mutex.unlock();
+		team.mtx.unlock();
 	}, { task1 });
 	auto task3 = team.task(ST_PCI, [&]{
 		k = (k == 7) ? 8 : 0;
-		team.mutex.lock();
+		team.mtx.lock();
 			specialist3 = team.findCurrentSpecialist();
-		team.mutex.unlock();
+		team.mtx.unlock();
 	}, { task2 });
 	auto task4 = team.task(ST_HDD, [&]{
 		k = (k == 8) ? 9 : 0;
-		team.mutex.lock();
+		team.mtx.lock();
 			specialist4 = team.findCurrentSpecialist();
-		team.mutex.unlock();
+		team.mtx.unlock();
 	}, { task3 });
 
 	bool done = true;//team.wait(std::chrono::milliseconds(100));

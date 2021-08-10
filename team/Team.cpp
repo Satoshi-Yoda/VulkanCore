@@ -32,9 +32,9 @@ Team::Team() {
 Team::~Team() {
 	finish();
 
-	mutex.lock();
+	mtx.lock();
 		quitFlag = true;
-	mutex.unlock();
+	mtx.unlock();
 	for (auto& cv : cvs) cv.notify_all();
 
 	for (auto& specialist : specialists) specialist.thr->join();
@@ -52,7 +52,7 @@ shared_ptr<Task> Team::task(const Speciality speciality, const function<void()> 
 	shared_ptr<Task> task = make_shared<Task>(speciality, func);
 	task->dependencies = dependencies;
 
-	mutex.lock();
+	mtx.lock();
 		std::erase_if(task->dependencies, [](auto& dependency){
 			return dependency->done;
 		});
@@ -68,7 +68,7 @@ shared_ptr<Task> Team::task(const Speciality speciality, const function<void()> 
 		} else {
 			blockedTasks.insert(task);
 		}
-	mutex.unlock();
+	mtx.unlock();
 
 	return task;
 }
@@ -83,7 +83,7 @@ shared_ptr<Task> Team::gpuTask(const function<void(VkCommandBuffer)> func, const
 	shared_ptr<Task> task = make_shared<Task>(ST_GPU, func);
 	task->dependencies = dependencies;
 
-	mutex.lock();
+	mtx.lock();
 		std::erase_if(task->dependencies, [](auto& dependency){
 			return dependency->done;
 		});
@@ -99,7 +99,7 @@ shared_ptr<Task> Team::gpuTask(const function<void(VkCommandBuffer)> func, const
 		} else {
 			blockedTasks.insert(task);
 		}
-	mutex.unlock();
+	mtx.unlock();
 
 	return task;
 }
@@ -110,11 +110,11 @@ shared_ptr<Task> Team::idleTask(const Speciality speciality, const function<void
 	shared_ptr<Task> task = make_shared<Task>(speciality, func);
 	task->isIdle = true;
 
-	mutex.lock();
+	mtx.lock();
 		size_t index = static_cast<size_t>(speciality);
 		idleTasks[index].push(task);
 		cvs[index].notify_one();
-	mutex.unlock();
+	mtx.unlock();
 
 	return task;
 }
@@ -122,14 +122,14 @@ shared_ptr<Task> Team::idleTask(const Speciality speciality, const function<void
 void Team::stopIdleTask(const shared_ptr<Task> task) {
 	assert(task->speciality != ST_GPU); // TODO remove later
 
-	mutex.lock();
+	mtx.lock();
 		size_t index = static_cast<size_t>(task->speciality);
 		stoppingIdleTasks[index].insert(task);
-	mutex.unlock();
+	mtx.unlock();
 }
 
 void Team::join() {
-	unique_lock<std::mutex> lock { this->mutex };
+	unique_lock<mutex> lock { mtx };
 	join_cv.wait(lock, [&]{
 		bool done = true;
 		done = done && blockedTasks.empty();
@@ -152,7 +152,7 @@ void Team::join() {
 }
 
 void Team::finish() {
-	unique_lock<std::mutex> lock { this->mutex };
+	unique_lock<mutex> lock { mtx };
 
 	for (size_t i = 0; i < SpecialityCount; i++) {
 		while (idleTasks[i].empty() == false) {
@@ -184,12 +184,12 @@ void Team::finish() {
 
 // 	while (std::chrono::steady_clock::now() < start + time) {
 // 		bool done = true;
-// 		mutex.lock();
+// 		mtx.lock();
 // 			done = done && blockedTasks.empty();
 // 			for (size_t i = 0; i < SpecialityCount; i++) {
 // 				done = done && availableTasks[i].empty();
 // 			}
-// 		mutex.unlock();
+// 		mtx.unlock();
 
 // 		std::this_thread::sleep_for(std::chrono::milliseconds(10));
 
@@ -199,9 +199,9 @@ void Team::finish() {
 // 		}
 // 	}
 
-// 	mutex.lock();
+// 	mtx.lock();
 // 		quitFlag = true;
-// 	mutex.unlock();
+// 	mtx.unlock();
 // 	for (auto& cv : cvs) cv.notify_all();
 
 // 	bool noInProgress = false;
