@@ -313,7 +313,7 @@ TEST_CASE("Test stopping idle task") {
 	REQUIRE(m == 42);
 
 	team.stopIdleTask(id);
-	std::this_thread::sleep_for(std::chrono::milliseconds(20));
+	team.finish();
 	m = 100;
 	std::this_thread::sleep_for(std::chrono::milliseconds(20));
 	REQUIRE(m == 100);
