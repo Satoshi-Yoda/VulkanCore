@@ -13,6 +13,8 @@ Team::Team() {
 	start = chrono::steady_clock::now();
 	cpuThreads = thread::hardware_concurrency();
 
+	// TODO maybe do project-separate groups initialization
+
 	for (size_t i = 0; i < cpuThreads; i++) {
 		specialists.emplace_back(ST_CPU, i + 101, *this);
 	}
