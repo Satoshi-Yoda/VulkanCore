@@ -8,6 +8,7 @@
 #include <mutex>
 #include <queue>
 #include <set>
+#include <utility>
 
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
@@ -21,6 +22,7 @@ using std::array;
 using std::condition_variable;
 using std::list;
 using std::mutex;
+using std::pair;
 using std::queue;
 using std::set;
 using std::shared_ptr;
@@ -44,6 +46,7 @@ public:
 	Specialist* findCurrentSpecialist();
 	double initTime();
 	double workTime();
+	pair<size_t, size_t> specialistsIdRange(Speciality speciality);
 
 	uint32_t cpuThreads;
 

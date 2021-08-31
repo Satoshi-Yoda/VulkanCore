@@ -243,3 +243,16 @@ double Team::initTime() {
 double Team::workTime() {
 	return chrono::duration_cast<chrono::duration<double>>(chrono::steady_clock::now() - ready).count();
 }
+
+pair<size_t, size_t> Team::specialistsIdRange(Speciality speciality) {
+	set<size_t> ids;
+	for (auto& specialist : specialists) {
+		if (specialist.speciality == speciality) {
+			ids.insert(specialist.id);
+		}
+	}
+
+	auto [minId, maxId] = minmax_element(ids.begin(), ids.end());
+	assert(*maxId - *minId + 1 == ids.size());
+	return make_pair(*minId, *maxId);
+}
