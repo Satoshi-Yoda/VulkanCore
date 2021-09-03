@@ -12,6 +12,7 @@ using namespace std::ranges::views;
 Team::Team() {
 	start = chrono::steady_clock::now();
 	cpuThreads = thread::hardware_concurrency();
+	// cpuThreads = 1;
 
 	// TODO maybe do project-separate groups initialization
 
