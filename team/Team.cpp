@@ -253,7 +253,7 @@ pair<size_t, size_t> Team::specialistsIdRange(Speciality speciality) {
 		}
 	}
 
-	auto [minId, maxId] = minmax_element(ids.begin(), ids.end());
-	assert(*maxId - *minId + 1 == ids.size());
-	return make_pair(*minId, *maxId);
+	auto [minId, maxId] = ranges::minmax(ids);
+	assert(maxId - minId + 1 == ids.size());
+	return make_pair(minId, maxId);
 }
