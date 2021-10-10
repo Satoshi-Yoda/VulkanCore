@@ -74,7 +74,9 @@ Specialist::Specialist(Speciality _speciality, size_t _id, Team& _team, Rocks* _
 	});
 }
 
-Specialist::~Specialist() {}
+Specialist::~Specialist() {
+	// TODO how about delete this->thr?
+}
 
 // void Specialist::ensureCommandBuffer() {
 // 	assert(speciality == ST_GPU);
