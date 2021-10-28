@@ -222,7 +222,7 @@ TEST_CASE("Test for different specialities") {
 }
 
 TEST_CASE("Test for wait time") {
-	int k = 5;
+	atomic_int k = 5;
 	const size_t COUNT = 6;
 	Team team {};
 
@@ -240,7 +240,7 @@ TEST_CASE("Test for wait time") {
 }
 
 TEST_CASE("Test for work after join") {
-	int k = 5;
+	atomic_int k = 5;
 	const size_t COUNT = 6;
 	Team team {};
 
@@ -266,7 +266,7 @@ TEST_CASE("Test for work after join") {
 }
 
 TEST_CASE("Test idle task after regular tasks") {
-	int k = 5;
+	atomic_int k = 5;
 	int m = 100;
 	const size_t COUNT = 6;
 	mutex mtx;
