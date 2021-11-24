@@ -299,23 +299,23 @@ TEST_CASE("Test stopping idle task") {
 	Team team {};
 
 	auto id = team.idleTask(ST_CPU, [&]{
-		std::this_thread::sleep_for(std::chrono::milliseconds(10));
+		std::this_thread::sleep_for(std::chrono::milliseconds(5));
 		mtx.lock();
 			m = 42;
 		mtx.unlock();
 	});
 
-	std::this_thread::sleep_for(std::chrono::milliseconds(20));
+	std::this_thread::sleep_for(std::chrono::milliseconds(25));
 	REQUIRE(m == 42);
 
 	m = 100;
-	std::this_thread::sleep_for(std::chrono::milliseconds(20));
+	std::this_thread::sleep_for(std::chrono::milliseconds(25));
 	REQUIRE(m == 42);
 
 	team.stopIdleTask(id);
 	team.finish();
 	m = 100;
-	std::this_thread::sleep_for(std::chrono::milliseconds(20));
+	std::this_thread::sleep_for(std::chrono::milliseconds(25));
 	REQUIRE(m == 100);
 }
 
