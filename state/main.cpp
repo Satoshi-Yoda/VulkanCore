@@ -3,7 +3,7 @@
 #include <iostream>
 
 #define CATCH_CONFIG_MAIN
-#include "catch_amalgamated.hpp"
+#include <catch_amalgamated.hpp>
 
 #include "state.hpp"
 #include "flag_group.hpp"

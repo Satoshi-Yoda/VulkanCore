@@ -1,7 +1,7 @@
 #ifdef tests_here
 
 #define CATCH_CONFIG_MAIN
-#include "catch_amalgamated.hpp"
+#include <catch_amalgamated.hpp>
 
 #include <iostream>
 #include <thread>
