@@ -8,24 +8,23 @@ using namespace std;
 Technician::Technician(Speciality _speciality, size_t _id, Wing& _wing) : speciality(_speciality), id(_id), wing(_wing) {
 	this->thr = new thread([this]{
 		while (true) {
-			size_t index = static_cast<size_t>(speciality);
 			bool quit;
 
 			{
 				unique_lock<mutex> lock { wing.mtx };
-				wing.cvs[index].wait(lock, [&]{ return (wing.availableTasks[index].empty() == false) || (wing.idleTasks[index].empty() == false) || wing.quitFlag; });
+				wing.task_cv.wait(lock, [&]{ return (wing.availableTasks.empty() == false) || (wing.idleTasks.empty() == false) || wing.quitFlag; });
 				quit = wing.quitFlag;
-				if (wing.availableTasks[index].empty() == false) {
-					task = wing.availableTasks[index].front();
-					wing.availableTasks[index].pop();
-				} else if (wing.idleTasks[index].empty() == false) {
-					auto candidate = wing.idleTasks[index].front();
-					wing.idleTasks[index].pop();
-					if (wing.stoppingIdleTasks[index].contains(candidate) || quit) {
-						wing.stoppingIdleTasks[index].erase(candidate);
+				if (wing.availableTasks.empty() == false) {
+					task = wing.availableTasks.front();
+					wing.availableTasks.pop();
+				} else if (wing.idleTasks.empty() == false) {
+					auto candidate = wing.idleTasks.front();
+					wing.idleTasks.pop();
+					if (wing.stoppingIdleTasks.contains(candidate) || quit) {
+						wing.stoppingIdleTasks.erase(candidate);
 					} else {
 						task = candidate;
-						wing.idleTasks[index].push(candidate);
+						wing.idleTasks.push(candidate);
 					}
 				}
 			}
@@ -44,9 +43,8 @@ Technician::Technician(Speciality _speciality, size_t _id, Wing& _wing) : specia
 						dependant->dependencies.erase(taskPtr);
 						if (dependant->dependencies.empty()) {
 							wing.blockedTasks.erase(dependant);
-							size_t dependantIndex = static_cast<size_t>(dependant->speciality);
-							wing.availableTasks[dependantIndex].push(dependant);
-							wing.cvs[dependantIndex].notify_one();
+							wing.availableTasks.push(dependant);
+							wing.task_cv.notify_one();
 						}
 					}
 

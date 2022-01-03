@@ -31,30 +31,29 @@ class Technician;
 
 class Wing {
 public:
-	Wing();
+	Wing(size_t count = 0);
 	~Wing();
 
-	shared_ptr<Task> task(const Speciality speciality, const function<void()> func, const set<shared_ptr<Task>> dependencies = set<shared_ptr<Task>>()); // TODO make cpu_task(...), etc
-	shared_ptr<Task> gpuTask(const function<void(VkCommandBuffer)> func, const set<shared_ptr<Task>> dependencies = set<shared_ptr<Task>>());
-	shared_ptr<Task> idleTask(const Speciality speciality, const function<void()> func);
+	shared_ptr<Task> task(const function<void()> func, const set<shared_ptr<Task>> dependencies = set<shared_ptr<Task>>());
+	shared_ptr<Task> idleTask(const function<void()> func);
 	void stopIdleTask(const shared_ptr<Task> task);
 	void join();
 	void finish();
 	Technician* findCurrentTechnician();
 	double initTime();
 	double workTime();
-	pair<size_t, size_t> specialistsIdRange(Speciality speciality);
+	pair<size_t, size_t> specialistsIdRange();
 
 	uint32_t cpuThreads;
 
 	mutex mtx;
-	array<condition_variable, SpecialityCount> cvs;
+	condition_variable task_cv;
 	condition_variable join_cv;
 	condition_variable finish_cv;
 
-	array<queue<shared_ptr<Task>>, SpecialityCount> idleTasks;
-	array<set<shared_ptr<Task>>, SpecialityCount> stoppingIdleTasks;
-	array<queue<shared_ptr<Task>>, SpecialityCount> availableTasks;
+	queue<shared_ptr<Task>> idleTasks;
+	set<shared_ptr<Task>> stoppingIdleTasks;
+	queue<shared_ptr<Task>> availableTasks;
 	set<shared_ptr<Task>> blockedTasks;
 	bool quitFlag = false;
 

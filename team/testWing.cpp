@@ -17,7 +17,7 @@ using namespace std;
 TEST_CASE("Wing: Test single task work") {
 	atomic_int k = 5;
 	Wing wing {};
-	wing.task(ST_CPU, [&]{
+	wing.task([&]{
 		k = 10;
 	});
 	wing.join();
