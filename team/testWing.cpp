@@ -8,7 +8,7 @@
 #include <mutex>
 #include <atomic>
 
-#include "Wing.h"
+#include "Wing.hpp"
 #include "Technician.h"
 #include "Task.h"
 
@@ -82,20 +82,20 @@ TEST_CASE("Wing: Test for join to complete all tasks") {
 	REQUIRE(k == 100);
 }
 
-TEST_CASE("Wing: Test for finding assigned specialist") {
-	Technician* specialist;
-	Wing wing {};
-	wing.task([&]{
-		wing.mtx.lock();
-			specialist = wing.findCurrentTechnician();
-		wing.mtx.unlock();
-	});
+// TEST_CASE("Wing: Test for finding assigned specialist") {
+// 	Technician* specialist;
+// 	Wing wing {};
+// 	wing.task([&]{
+// 		wing.mtx.lock();
+// 			specialist = wing.findCurrentTechnician();
+// 		wing.mtx.unlock();
+// 	});
 
-	wing.join();
+// 	wing.join();
 
-	REQUIRE(specialist != nullptr);
-	REQUIRE(specialist->id > 100);
-}
+// 	REQUIRE(specialist != nullptr);
+// 	REQUIRE(specialist->id > 100);
+// }
 
 TEST_CASE("Wing: threads count") {
 	Wing wing1 {};
@@ -105,31 +105,31 @@ TEST_CASE("Wing: threads count") {
 	REQUIRE(wing2.cpuThreads == 4);
 }
 
-TEST_CASE("Wing: Test several specialists even distribution") {
-	set<size_t> ids;
-	Wing wing {};
+// TEST_CASE("Wing: Test several specialists even distribution") {
+// 	set<size_t> ids;
+// 	Wing wing {};
 
-	for (size_t i = 0; i < wing.cpuThreads; i++) {
-		wing.task([&]{
-			wing.mtx.lock();
-				ids.insert(wing.findCurrentTechnician()->id);
-			wing.mtx.unlock();
-			std::this_thread::sleep_for(std::chrono::milliseconds(10));
-		});
-	}
+// 	for (size_t i = 0; i < wing.cpuThreads; i++) {
+// 		wing.task([&]{
+// 			wing.mtx.lock();
+// 				ids.insert(wing.findCurrentTechnician()->id);
+// 			wing.mtx.unlock();
+// 			std::this_thread::sleep_for(std::chrono::milliseconds(10));
+// 		});
+// 	}
 
-	wing.join();
+// 	wing.join();
 
-	REQUIRE(ids.size() == wing.cpuThreads);
+// 	REQUIRE(ids.size() == wing.cpuThreads);
 
-	for (size_t i = 0; i < wing.cpuThreads; i++) {
-		if (ids.find(101 + i) == ids.end()) {
-			for (auto id : ids) cout << id << ' ';
-			cout << endl;
-		}
-		REQUIRE(ids.find(101 + i) != ids.end());
-	}
-}
+// 	for (size_t i = 0; i < wing.cpuThreads; i++) {
+// 		if (ids.find(101 + i) == ids.end()) {
+// 			for (auto id : ids) cout << id << ' ';
+// 			cout << endl;
+// 		}
+// 		REQUIRE(ids.find(101 + i) != ids.end());
+// 	}
+// }
 
 TEST_CASE("Wing: Test dependency") {
 	atomic_int k = 5;
@@ -217,86 +217,86 @@ TEST_CASE("Wing: Test for work after join") {
 	REQUIRE(k == 5 + 2 * COUNT);
 }
 
-TEST_CASE("Wing: Test idle task after regular tasks") {
-	atomic_int k = 5;
-	int m = 100;
-	const size_t COUNT = 6;
-	mutex mtx;
-	Wing wing {};
+// TEST_CASE("Wing: Test idle task after regular tasks") {
+// 	atomic_int k = 5;
+// 	int m = 100;
+// 	const size_t COUNT = 6;
+// 	mutex mtx;
+// 	Wing wing {};
 
-	for (size_t i = 0; i < COUNT; i++) {
-		auto task = wing.task([&]{
-			std::this_thread::sleep_for(std::chrono::milliseconds(10));
-			k++;
-		});
-	}
+// 	for (size_t i = 0; i < COUNT; i++) {
+// 		auto task = wing.task([&]{
+// 			std::this_thread::sleep_for(std::chrono::milliseconds(10));
+// 			k++;
+// 		});
+// 	}
 
-	auto id = wing.idleTask([&]{
-		std::this_thread::sleep_for(std::chrono::milliseconds(10));
-		mtx.lock();
-			m = 42;
-		mtx.unlock();
-	});
+// 	auto id = wing.idleTask([&]{
+// 		std::this_thread::sleep_for(std::chrono::milliseconds(10));
+// 		mtx.lock();
+// 			m = 42;
+// 		mtx.unlock();
+// 	});
 
-	wing.join();
-	REQUIRE(k == 5 + COUNT);
+// 	wing.join();
+// 	REQUIRE(k == 5 + COUNT);
 
-	std::this_thread::sleep_for(std::chrono::milliseconds(20));
-	REQUIRE(m == 42);
-}
+// 	std::this_thread::sleep_for(std::chrono::milliseconds(20));
+// 	REQUIRE(m == 42);
+// }
 
-TEST_CASE("Wing: Test stopping idle task") {
-	int m = 100;
-	mutex mtx;
-	Wing wing {};
+// TEST_CASE("Wing: Test stopping idle task") {
+// 	int m = 100;
+// 	mutex mtx;
+// 	Wing wing {};
 
-	auto id = wing.idleTask([&]{
-		std::this_thread::sleep_for(std::chrono::milliseconds(5));
-		mtx.lock();
-			m = 42;
-		mtx.unlock();
-	});
+// 	auto id = wing.idleTask([&]{
+// 		std::this_thread::sleep_for(std::chrono::milliseconds(5));
+// 		mtx.lock();
+// 			m = 42;
+// 		mtx.unlock();
+// 	});
 
-	std::this_thread::sleep_for(std::chrono::milliseconds(25));
-	REQUIRE(m == 42);
+// 	std::this_thread::sleep_for(std::chrono::milliseconds(25));
+// 	REQUIRE(m == 42);
 
-	m = 100;
-	std::this_thread::sleep_for(std::chrono::milliseconds(25));
-	REQUIRE(m == 42);
+// 	m = 100;
+// 	std::this_thread::sleep_for(std::chrono::milliseconds(25));
+// 	REQUIRE(m == 42);
 
-	wing.stopIdleTask(id);
-	wing.finish();
-	m = 100;
-	std::this_thread::sleep_for(std::chrono::milliseconds(25));
-	REQUIRE(m == 100);
-}
+// 	wing.stopIdleTask(id);
+// 	wing.finish();
+// 	m = 100;
+// 	std::this_thread::sleep_for(std::chrono::milliseconds(25));
+// 	REQUIRE(m == 100);
+// }
 
-TEST_CASE("Wing: Test idle task to stop after wing destroy") {
-	int m = 100;
-	mutex mtx;
+// TEST_CASE("Wing: Test idle task to stop after wing destroy") {
+// 	int m = 100;
+// 	mutex mtx;
 
-	{
-		Wing wing {};
+// 	{
+// 		Wing wing {};
 
-		auto id = wing.idleTask([&]{
-			std::this_thread::sleep_for(std::chrono::milliseconds(10));
-			mtx.lock();
-				m = 42;
-			mtx.unlock();
-		});
+// 		auto id = wing.idleTask([&]{
+// 			std::this_thread::sleep_for(std::chrono::milliseconds(10));
+// 			mtx.lock();
+// 				m = 42;
+// 			mtx.unlock();
+// 		});
 
-		std::this_thread::sleep_for(std::chrono::milliseconds(20));
-		REQUIRE(m == 42);
+// 		std::this_thread::sleep_for(std::chrono::milliseconds(20));
+// 		REQUIRE(m == 42);
 
-		m = 100;
-		std::this_thread::sleep_for(std::chrono::milliseconds(20));
-		REQUIRE(m == 42);
-	}
+// 		m = 100;
+// 		std::this_thread::sleep_for(std::chrono::milliseconds(20));
+// 		REQUIRE(m == 42);
+// 	}
 
-	std::this_thread::sleep_for(std::chrono::milliseconds(20));
-	m = 100;
-	std::this_thread::sleep_for(std::chrono::milliseconds(20));
-	REQUIRE(m == 100);
-}
+// 	std::this_thread::sleep_for(std::chrono::milliseconds(20));
+// 	m = 100;
+// 	std::this_thread::sleep_for(std::chrono::milliseconds(20));
+// 	REQUIRE(m == 100);
+// }
 
 #endif
