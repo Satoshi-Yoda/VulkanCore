@@ -31,24 +31,26 @@ using std::thread;
 using std::unique_lock;
 using std::vector;
 
+template <typename T>
 struct Errand {
-	Errand(function<void()> func) : func(func) {};
+	Errand(function<void(T)> func) : func(func) {};
 	~Errand() {};
 
-	function<void()> func;
-	set<shared_ptr<Errand>> dependencies;
-	set<shared_ptr<Errand>> dependants;
+	function<void(T)> func;
+	set<shared_ptr<Errand<T>>> dependencies;
+	set<shared_ptr<Errand<T>>> dependants;
 	// bool isIdle = false;
 	bool done = false;
 };
 
+template <typename T>
 struct Technician {
 	size_t id = 0;
 	thread* thr;
-	optional<shared_ptr<Errand>> errand {};
+	optional<shared_ptr<Errand<T>>> errand {};
 };
 
-// template <typename T>
+template <typename T>
 class Wing {
 public:
 	Wing(size_t count = 0) {
@@ -67,7 +69,7 @@ public:
 				while (true) {
 					bool quit;
 
-					Technician& t = technicians[index];
+					Technician<T>& t = technicians[index];
 
 					{
 						unique_lock<mutex> lock { mtx };
@@ -91,7 +93,7 @@ public:
 					if (t.errand.has_value()) {
 						auto& errandPtr = t.errand.value();
 						if (errandPtr->func != nullptr) {
-							errandPtr->func();
+							errandPtr->func(T{}); // TODO use technician's T
 						}
 
 						mtx.lock();
@@ -134,8 +136,8 @@ public:
 		for (auto& technician : technicians) technician.thr->join();
 	}
 
-	shared_ptr<Errand> errand(const function<void()> func, const set<shared_ptr<Errand>> dependencies = set<shared_ptr<Errand>>()) {
-		shared_ptr<Errand> errand = make_shared<Errand>(func);
+	shared_ptr<Errand<T>> errand(const function<void(T)> func, const set<shared_ptr<Errand<T>>> dependencies = set<shared_ptr<Errand<T>>>()) {
+		shared_ptr<Errand<T>> errand = make_shared<Errand<T>>(func);
 		errand->dependencies = dependencies;
 
 		mtx.lock();
@@ -233,15 +235,15 @@ public:
 	condition_variable join_cv;
 	condition_variable finish_cv;
 
-	queue<shared_ptr<Errand>> idleTasks;
-	set<shared_ptr<Errand>> stoppingIdleTasks;
-	queue<shared_ptr<Errand>> availableTasks;
-	set<shared_ptr<Errand>> blockedTasks;
+	queue<shared_ptr<Errand<T>>> idleTasks;
+	set<shared_ptr<Errand<T>>> stoppingIdleTasks;
+	queue<shared_ptr<Errand<T>>> availableTasks;
+	set<shared_ptr<Errand<T>>> blockedTasks;
 	bool quitFlag = false;
 
 private:
 	// T toolkit;
-	vector<Technician> technicians;
+	vector<Technician<T>> technicians;
 	std::chrono::time_point<std::chrono::steady_clock> start;
 	std::chrono::time_point<std::chrono::steady_clock> ready;
 

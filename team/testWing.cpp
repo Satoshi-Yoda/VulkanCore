@@ -15,8 +15,8 @@ using namespace std;
 
 TEST_CASE("Wing: Test single errand work") {
 	atomic_int k = 5;
-	Wing wing {};
-	wing.errand([&]{
+	Wing<int> wing {};
+	wing.errand([&](int){
 		k = 10;
 	});
 	wing.join();
@@ -25,17 +25,17 @@ TEST_CASE("Wing: Test single errand work") {
 
 TEST_CASE("Wing: Test waiting for few tasks") {
 	atomic_int k = 5;
-	Wing wing {};
+	Wing<int> wing {};
 
-	wing.errand([&]{
+	wing.errand([&](int){
 		std::this_thread::sleep_for(std::chrono::milliseconds(10));
 		k++;
 	});
-	wing.errand([&]{
+	wing.errand([&](int){
 		std::this_thread::sleep_for(std::chrono::milliseconds(10));
 		k++;
 	});
-	wing.errand([&]{
+	wing.errand([&](int){
 		std::this_thread::sleep_for(std::chrono::milliseconds(10));
 		k++;
 	});
@@ -46,10 +46,10 @@ TEST_CASE("Wing: Test waiting for few tasks") {
 TEST_CASE("Wing: Test waiting for a lot of tasks") {
 	atomic_int k = 5;
 	const size_t COUNT = 100;
-	Wing wing {};
+	Wing<int> wing {};
 
 	for (size_t i = 0; i < COUNT; i++) {
-		wing.errand( [&]{
+		wing.errand([&](int){
 			k++;
 		});
 	}
@@ -59,19 +59,19 @@ TEST_CASE("Wing: Test waiting for a lot of tasks") {
 
 TEST_CASE("Wing: Test for managing errand id") {
 	atomic_int k = 5;
-	Wing wing {};
-	auto id1 = wing.errand( [&]{ k = 10; });
-	auto id2 = wing.errand( [&]{ k = 10; });
+	Wing<int> wing {};
+	auto id1 = wing.errand([&](int){ k = 10; });
+	auto id2 = wing.errand([&](int){ k = 10; });
 	wing.join();
 	REQUIRE(id1 != id2);
 }
 
 TEST_CASE("Wing: Test for join to complete all tasks") {
 	atomic_int k = 0;
-	Wing wing {};
+	Wing<int> wing {};
 
 	for (int i = 0; i < 100; i++) {
-		wing.errand([&]{
+		wing.errand([&](int){
 			std::this_thread::sleep_for(std::chrono::milliseconds(10));
 			k++;
 		});
@@ -83,8 +83,8 @@ TEST_CASE("Wing: Test for join to complete all tasks") {
 
 // TEST_CASE("Wing: Test for finding assigned specialist") {
 // 	Technician* specialist;
-// 	Wing wing {};
-// 	wing.errand([&]{
+// 	Wing<int> wing {};
+// 	wing.errand([&](int){
 // 		wing.mtx.lock();
 // 			specialist = wing.findCurrentTechnician();
 // 		wing.mtx.unlock();
@@ -97,19 +97,19 @@ TEST_CASE("Wing: Test for join to complete all tasks") {
 // }
 
 TEST_CASE("Wing: threads count") {
-	Wing wing1 {};
+	Wing<int> wing1 {};
 	REQUIRE(wing1.cpuThreads == 12);
 
-	Wing wing2 { 4 };
+	Wing<int> wing2 { 4 };
 	REQUIRE(wing2.cpuThreads == 4);
 }
 
 // TEST_CASE("Wing: Test several specialists even distribution") {
 // 	set<size_t> ids;
-// 	Wing wing {};
+// 	Wing<int> wing {};
 
 // 	for (size_t i = 0; i < wing.cpuThreads; i++) {
-// 		wing.errand([&]{
+// 		wing.errand([&](int){
 // 			wing.mtx.lock();
 // 				ids.insert(wing.findCurrentTechnician()->id);
 // 			wing.mtx.unlock();
@@ -132,17 +132,17 @@ TEST_CASE("Wing: threads count") {
 
 TEST_CASE("Wing: Test dependency") {
 	atomic_int k = 5;
-	Wing wing {};
+	Wing<int> wing {};
 
-	auto firstTask = wing.errand([&]{
+	auto firstTask = wing.errand([&](int){
 		std::this_thread::sleep_for(std::chrono::milliseconds(10));
 		k++;
 	});
-	auto secondTask = wing.errand([&]{
+	auto secondTask = wing.errand([&](int){
 		std::this_thread::sleep_for(std::chrono::milliseconds(10));
 		k++;
 	});
-	auto thirdTask = wing.errand([&]{
+	auto thirdTask = wing.errand([&](int){
 		k = (k == 7) ? 10 : 0;
 	}, { firstTask, secondTask });
 
@@ -152,18 +152,18 @@ TEST_CASE("Wing: Test dependency") {
 
 TEST_CASE("Wing: Test for completed dependency") {
 	atomic_int k = 5;
-	Wing wing {};
+	Wing<int> wing {};
 
-	auto firstTask = wing.errand([&]{
+	auto firstTask = wing.errand([&](int){
 		k++;
 	});
-	auto secondTask = wing.errand([&]{
+	auto secondTask = wing.errand([&](int){
 		k++;
 	});
 
 	std::this_thread::sleep_for(std::chrono::milliseconds(10));
 
-	auto thirdTask = wing.errand([&]{
+	auto thirdTask = wing.errand([&](int){
 		k = (k == 7) ? 10 : 0;
 	}, { firstTask, secondTask });
 
@@ -176,10 +176,10 @@ TEST_CASE("Wing: Test for completed dependency") {
 TEST_CASE("Wing: Test for wait time") {
 	atomic_int k = 5;
 	const size_t COUNT = 6;
-	Wing wing {};
+	Wing<int> wing {};
 
 	for (size_t i = 0; i < COUNT; i++) {
-		auto errand = wing.errand([&]{
+		auto errand = wing.errand([&](int){
 			std::this_thread::sleep_for(std::chrono::milliseconds(100));
 			k++;
 		});
@@ -193,10 +193,10 @@ TEST_CASE("Wing: Test for wait time") {
 TEST_CASE("Wing: Test for work after join") {
 	atomic_int k = 5;
 	const size_t COUNT = 6;
-	Wing wing {};
+	Wing<int> wing {};
 
 	for (size_t i = 0; i < COUNT; i++) {
-		auto errand = wing.errand([&]{
+		auto errand = wing.errand([&](int){
 			std::this_thread::sleep_for(std::chrono::milliseconds(10));
 			k++;
 		});
@@ -206,7 +206,7 @@ TEST_CASE("Wing: Test for work after join") {
 	REQUIRE(k == 5 + COUNT);
 
 	for (size_t i = 0; i < COUNT; i++) {
-		auto errand = wing.errand([&]{
+		auto errand = wing.errand([&](int){
 			std::this_thread::sleep_for(std::chrono::milliseconds(10));
 			k++;
 		});
@@ -221,16 +221,16 @@ TEST_CASE("Wing: Test for work after join") {
 // 	int m = 100;
 // 	const size_t COUNT = 6;
 // 	mutex mtx;
-// 	Wing wing {};
+// 	Wing<int> wing {};
 
 // 	for (size_t i = 0; i < COUNT; i++) {
-// 		auto errand = wing.errand([&]{
+// 		auto errand = wing.errand([&](int){
 // 			std::this_thread::sleep_for(std::chrono::milliseconds(10));
 // 			k++;
 // 		});
 // 	}
 
-// 	auto id = wing.idleTask([&]{
+// 	auto id = wing.idleTask([&](int){
 // 		std::this_thread::sleep_for(std::chrono::milliseconds(10));
 // 		mtx.lock();
 // 			m = 42;
@@ -247,9 +247,9 @@ TEST_CASE("Wing: Test for work after join") {
 // TEST_CASE("Wing: Test stopping idle errand") {
 // 	int m = 100;
 // 	mutex mtx;
-// 	Wing wing {};
+// 	Wing<int> wing {};
 
-// 	auto id = wing.idleTask([&]{
+// 	auto id = wing.idleTask([&](int){
 // 		std::this_thread::sleep_for(std::chrono::milliseconds(5));
 // 		mtx.lock();
 // 			m = 42;
@@ -275,9 +275,9 @@ TEST_CASE("Wing: Test for work after join") {
 // 	mutex mtx;
 
 // 	{
-// 		Wing wing {};
+// 		Wing<int> wing {};
 
-// 		auto id = wing.idleTask([&]{
+// 		auto id = wing.idleTask([&](int){
 // 			std::this_thread::sleep_for(std::chrono::milliseconds(10));
 // 			mtx.lock();
 // 				m = 42;
