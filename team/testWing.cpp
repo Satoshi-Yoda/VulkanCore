@@ -13,10 +13,10 @@
 
 using namespace std;
 
-TEST_CASE("Wing: Test single task work") {
+TEST_CASE("Wing: Test single errand work") {
 	atomic_int k = 5;
 	Wing wing {};
-	wing.task([&]{
+	wing.errand([&]{
 		k = 10;
 	});
 	wing.join();
@@ -27,15 +27,15 @@ TEST_CASE("Wing: Test waiting for few tasks") {
 	atomic_int k = 5;
 	Wing wing {};
 
-	wing.task([&]{
+	wing.errand([&]{
 		std::this_thread::sleep_for(std::chrono::milliseconds(10));
 		k++;
 	});
-	wing.task([&]{
+	wing.errand([&]{
 		std::this_thread::sleep_for(std::chrono::milliseconds(10));
 		k++;
 	});
-	wing.task([&]{
+	wing.errand([&]{
 		std::this_thread::sleep_for(std::chrono::milliseconds(10));
 		k++;
 	});
@@ -49,7 +49,7 @@ TEST_CASE("Wing: Test waiting for a lot of tasks") {
 	Wing wing {};
 
 	for (size_t i = 0; i < COUNT; i++) {
-		wing.task( [&]{
+		wing.errand( [&]{
 			k++;
 		});
 	}
@@ -57,11 +57,11 @@ TEST_CASE("Wing: Test waiting for a lot of tasks") {
 	REQUIRE(k == 5 + COUNT);
 }
 
-TEST_CASE("Wing: Test for managing task id") {
+TEST_CASE("Wing: Test for managing errand id") {
 	atomic_int k = 5;
 	Wing wing {};
-	auto id1 = wing.task( [&]{ k = 10; });
-	auto id2 = wing.task( [&]{ k = 10; });
+	auto id1 = wing.errand( [&]{ k = 10; });
+	auto id2 = wing.errand( [&]{ k = 10; });
 	wing.join();
 	REQUIRE(id1 != id2);
 }
@@ -71,7 +71,7 @@ TEST_CASE("Wing: Test for join to complete all tasks") {
 	Wing wing {};
 
 	for (int i = 0; i < 100; i++) {
-		wing.task([&]{
+		wing.errand([&]{
 			std::this_thread::sleep_for(std::chrono::milliseconds(10));
 			k++;
 		});
@@ -84,7 +84,7 @@ TEST_CASE("Wing: Test for join to complete all tasks") {
 // TEST_CASE("Wing: Test for finding assigned specialist") {
 // 	Technician* specialist;
 // 	Wing wing {};
-// 	wing.task([&]{
+// 	wing.errand([&]{
 // 		wing.mtx.lock();
 // 			specialist = wing.findCurrentTechnician();
 // 		wing.mtx.unlock();
@@ -109,7 +109,7 @@ TEST_CASE("Wing: threads count") {
 // 	Wing wing {};
 
 // 	for (size_t i = 0; i < wing.cpuThreads; i++) {
-// 		wing.task([&]{
+// 		wing.errand([&]{
 // 			wing.mtx.lock();
 // 				ids.insert(wing.findCurrentTechnician()->id);
 // 			wing.mtx.unlock();
@@ -134,15 +134,15 @@ TEST_CASE("Wing: Test dependency") {
 	atomic_int k = 5;
 	Wing wing {};
 
-	auto firstTask = wing.task([&]{
+	auto firstTask = wing.errand([&]{
 		std::this_thread::sleep_for(std::chrono::milliseconds(10));
 		k++;
 	});
-	auto secondTask = wing.task([&]{
+	auto secondTask = wing.errand([&]{
 		std::this_thread::sleep_for(std::chrono::milliseconds(10));
 		k++;
 	});
-	auto thirdTask = wing.task([&]{
+	auto thirdTask = wing.errand([&]{
 		k = (k == 7) ? 10 : 0;
 	}, { firstTask, secondTask });
 
@@ -154,16 +154,16 @@ TEST_CASE("Wing: Test for completed dependency") {
 	atomic_int k = 5;
 	Wing wing {};
 
-	auto firstTask = wing.task([&]{
+	auto firstTask = wing.errand([&]{
 		k++;
 	});
-	auto secondTask = wing.task([&]{
+	auto secondTask = wing.errand([&]{
 		k++;
 	});
 
 	std::this_thread::sleep_for(std::chrono::milliseconds(10));
 
-	auto thirdTask = wing.task([&]{
+	auto thirdTask = wing.errand([&]{
 		k = (k == 7) ? 10 : 0;
 	}, { firstTask, secondTask });
 
@@ -179,7 +179,7 @@ TEST_CASE("Wing: Test for wait time") {
 	Wing wing {};
 
 	for (size_t i = 0; i < COUNT; i++) {
-		auto task = wing.task([&]{
+		auto errand = wing.errand([&]{
 			std::this_thread::sleep_for(std::chrono::milliseconds(100));
 			k++;
 		});
@@ -196,7 +196,7 @@ TEST_CASE("Wing: Test for work after join") {
 	Wing wing {};
 
 	for (size_t i = 0; i < COUNT; i++) {
-		auto task = wing.task([&]{
+		auto errand = wing.errand([&]{
 			std::this_thread::sleep_for(std::chrono::milliseconds(10));
 			k++;
 		});
@@ -206,7 +206,7 @@ TEST_CASE("Wing: Test for work after join") {
 	REQUIRE(k == 5 + COUNT);
 
 	for (size_t i = 0; i < COUNT; i++) {
-		auto task = wing.task([&]{
+		auto errand = wing.errand([&]{
 			std::this_thread::sleep_for(std::chrono::milliseconds(10));
 			k++;
 		});
@@ -216,7 +216,7 @@ TEST_CASE("Wing: Test for work after join") {
 	REQUIRE(k == 5 + 2 * COUNT);
 }
 
-// TEST_CASE("Wing: Test idle task after regular tasks") {
+// TEST_CASE("Wing: Test idle errand after regular tasks") {
 // 	atomic_int k = 5;
 // 	int m = 100;
 // 	const size_t COUNT = 6;
@@ -224,7 +224,7 @@ TEST_CASE("Wing: Test for work after join") {
 // 	Wing wing {};
 
 // 	for (size_t i = 0; i < COUNT; i++) {
-// 		auto task = wing.task([&]{
+// 		auto errand = wing.errand([&]{
 // 			std::this_thread::sleep_for(std::chrono::milliseconds(10));
 // 			k++;
 // 		});
@@ -244,7 +244,7 @@ TEST_CASE("Wing: Test for work after join") {
 // 	REQUIRE(m == 42);
 // }
 
-// TEST_CASE("Wing: Test stopping idle task") {
+// TEST_CASE("Wing: Test stopping idle errand") {
 // 	int m = 100;
 // 	mutex mtx;
 // 	Wing wing {};
@@ -270,7 +270,7 @@ TEST_CASE("Wing: Test for work after join") {
 // 	REQUIRE(m == 100);
 // }
 
-// TEST_CASE("Wing: Test idle task to stop after wing destroy") {
+// TEST_CASE("Wing: Test idle errand to stop after wing destroy") {
 // 	int m = 100;
 // 	mutex mtx;
 

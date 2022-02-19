@@ -45,7 +45,7 @@ struct Errand {
 struct Technician {
 	size_t id = 0;
 	thread* thr;
-	optional<shared_ptr<Errand>> task {};
+	optional<shared_ptr<Errand>> errand {};
 };
 
 // template <typename T>
@@ -71,10 +71,10 @@ public:
 
 					{
 						unique_lock<mutex> lock { mtx };
-						task_cv.wait(lock, [&]{ return (availableTasks.empty() == false) || (idleTasks.empty() == false) || quitFlag; });
+						errand_cv.wait(lock, [&]{ return (availableTasks.empty() == false) || (idleTasks.empty() == false) || quitFlag; });
 						quit = quitFlag;
 						if (availableTasks.empty() == false) {
-							t.task = availableTasks.front();
+							t.errand = availableTasks.front();
 							availableTasks.pop();
 						} else if (idleTasks.empty() == false) {
 							auto candidate = idleTasks.front();
@@ -82,31 +82,31 @@ public:
 							if (stoppingIdleTasks.contains(candidate) || quit) {
 								stoppingIdleTasks.erase(candidate);
 							} else {
-								t.task = candidate;
+								t.errand = candidate;
 								idleTasks.push(candidate);
 							}
 						}
 					}
 
-					if (t.task.has_value()) {
-						auto& taskPtr = t.task.value();
-						if (taskPtr->func != nullptr) {
-							taskPtr->func();
+					if (t.errand.has_value()) {
+						auto& errandPtr = t.errand.value();
+						if (errandPtr->func != nullptr) {
+							errandPtr->func();
 						}
 
 						mtx.lock();
-							taskPtr->done = true;
+							errandPtr->done = true;
 
-							for (auto& dependant : taskPtr->dependants) {
-								dependant->dependencies.erase(taskPtr);
+							for (auto& dependant : errandPtr->dependants) {
+								dependant->dependencies.erase(errandPtr);
 								if (dependant->dependencies.empty()) {
 									blockedTasks.erase(dependant);
 									availableTasks.push(dependant);
-									task_cv.notify_one();
+									errand_cv.notify_one();
 								}
 							}
 
-							t.task.reset();
+							t.errand.reset();
 						mtx.unlock();
 					}
 
@@ -129,33 +129,33 @@ public:
 		mtx.lock();
 			quitFlag = true;
 		mtx.unlock();
-		task_cv.notify_all();
+		errand_cv.notify_all();
 
 		for (auto& technician : technicians) technician.thr->join();
 	}
 
-	shared_ptr<Errand> task(const function<void()> func, const set<shared_ptr<Errand>> dependencies = set<shared_ptr<Errand>>()) {
-		shared_ptr<Errand> task = make_shared<Errand>(func);
-		task->dependencies = dependencies;
+	shared_ptr<Errand> errand(const function<void()> func, const set<shared_ptr<Errand>> dependencies = set<shared_ptr<Errand>>()) {
+		shared_ptr<Errand> errand = make_shared<Errand>(func);
+		errand->dependencies = dependencies;
 
 		mtx.lock();
-			std::erase_if(task->dependencies, [](auto& dependency){
+			std::erase_if(errand->dependencies, [](auto& dependency){
 				return dependency->done;
 			});
 
-			for (auto& dependency : task->dependencies) {
-				dependency->dependants.insert(task);
+			for (auto& dependency : errand->dependencies) {
+				dependency->dependants.insert(errand);
 			}
 
-			if (task->dependencies.empty()) {
-				availableTasks.push(task);
-				task_cv.notify_one();
+			if (errand->dependencies.empty()) {
+				availableTasks.push(errand);
+				errand_cv.notify_one();
 			} else {
-				blockedTasks.insert(task);
+				blockedTasks.insert(errand);
 			}
 		mtx.unlock();
 
-		return task;
+		return errand;
 	}
 
 	void join() {
@@ -166,8 +166,8 @@ public:
 			done = done && availableTasks.empty();
 
 			for (auto& technician : technicians) {
-				// bool busy = (technician.task.has_value() && (technician.task.value()->isIdle == false));
-				bool busy = technician.task.has_value();
+				// bool busy = (technician.errand.has_value() && (technician.errand.value()->isIdle == false));
+				bool busy = technician.errand.has_value();
 				done = done && !busy;
 			}
 
@@ -188,7 +188,7 @@ public:
 			done = done && availableTasks.empty();
 
 			for (auto& technician : technicians) {
-				bool busy = (technician.task.has_value());
+				bool busy = (technician.errand.has_value());
 				done = done && !busy;
 			}
 
@@ -229,7 +229,7 @@ public:
 	uint32_t cpuThreads;
 
 	mutex mtx;
-	condition_variable task_cv;
+	condition_variable errand_cv;
 	condition_variable join_cv;
 	condition_variable finish_cv;
 
