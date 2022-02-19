@@ -9,7 +9,6 @@
 #include <atomic>
 
 #include "Wing.hpp"
-#include "Technician.h"
 #include "Task.h"
 
 using namespace std;

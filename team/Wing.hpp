@@ -7,7 +7,6 @@
 #include <condition_variable>
 #include <iostream>
 #include <list>
-#include <ranges>
 #include <memory>
 #include <mutex>
 #include <optional>
@@ -16,16 +15,11 @@
 #include <set>
 #include <thread>
 #include <utility>
-
-#define GLFW_INCLUDE_VULKAN
-#include <GLFW/glfw3.h>
-
-#include "Task.h"
-
-#include "../core/Rocks.h"
+#include <vector>
 
 using std::array;
 using std::condition_variable;
+using std::function;
 using std::list;
 using std::mutex;
 using std::optional;
@@ -35,11 +29,23 @@ using std::set;
 using std::shared_ptr;
 using std::thread;
 using std::unique_lock;
+using std::vector;
+
+struct Errand {
+	Errand(function<void()> func) : func(func) {};
+	~Errand() {};
+
+	function<void()> func;
+	set<shared_ptr<Errand>> dependencies;
+	set<shared_ptr<Errand>> dependants;
+	// bool isIdle = false;
+	bool done = false;
+};
 
 struct Technician {
 	size_t id = 0;
 	thread* thr;
-	optional<shared_ptr<Task>> task {};
+	optional<shared_ptr<Errand>> task {};
 };
 
 // template <typename T>
@@ -128,8 +134,8 @@ public:
 		for (auto& technician : technicians) technician.thr->join();
 	}
 
-	shared_ptr<Task> task(const function<void()> func, const set<shared_ptr<Task>> dependencies = set<shared_ptr<Task>>()) {
-		shared_ptr<Task> task = make_shared<Task>(ST_CPU, func);
+	shared_ptr<Errand> task(const function<void()> func, const set<shared_ptr<Errand>> dependencies = set<shared_ptr<Errand>>()) {
+		shared_ptr<Errand> task = make_shared<Errand>(func);
 		task->dependencies = dependencies;
 
 		mtx.lock();
@@ -157,13 +163,11 @@ public:
 		join_cv.wait(lock, [&]{
 			bool done = true;
 			done = done && blockedTasks.empty();
-
-			for (size_t i = 0; i < SpecialityCount; i++) {
-				done = done && availableTasks.empty();
-			}
+			done = done && availableTasks.empty();
 
 			for (auto& technician : technicians) {
-				bool busy = (technician.task.has_value() && (technician.task.value()->isIdle == false));
+				// bool busy = (technician.task.has_value() && (technician.task.value()->isIdle == false));
+				bool busy = technician.task.has_value();
 				done = done && !busy;
 			}
 
@@ -229,10 +233,10 @@ public:
 	condition_variable join_cv;
 	condition_variable finish_cv;
 
-	queue<shared_ptr<Task>> idleTasks;
-	set<shared_ptr<Task>> stoppingIdleTasks;
-	queue<shared_ptr<Task>> availableTasks;
-	set<shared_ptr<Task>> blockedTasks;
+	queue<shared_ptr<Errand>> idleTasks;
+	set<shared_ptr<Errand>> stoppingIdleTasks;
+	queue<shared_ptr<Errand>> availableTasks;
+	set<shared_ptr<Errand>> blockedTasks;
 	bool quitFlag = false;
 
 private:
