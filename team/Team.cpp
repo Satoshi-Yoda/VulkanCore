@@ -9,9 +9,14 @@
 using namespace std;
 using namespace std::ranges::views;
 
-Team::Team() {
+Team::Team(size_t threads) {
 	start = chrono::steady_clock::now();
-	cpuThreads = thread::hardware_concurrency();
+
+	if (threads == 0) {
+		cpuThreads = thread::hardware_concurrency();
+	} else {
+		cpuThreads = threads;
+	}
 	// cpuThreads = 1;
 
 	// TODO maybe do project-separate groups initialization

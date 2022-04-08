@@ -31,7 +31,7 @@ class Specialist;
 
 class Team {
 public:
-	Team();
+	Team(size_t threads = 0);
 	~Team();
 
 	void initGpuSpecialists(Rocks& rocks);
