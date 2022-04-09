@@ -136,6 +136,28 @@ void Team::stopIdleTask(const shared_ptr<Task> task) {
 	mtx.unlock();
 }
 
+void Team::abort() {
+	mtx.lock();
+		size_t cleared = blockedTasks.size();
+		for (auto& specialityTasks : availableTasks) {
+			cleared += specialityTasks.size();
+		}
+
+		for (const auto& task : blockedTasks) {
+			for (const auto& dep : task->dependencies) {
+				assert(dep->dependants.contains(task));
+				dep->dependants.erase(task);
+			}
+		}
+		blockedTasks.clear();
+		for (auto& specialityTasks : availableTasks) {
+			specialityTasks = {};
+		}
+	mtx.unlock();
+
+	cout << "Team: Aborted " << cleared << " tasks" << endl;
+}
+
 void Team::join() {
 	unique_lock<mutex> lock { mtx };
 	join_cv.wait(lock, [&]{

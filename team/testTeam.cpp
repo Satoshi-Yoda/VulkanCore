@@ -347,4 +347,27 @@ TEST_CASE("Team: Test idle task to stop after team destroy") {
 	REQUIRE(m == 100);
 }
 
+TEST_CASE("Team: Test for general abort") {
+	Team team { 4 };
+	atomic_int k = 0;
+
+	for (size_t i = 0; i < 4; i++) {
+		team.task(ST_CPU, [&]{
+			std::this_thread::sleep_for(std::chrono::milliseconds(20));
+			k++;
+		});
+	}
+	for (size_t i = 0; i < 4; i++) {
+		team.task(ST_CPU, [&]{
+			std::this_thread::sleep_for(std::chrono::milliseconds(30));
+			k++;
+		});
+	}
+
+	std::this_thread::sleep_for(std::chrono::milliseconds(10));
+	team.abort();
+	team.join();
+	REQUIRE(k == 4);
+}
+
 #endif
