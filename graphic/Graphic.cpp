@@ -159,12 +159,12 @@ void Graphic::establishLiveData(VkCommandBuffer externalCommandBuffer) {
 }
 
 void Graphic::refreshDataFromRaw() {
-	if (rawPoints.size() == 0) return;
+	if (points.size() == 0) return;
 
-	data.points.resize(rawPoints.size());
+	data.points.resize(points.size());
 
-	for (size_t i = 0; i < rawPoints.size(); i++) {
-		data.points[i] = rawPoints[i] * rawTransform[0] + rawTransform[1];
+	for (size_t i = 0; i < points.size(); i++) {
+		data.points[i] = points[i] * transform[0] + transform[1];
 	}
 }
 

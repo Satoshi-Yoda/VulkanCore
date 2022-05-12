@@ -64,8 +64,8 @@ public:
 	VmaAllocation stagingVertexAllocation;
 	VmaAllocationInfo stagingVertexInfo;
 
-	vector<float> rawPoints;
-	array<float, 2> rawTransform = { 1.0f, 0.0f };
+	vector<float> points;
+	array<float, 2> transform = { 1.0f, 0.0f };
 
 	GraphicData data;
 	VkBuffer dataBuffer;
