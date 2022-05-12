@@ -158,6 +158,16 @@ void Graphic::establishLiveData(VkCommandBuffer externalCommandBuffer) {
 	aspects.raise(GraphicAspect::LIVE_DATA);
 }
 
+void Graphic::refreshDataFromRaw() {
+	if (rawPoints.size() == 0) return;
+
+	data.points.resize(rawPoints.size());
+
+	for (size_t i = 0; i < rawPoints.size(); i++) {
+		data.points[i] = rawPoints[i] * rawTransform[0] + rawTransform[1];
+	}
+}
+
 void Graphic::refreshWorkingVertices() {
 	int x = round(position.x);
 	int y = round(position.y);
@@ -255,6 +265,7 @@ void Graphic::freeLiveData() {
 }
 
 void Graphic::paint() {
+	refreshDataFromRaw();
 	refreshWorkingVertices();
 
 	establish(GraphicAspect::STAGING_VERTICES, GraphicAspect::STAGING_DATA);
@@ -265,6 +276,7 @@ void Graphic::paint() {
 }
 
 void Graphic::refresh() {
+	refreshDataFromRaw();
 	refreshWorkingVertices();
 	refreshStagingVertices();
 	refreshLiveVertices();

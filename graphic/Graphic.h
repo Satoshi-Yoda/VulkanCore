@@ -1,5 +1,6 @@
 #pragma once
 
+#include <array>
 #include <bitset>
 #include <set>
 #include <string>
@@ -19,6 +20,7 @@
 #include "../state/flag_group.hpp"
 #include "GraphicLayout.h"
 
+using std::array;
 using std::bitset;
 using std::set;
 using std::string;
@@ -61,6 +63,9 @@ public:
 	VkBuffer stagingVertexBuffer;
 	VmaAllocation stagingVertexAllocation;
 	VmaAllocationInfo stagingVertexInfo;
+
+	vector<float> rawPoints;
+	array<float, 2> rawTransform = { 1.0f, 0.0f };
 
 	GraphicData data;
 	VkBuffer dataBuffer;
@@ -118,6 +123,7 @@ private:
 	void establishLiveVertices (VkCommandBuffer externalCommandBuffer = nullptr);
 	void establishLiveData     (VkCommandBuffer externalCommandBuffer = nullptr);
 
+	void refreshDataFromRaw();
 	void refreshWorkingVertices();
 	void refreshStagingVertices();
 	void refreshStagingData();
