@@ -370,4 +370,38 @@ TEST_CASE("Team: Test for general abort") {
 	REQUIRE(k == 4);
 }
 
+
+TEST_CASE("Team: Test for multiple dependencies") {
+	Team team { 4 };
+
+	size_t COUNT_K = 7;
+	size_t COUNT_M = 5;
+
+	atomic_int k = 0;
+	atomic_int m = 0;
+
+	set<shared_ptr<Task>> ids;
+
+	for (size_t i = 0; i < COUNT_K; i++) {
+		ids.insert(team.task(ST_CPU, [&]{
+			std::this_thread::sleep_for(std::chrono::milliseconds(20));
+			k++;
+		}));
+	}
+
+	REQUIRE(ids.size() == COUNT_K);
+
+	for (size_t i = 0; i < COUNT_M; i++) {
+		team.task(ST_CPU, [&]{
+			REQUIRE(k == static_cast<atomic_int>(COUNT_K));
+			m++;
+		}, ids);
+	}
+
+	team.join();
+
+	REQUIRE(k == static_cast<atomic_int>(COUNT_K));
+	REQUIRE(m == static_cast<atomic_int>(COUNT_M));
+}
+
 #endif
