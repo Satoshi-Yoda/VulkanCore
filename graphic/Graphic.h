@@ -66,6 +66,7 @@ public:
 
 	vector<float> points;
 	array<float, 2> transform = { 1.0f, 0.0f };
+	size_t maxResolution = 8192;
 
 	GraphicData data;
 	VkBuffer dataBuffer;
