@@ -1,4 +1,5 @@
 Qualities:
+ - canvases
  + batch drawing + v0.1
  + team & multithreading + v0.1
  - color selection
