@@ -14,7 +14,7 @@
 
 using namespace std;
 
-TEST_CASE("Test single task work") {
+TEST_CASE("Team: Test single task work") {
 	// std::setvbuf(stdout, nullptr, _IONBF, 0);
 	// printf("\n");
 
@@ -27,7 +27,7 @@ TEST_CASE("Test single task work") {
 	REQUIRE(k == 10);
 }
 
-TEST_CASE("Test waiting for few tasks") {
+TEST_CASE("Team: Test waiting for few tasks") {
 	atomic_int k = 5;
 	Team team {};
 
@@ -47,7 +47,7 @@ TEST_CASE("Test waiting for few tasks") {
 	REQUIRE(k == 8);
 }
 
-TEST_CASE("Test waiting for a lot of tasks") {
+TEST_CASE("Team: Test waiting for a lot of tasks") {
 	// std::setvbuf(stdout, nullptr, _IONBF, 0);
  	// printf("\n");
 
@@ -64,7 +64,7 @@ TEST_CASE("Test waiting for a lot of tasks") {
 	REQUIRE(k == 5 + COUNT);
 }
 
-TEST_CASE("Test for managing task id") {
+TEST_CASE("Team: Test for managing task id") {
 	atomic_int k = 5;
 	Team team {};
 	auto id1 = team.task(ST_CPU, [&]{ k = 10; });
@@ -73,7 +73,7 @@ TEST_CASE("Test for managing task id") {
 	REQUIRE(id1 != id2);
 }
 
-TEST_CASE("Test for join to complete all tasks") {
+TEST_CASE("Team: Test for join to complete all tasks") {
 	atomic_int k = 0;
 	Team team {};
 
@@ -88,7 +88,7 @@ TEST_CASE("Test for join to complete all tasks") {
 	REQUIRE(k == 100);
 }
 
-TEST_CASE("Test for finding assigned specialist") {
+TEST_CASE("Team: Test for finding assigned specialist") {
 	Specialist* specialist;
 	Team team {};
 	team.task(ST_HDD, [&]{
@@ -104,12 +104,12 @@ TEST_CASE("Test for finding assigned specialist") {
 	REQUIRE(specialist->id > 100);
 }
 
-TEST_CASE("12 threads for me") {
+TEST_CASE("Team: 12 threads for me") {
 	Team team {};
 	REQUIRE(team.cpuThreads == 12);
 }
 
-TEST_CASE("Test several specialists even distribution") {
+TEST_CASE("Team: Test several specialists even distribution") {
 	set<size_t> ids;
 	Team team {};
 
@@ -135,7 +135,7 @@ TEST_CASE("Test several specialists even distribution") {
 	}
 }
 
-TEST_CASE("Test dependency") {
+TEST_CASE("Team: Test dependency") {
 	atomic_int k = 5;
 	Team team {};
 
@@ -155,7 +155,7 @@ TEST_CASE("Test dependency") {
 	REQUIRE(k == 10);
 }
 
-TEST_CASE("Test for completed dependency") {
+TEST_CASE("Team: Test for completed dependency") {
 	atomic_int k = 5;
 	Team team {};
 
@@ -178,7 +178,7 @@ TEST_CASE("Test for completed dependency") {
 	REQUIRE(k == 10);
 }
 
-TEST_CASE("Test for different specialities") {
+TEST_CASE("Team: Test for different specialities") {
 	Specialist* specialist1 = nullptr;
 	Specialist* specialist2 = nullptr;
 	Specialist* specialist3 = nullptr;
@@ -221,7 +221,7 @@ TEST_CASE("Test for different specialities") {
 	REQUIRE(k == 9);
 }
 
-TEST_CASE("Test for wait time") {
+TEST_CASE("Team: Test for wait time") {
 	atomic_int k = 5;
 	const size_t COUNT = 6;
 	Team team {};
@@ -239,7 +239,7 @@ TEST_CASE("Test for wait time") {
 	REQUIRE(static_cast<uint64_t>(team.workTime() * 1e6) / static_cast<double>(1000) < 150);
 }
 
-TEST_CASE("Test for work after join") {
+TEST_CASE("Team: Test for work after join") {
 	atomic_int k = 5;
 	const size_t COUNT = 6;
 	Team team {};
@@ -265,7 +265,7 @@ TEST_CASE("Test for work after join") {
 	REQUIRE(k == 5 + 2 * COUNT);
 }
 
-TEST_CASE("Test idle task after regular tasks") {
+TEST_CASE("Team: Test idle task after regular tasks") {
 	atomic_int k = 5;
 	int m = 100;
 	const size_t COUNT = 6;
@@ -293,7 +293,7 @@ TEST_CASE("Test idle task after regular tasks") {
 	REQUIRE(m == 42);
 }
 
-TEST_CASE("Test stopping idle task") {
+TEST_CASE("Team: Test stopping idle task") {
 	int m = 100;
 	mutex mtx;
 	Team team {};
@@ -319,7 +319,7 @@ TEST_CASE("Test stopping idle task") {
 	REQUIRE(m == 100);
 }
 
-TEST_CASE("Test idle task to stop after team destroy") {
+TEST_CASE("Team: Test idle task to stop after team destroy") {
 	int m = 100;
 	mutex mtx;
 
@@ -345,6 +345,63 @@ TEST_CASE("Test idle task to stop after team destroy") {
 	m = 100;
 	std::this_thread::sleep_for(std::chrono::milliseconds(20));
 	REQUIRE(m == 100);
+}
+
+TEST_CASE("Team: Test for general abort") {
+	Team team { 4 };
+	atomic_int k = 0;
+
+	for (size_t i = 0; i < 4; i++) {
+		team.task(ST_CPU, [&]{
+			std::this_thread::sleep_for(std::chrono::milliseconds(20));
+			k++;
+		});
+	}
+	for (size_t i = 0; i < 4; i++) {
+		team.task(ST_CPU, [&]{
+			std::this_thread::sleep_for(std::chrono::milliseconds(30));
+			k++;
+		});
+	}
+
+	std::this_thread::sleep_for(std::chrono::milliseconds(10));
+	team.abort();
+	team.join();
+	REQUIRE(k == 4);
+}
+
+
+TEST_CASE("Team: Test for multiple dependencies") {
+	Team team { 4 };
+
+	size_t COUNT_K = 7;
+	size_t COUNT_M = 5;
+
+	atomic_int k = 0;
+	atomic_int m = 0;
+
+	set<shared_ptr<Task>> ids;
+
+	for (size_t i = 0; i < COUNT_K; i++) {
+		ids.insert(team.task(ST_CPU, [&]{
+			std::this_thread::sleep_for(std::chrono::milliseconds(20));
+			k++;
+		}));
+	}
+
+	REQUIRE(ids.size() == COUNT_K);
+
+	for (size_t i = 0; i < COUNT_M; i++) {
+		team.task(ST_CPU, [&]{
+			REQUIRE(k == static_cast<atomic_int>(COUNT_K));
+			m++;
+		}, ids);
+	}
+
+	team.join();
+
+	REQUIRE(k == static_cast<atomic_int>(COUNT_K));
+	REQUIRE(m == static_cast<atomic_int>(COUNT_M));
 }
 
 #endif

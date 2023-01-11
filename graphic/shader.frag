@@ -72,12 +72,35 @@ void main() {
 	int last_i = data.points.length() - 1;
 	int min_i = max(first_i + int(floor((last_i - first_i) * min_x / data.size.x)), first_i);
 	int max_i = min(first_i + int( ceil((last_i - first_i) * max_x / data.size.x)), last_i);
+	float scale = 1.0 / float(last_i - first_i);
 
 	float total = 0.0f;
 	for (int i = min_i; i < max_i; i++) {
-		vec2 A = vec2((float(i    ) - first_i) / (last_i - first_i), data.points[i    ].value) * data.size;
-		vec2 B = vec2((float(i + 1) - first_i) / (last_i - first_i), data.points[i + 1].value) * data.size;
-		total = max(total, capsule(A, B));
+		float vp = data.points[i - 1].value;
+		float v0 = data.points[i    ].value;
+		float v1 = data.points[i + 1].value;
+		float v2 = data.points[i + 2].value;
+
+		vec2 A;
+		vec2 B;
+		bool here = false;
+		float s = 0.3;
+		if (isnan(v0) && !isnan(v1) && isnan(v2)) {
+			A = vec2((float(i + 1.0 - s) - first_i) * scale, v1) * data.size;
+			B = vec2((float(i + 1.0    ) - first_i) * scale, v1) * data.size;
+			here = true;
+		} else if (isnan(vp) && !isnan(v0) && isnan(v1)) {
+			A = vec2((float(i + 0.0) - first_i) * scale, v0) * data.size;
+			B = vec2((float(i + s  ) - first_i) * scale, v0) * data.size;
+			here = true;
+		} else if (!isnan(v0) && !isnan(v1)) {
+			A = vec2((float(i    ) - first_i) * scale, v0) * data.size;
+			B = vec2((float(i + 1) - first_i) * scale, v1) * data.size;
+			here = true;
+		}
+		if (here) {
+			total = max(total, capsule(A, B));
+		}
 	}
 
 	vec4 result = mix(data.bgColor, data.lineColor, clamp(total, 0.0f, 1.0f));

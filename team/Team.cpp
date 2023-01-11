@@ -9,9 +9,14 @@
 using namespace std;
 using namespace std::ranges::views;
 
-Team::Team() {
+Team::Team(size_t threads) {
 	start = chrono::steady_clock::now();
-	cpuThreads = thread::hardware_concurrency();
+
+	if (threads == 0) {
+		cpuThreads = thread::hardware_concurrency();
+	} else {
+		cpuThreads = threads;
+	}
 	// cpuThreads = 1;
 
 	// TODO maybe do project-separate groups initialization
@@ -129,6 +134,28 @@ void Team::stopIdleTask(const shared_ptr<Task> task) {
 		size_t index = static_cast<size_t>(task->speciality);
 		stoppingIdleTasks[index].insert(task);
 	mtx.unlock();
+}
+
+void Team::abort() {
+	mtx.lock();
+		size_t cleared = blockedTasks.size();
+		for (auto& specialityTasks : availableTasks) {
+			cleared += specialityTasks.size();
+		}
+
+		for (const auto& task : blockedTasks) {
+			for (const auto& dep : task->dependencies) {
+				assert(dep->dependants.contains(task));
+				dep->dependants.erase(task);
+			}
+		}
+		blockedTasks.clear();
+		for (auto& specialityTasks : availableTasks) {
+			specialityTasks = {};
+		}
+	mtx.unlock();
+
+	cout << "Team: Aborted " << cleared << " tasks" << endl;
 }
 
 void Team::join() {

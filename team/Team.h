@@ -31,7 +31,7 @@ class Specialist;
 
 class Team {
 public:
-	Team();
+	Team(size_t threads = 0);
 	~Team();
 
 	void initGpuSpecialists(Rocks& rocks);
@@ -39,6 +39,7 @@ public:
 	shared_ptr<Task> gpuTask(const function<void(VkCommandBuffer)> func, const set<shared_ptr<Task>> dependencies = set<shared_ptr<Task>>());
 	shared_ptr<Task> idleTask(const Speciality speciality, const function<void()> func);
 	void stopIdleTask(const shared_ptr<Task> task);
+	void abort();
 	void join();
 	void finish();
 	// TODO implement joinTasks(set<shared_ptr<Task>> tasks);
