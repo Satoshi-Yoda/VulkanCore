@@ -8,6 +8,10 @@ Qualities:
  - rare updates
  - replays
 
+Wishes:
+ - put (ash, team, batcher, mountain, rocks, crater, lava, tectonic) inside engine somehow?
+ - RectangleLayout & GraphicLayout are almost the same, maybe separate common part somehow?
+
 Path:
  + Organize cave batch into single folder, rework glsl files compilation
  + Duplicate Cave into Rectangle
