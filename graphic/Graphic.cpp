@@ -42,7 +42,7 @@ void Graphic::createDescriptorSet() {
 	VkDescriptorSetAllocateInfo allocInfo { VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO };
 	allocInfo.descriptorPool = mountain.descriptorPool;
 	allocInfo.descriptorSetCount = 1;
-	// allocInfo.pSetLayouts = &lava.lineGraphicLayout.descriptorSetLayout;
+
 	if (style == GraphicStyle::LINE) {
 		allocInfo.pSetLayouts = &lava.lineGraphicLayout.descriptorSetLayout;
 	} else {

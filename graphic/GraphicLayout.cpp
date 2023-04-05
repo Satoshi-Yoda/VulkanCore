@@ -55,10 +55,6 @@ void GraphicLayout::createDescriptorSetLayout() {
 }
 
 void GraphicLayout::createPipeline() {
-	// TODO try catch or assert
-	// auto vertShaderCode = rocks.readFile("shaders/graphic-line-vert.spv");
-	// auto fragShaderCode = rocks.readFile("shaders/graphic-line-frag.spv");
-
 	vector<char> vertShaderCode;
 	vector<char> fragShaderCode;
 
@@ -70,6 +66,9 @@ void GraphicLayout::createPipeline() {
 		vertShaderCode = rocks.readFile("shaders/graphic-area-vert.spv");
 		fragShaderCode = rocks.readFile("shaders/graphic-area-frag.spv");
 	}
+
+	assert(!vertShaderCode.empty());
+	assert(!fragShaderCode.empty());
 
 	VkShaderModule vertShaderModule = rocks.createShaderModule(vertShaderCode);
 	VkShaderModule fragShaderModule = rocks.createShaderModule(fragShaderCode);
