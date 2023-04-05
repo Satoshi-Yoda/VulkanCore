@@ -68,7 +68,8 @@ private:
 public:
 	BatchLayout batchLayout { ash, mountain, rocks, crater };
 	RectangleLayout rectangleLayout { ash, mountain, rocks, crater };
-	GraphicLayout graphicLayout { ash, mountain, rocks, crater };
+	GraphicLayout lineGraphicLayout { ash, mountain, rocks, crater, GraphicStyle::LINE };
+	GraphicLayout areaGraphicLayout { ash, mountain, rocks, crater, GraphicStyle::AREA };
 
 private:
 	void createUniformBuffers();

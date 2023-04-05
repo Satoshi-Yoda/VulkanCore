@@ -13,7 +13,9 @@ using glm::vec3;
 using namespace std;
 
 // TODO crater isn't used
-Graphic::Graphic(Ash& ash, Mountain& mountain, Rocks& rocks, Crater& crater, Lava& lava) : ash(ash), mountain(mountain), rocks(rocks), crater(crater), lava(lava) { }
+Graphic::Graphic(Ash& ash, Mountain& mountain, Rocks& rocks, Crater& crater, Lava& lava) : ash(ash), mountain(mountain), rocks(rocks), crater(crater), lava(lava), style(GraphicStyle::LINE) { }
+
+Graphic::Graphic(Ash& ash, Mountain& mountain, Rocks& rocks, Crater& crater, Lava& lava, GraphicStyle style) : ash(ash), mountain(mountain), rocks(rocks), crater(crater), lava(lava), style(style) { }
 
 Graphic::~Graphic() {
 	if (this->aspects.has(GraphicAspect::STAGING_VERTICES)) freeStagingVertices();
@@ -40,7 +42,13 @@ void Graphic::createDescriptorSet() {
 	VkDescriptorSetAllocateInfo allocInfo { VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO };
 	allocInfo.descriptorPool = mountain.descriptorPool;
 	allocInfo.descriptorSetCount = 1;
-	allocInfo.pSetLayouts = &lava.graphicLayout.descriptorSetLayout;
+	// allocInfo.pSetLayouts = &lava.lineGraphicLayout.descriptorSetLayout;
+	if (style == GraphicStyle::LINE) {
+		allocInfo.pSetLayouts = &lava.lineGraphicLayout.descriptorSetLayout;
+	} else {
+		assert(style == GraphicStyle::AREA);
+		allocInfo.pSetLayouts = &lava.areaGraphicLayout.descriptorSetLayout;
+	}
 
 	vkAllocateDescriptorSets(mountain.device, &allocInfo, &descriptorSet) >> ash("Failed to allocate descriptor set!");
 
