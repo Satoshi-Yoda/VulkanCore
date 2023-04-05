@@ -13,9 +13,9 @@ using glm::vec3;
 using namespace std;
 
 // TODO crater isn't used
-Graphic::Graphic(Ash& ash, Mountain& mountain, Rocks& rocks, Crater& crater, Lava& lava) : ash(ash), mountain(mountain), rocks(rocks), crater(crater), lava(lava), style(GraphicStyle::LINE) { }
+Graphic::Graphic(Ash& ash, Mountain& mountain, Rocks& rocks, Crater& crater, Lava& lava) : style(GraphicStyle::LINE), ash(ash), mountain(mountain), rocks(rocks), crater(crater), lava(lava) { }
 
-Graphic::Graphic(Ash& ash, Mountain& mountain, Rocks& rocks, Crater& crater, Lava& lava, GraphicStyle style) : ash(ash), mountain(mountain), rocks(rocks), crater(crater), lava(lava), style(style) { }
+Graphic::Graphic(Ash& ash, Mountain& mountain, Rocks& rocks, Crater& crater, Lava& lava, GraphicStyle style) : style(style), ash(ash), mountain(mountain), rocks(rocks), crater(crater), lava(lava) { }
 
 Graphic::~Graphic() {
 	if (this->aspects.has(GraphicAspect::STAGING_VERTICES)) freeStagingVertices();
