@@ -1,5 +1,6 @@
 #include "BatchLayout.h"
 
+#include <array>
 #include <cassert>
 
 #define GLM_FORCE_RADIANS
