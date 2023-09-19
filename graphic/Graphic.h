@@ -43,12 +43,15 @@ enum class GraphicAspect {
 class Graphic : public std::enable_shared_from_this<Graphic> {
 public:
 	Graphic(Ash& ash, Mountain& mountain, Rocks& rocks, Crater& crater, Lava& lava);
+	Graphic(Ash& ash, Mountain& mountain, Rocks& rocks, Crater& crater, Lava& lava, GraphicStyle style);
 	~Graphic();
 
 	Graphic(const Graphic&)            = delete;
 	Graphic(Graphic&&)                 = delete;
 	Graphic& operator=(const Graphic&) = delete;
 	Graphic& operator=(Graphic&&)      = delete;
+
+	GraphicStyle style;
 
 	flag_group<GraphicAspect> aspects;
 

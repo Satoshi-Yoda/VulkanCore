@@ -11,7 +11,12 @@ using glm::vec3;
 
 using namespace std;
 
-GraphicLayout::GraphicLayout(Ash& ash, Mountain& mountain, Rocks& rocks, Crater& crater) : ash(ash), mountain(mountain), rocks(rocks), crater(crater) {
+GraphicLayout::GraphicLayout(Ash& ash, Mountain& mountain, Rocks& rocks, Crater& crater) : ash(ash), mountain(mountain), rocks(rocks), crater(crater), style(GraphicStyle::LINE) {
+	createDescriptorSetLayout();
+	createPipeline();
+}
+
+GraphicLayout::GraphicLayout(Ash& ash, Mountain& mountain, Rocks& rocks, Crater& crater, GraphicStyle style) : ash(ash), mountain(mountain), rocks(rocks), crater(crater), style(style) {
 	createDescriptorSetLayout();
 	createPipeline();
 }
@@ -51,9 +56,20 @@ void GraphicLayout::createDescriptorSetLayout() {
 }
 
 void GraphicLayout::createPipeline() {
-	// TODO try catch or assert
-	auto vertShaderCode = rocks.readFile("shaders/graphic-vert.spv");
-	auto fragShaderCode = rocks.readFile("shaders/graphic-frag.spv");
+	vector<char> vertShaderCode;
+	vector<char> fragShaderCode;
+
+	if (style == GraphicStyle::LINE) {
+		vertShaderCode = rocks.readFile("shaders/graphic-line-vert.spv");
+		fragShaderCode = rocks.readFile("shaders/graphic-line-frag.spv");
+	} else {
+		assert(style == GraphicStyle::AREA);
+		vertShaderCode = rocks.readFile("shaders/graphic-area-vert.spv");
+		fragShaderCode = rocks.readFile("shaders/graphic-area-frag.spv");
+	}
+
+	assert(!vertShaderCode.empty());
+	assert(!fragShaderCode.empty());
 
 	VkShaderModule vertShaderModule = rocks.createShaderModule(vertShaderCode);
 	VkShaderModule fragShaderModule = rocks.createShaderModule(fragShaderCode);

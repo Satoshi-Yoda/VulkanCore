@@ -1,5 +1,6 @@
 #pragma once
 
+#include <array>
 #include <bitset>
 #include <set>
 #include <string>
@@ -28,6 +29,11 @@ using glm::vec4;
 
 class Lava;
 
+enum class GraphicStyle {
+	LINE,
+	AREA,
+};
+
 struct GraphicVertex {
 	vec2 pos;
 	vec2 texCoord;
@@ -48,6 +54,7 @@ struct GraphicData {
 class GraphicLayout {
 public:
 	GraphicLayout(Ash& ash, Mountain& mountain, Rocks& rocks, Crater& crater);
+	GraphicLayout(Ash& ash, Mountain& mountain, Rocks& rocks, Crater& crater, GraphicStyle style);
 	~GraphicLayout();
 
 	GraphicLayout(const GraphicLayout&)            = delete;
@@ -64,6 +71,8 @@ private:
 	Mountain& mountain;
 	Rocks& rocks;
 	Crater& crater;
+
+	GraphicStyle style;
 
 	void createDescriptorSetLayout();
 	void createPipeline();

@@ -128,12 +128,24 @@ void Tectonic::prepareFrame(uint32_t craterIndex) {
 				vkCmdDraw(commandBuffer, batch->vertexCount, batch->instanceCount, 0, 0);
 			}
 
-			vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, lava.graphicLayout.pipeline);
+			vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, lava.lineGraphicLayout.pipeline);
 			for (auto& graphic : lava.graphics) {
-				VkDeviceSize offsets[] { 0 };
-				vkCmdBindVertexBuffers(commandBuffer, 0, 1, &graphic->vertexBuffer, offsets);
-				vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, lava.graphicLayout.pipelineLayout, 0, 1, &graphic->descriptorSet, 0, nullptr);
-				vkCmdDraw(commandBuffer, graphic->vertexCount, 1, 0, 0);
+				if (graphic->style == GraphicStyle::LINE) {
+					VkDeviceSize offsets[] { 0 };
+					vkCmdBindVertexBuffers(commandBuffer, 0, 1, &graphic->vertexBuffer, offsets);
+					vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, lava.lineGraphicLayout.pipelineLayout, 0, 1, &graphic->descriptorSet, 0, nullptr);
+					vkCmdDraw(commandBuffer, graphic->vertexCount, 1, 0, 0);
+				}
+			}
+
+			vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, lava.areaGraphicLayout.pipeline);
+			for (auto& graphic : lava.graphics) {
+				if (graphic->style == GraphicStyle::AREA) {
+					VkDeviceSize offsets[] { 0 };
+					vkCmdBindVertexBuffers(commandBuffer, 0, 1, &graphic->vertexBuffer, offsets);
+					vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, lava.areaGraphicLayout.pipelineLayout, 0, 1, &graphic->descriptorSet, 0, nullptr);
+					vkCmdDraw(commandBuffer, graphic->vertexCount, 1, 0, 0);
+				}
 			}
 
 			vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, lava.rectangleLayout.pipeline);
